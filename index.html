@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xiehuang's 复习网站</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置 Tailwind CSS -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appleBlue: '#0071E3',
+            appleBlueLight: '#4A90E2',
+            appleGray: '#F5F5F7',
+            appleDarkGray: '#86868B',
+            appleText: '#1D1D1F',
+          },
+          fontFamily: {
+            sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .ios-shadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .ios-card {
+        @apply bg-white rounded-2xl ios-shadow p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg;
+      }
+      .ios-button {
+        @apply bg-appleBlue text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-appleBlueLight hover:shadow-md active:scale-95;
+      }
+      .ios-input {
+        @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-appleBlue focus:ring-2 focus:ring-appleBlue/20 outline-none transition-all;
+      }
+    }
+  </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-graduation-cap text-appleBlue text-2xl"></i>
+        <h1 class="text-xl font-bold">知识复习</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- 欢迎信息 -->
+    <section class="mb-10 text-center">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold mb-2">请选择复习模块</h2>
+      <p class="text-appleDarkGray max-w-md mx-auto">(っ●ω●)っ</p>
+    </section>
+
+    <!-- 模块卡片网格 -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- 计组模块 -->
+      <div class="ios-card" onclick="openModal('计组')">
+        <div class="w-16 h-16 bg-appleBlue/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-microchip text-appleBlue text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">计算机组成原理</h3>
+        <p class="text-appleDarkGray text-sm">深入理解计算机硬件结构与工作原理</p>
+      </div>
+
+      <!-- 中国文化翻译模块 -->
+      <div class="ios-card" onclick="window.location.href='culture-quiz.html'">
+        <div class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-language text-green-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">中国文化翻译</h3>
+        <p class="text-appleDarkGray text-sm">学习中国传统文化词汇的专业翻译</p>
+      </div>
+
+      <!-- MySQL模块 -->
+      <div class="ios-card" onclick="openModal('MySQL')">
+        <div class="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-database text-orange-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">MySQL 数据库</h3>
+        <p class="text-appleDarkGray text-sm">掌握关系型数据库的设计与查询</p>
+      </div>
+
+      <!-- Hadoop模块 -->
+      <div class="ios-card" onclick="openModal('Hadoop')">
+        <div class="w-16 h-16 bg-green-600/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-cloud text-green-600 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Hadoop 大数据</h3>
+        <p class="text-appleDarkGray text-sm">分布式计算框架与大数据处理</p>
+      </div>
+
+      <!-- 计网模块 -->
+      <div class="ios-card" onclick="openModal('计网')">
+        <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-wifi text-purple-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">计算机网络</h3>
+        <p class="text-appleDarkGray text-sm">网络体系结构与通信协议原理</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 功能未开放弹窗 -->
+  <div id="modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-lock text-red-500 text-2xl"></i>
+        </div>
+        <h3 id="modalTitle" class="text-xl font-bold mb-2">功能未开放</h3>
+        <p class="text-appleDarkGray mb-6">也可能懒得开发了，敬请不期待(=´ω`=)</p>
+        <button id="closeModal" class="ios-button w-full">
+          知道了
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 弹窗控制
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const closeModal = document.getElementById('closeModal');
+
+    function openModal(moduleName) {
+      modalTitle.textContent = `${moduleName} - 功能未开放`;
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = modal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+
+    function closeModalFunc() {
+      const modalContent = modal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+
+    closeModal.addEventListener('click', closeModalFunc);
+
+    // 点击模态框外部关闭
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModalFunc();
+      }
+    });
+
+    // 按ESC键关闭模态框
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('opacity-0')) {
+        closeModalFunc();
+      }
+    });
+  </script>
+</body>
+</html>

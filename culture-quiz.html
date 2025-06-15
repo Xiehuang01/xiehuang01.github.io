@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中国文化翻译 - 答题</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置 Tailwind CSS -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appleBlue: '#0071E3',
+            appleBlueLight: '#4A90E2',
+            appleGray: '#F5F5F7',
+            appleDarkGray: '#86868B',
+            appleText: '#1D1D1F',
+          },
+          fontFamily: {
+            sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .ios-shadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .ios-card {
+        @apply bg-white rounded-2xl ios-shadow p-6 transition-all duration-300;
+      }
+      .ios-button {
+        @apply bg-appleBlue text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-appleBlueLight hover:shadow-md active:scale-95;
+      }
+      .ios-input {
+        @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-appleBlue focus:ring-2 focus:ring-appleBlue/20 outline-none transition-all;
+      }
+      .answer-option {
+        @apply bg-white rounded-xl p-4 border border-gray-200 cursor-pointer transition-all hover:border-appleBlue hover:shadow-md;
+      }
+      .answer-option.selected {
+        @apply bg-appleBlue/5 border-appleBlue;
+      }
+      .answer-option.correct {
+        @apply bg-green-50 border-green-500;
+      }
+      .answer-option.incorrect {
+        @apply bg-red-50 border-red-500;
+      }
+    }
+  </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="index.html" class="flex items-center space-x-2">
+          <i class="fa fa-arrow-left text-appleBlue text-xl"></i>
+          <span class="text-appleBlue">返回</span>
+        </a>
+      </div>
+      <h1 class="text-xl font-bold">中国文化翻译</h1>
+      <div class="w-20"></div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- 答题区域 -->
+    <div class="ios-card mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+            <i class="fa fa-language text-green-500"></i>
+          </div>
+          <h2 class="font-semibold">中英互译</h2>
+        </div>
+        <div class="px-3 py-1 bg-appleBlue/10 text-appleBlue rounded-full text-sm" id="question-counter">
+          问题 <span id="current-question">1</span>/<span id="total-questions">25</span>
+        </div>
+      </div>
+
+      <div id="quiz-container">
+        <div id="question-container" class="mb-6">
+          <h3 class="text-lg font-semibold mb-2">请选择以下英文对应的中文翻译：</h3>
+          <p id="question-text" class="text-xl font-bold py-4 px-6 bg-appleGray/50 rounded-xl">Nüwa mending the sky</p>
+        </div>
+
+        <div id="options-container" class="space-y-3 mb-6">
+          <!-- 选项将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="flex justify-between">
+          <button id="prev-btn" class="ios-button bg-appleDarkGray" disabled>上一题</button>
+          <button id="next-btn" class="ios-button" disabled>下一题</button>
+        </div>
+      </div>
+
+      <div id="results-container" class="hidden text-center py-8">
+        <div class="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+          <i class="fa fa-check-circle text-green-500 text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">答题完成！</h3>
+        <p class="text-appleDarkGray mb-6">你的得分是：<span id="final-score" class="text-appleBlue font-bold">0</span>/<span id="total-score">25</span></p>
+        <button id="restart-btn" class="ios-button w-full">重新开始</button>
+      </div>
+    </div>
+
+    <!-- 答题进度 -->
+    <div class="ios-card">
+      <h3 class="font-semibold mb-4">答题进度</h3>
+      <div class="w-full bg-appleGray/50 rounded-full h-2 mb-2">
+        <div id="progress-bar" class="bg-appleBlue h-2 rounded-full" style="width: 4%"></div>
+      </div>
+      <div class="flex justify-between text-sm text-appleDarkGray">
+        <span>已完成: <span id="completed-count">0</span>/<span id="total-count">25</span></span>
+        <span>正确率: <span id="accuracy">0%</span></span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 题库数据
+    const quizData = [
+      { question: "Nüwa mending the sky", answer: "女娲补天" },
+      { question: "Palace Museum", answer: "故宫博物院" },
+      { question: "Traditional Chinese Medicine", answer: "传统中医" },
+      { question: "Cure the root cause rather than treating the superficial symptoms", answer: "治标不如治本" },
+      { question: "classic beauty", answer: "古色古香" },
+      { question: "not recognize one's kinsman", answer: "大水冲了龙王庙（一家人不认得一家人）" },
+      { question: "The Legend of the Condor Heroes", answer: "《射雕英雄传》" },
+      { question: "Sichuan dandan noodles", answer: "四川担担面" },
+      { question: "Confucian Mansion", answer: "孔府" },
+      { question: "semi-interior phase change", answer: "寒热变化" },
+      { question: "Carp leaps over the dragon gate", answer: "鲤鱼跳龙门" },
+      { question: "Beijing Zhajiang noodles", answer: "北京炸酱面" },
+      { question: "the palace of red jade beside the gates of gold", answer: "琼楼玉宇" },
+      { question: "Shennong's Herbal Classics", answer: "《神农本草经》" },
+      { question: "Fujian Tulou", answer: "福建土楼" },
+      { question: "Chinese medicinal herbs", answer: "中草药" },
+      { question: "Imperial Summer Resort", answer: "皇家避暑山庄" },
+      { question: "someone who has no fixed whereabouts and is difficult for others to trace", answer: "神龙见首不见尾（行踪不定）" },
+      { question: "Daming Palace", answer: "大明宫" },
+      { question: "The Heavenly Sword and the Dragon Saber", answer: "《倚天屠龙记》" },
+      { question: "exterior and interior relation", answer: "表里关系" },
+      { question: "ups and downs of Yin and Yang", answer: "阴阳盛衰" },
+      { question: "the five flavors", answer: "五味" },
+      { question: "drug properties", answer: "药性" },
+      { question: "inspecting, listening, inquiring and pulse-taking", answer: "望、闻、问、切" }
+    ];
+
+    // 页面元素
+    const questionCounter = document.getElementById('current-question');
+    const totalQuestions = document.getElementById('total-questions');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const completedCount = document.getElementById('completed-count');
+    const totalCount = document.getElementById('total-count');
+    const accuracySpan = document.getElementById('accuracy');
+    const quizContainer = document.getElementById('quiz-container');
+    const resultsContainer = document.getElementById('results-container');
+    const finalScore = document.getElementById('final-score');
+    const totalScore = document.getElementById('total-score');
+    const restartBtn = document.getElementById('restart-btn');
+
+    // 答题状态
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userAnswers = new Array(quizData.length).fill(null);
+    let answeredQuestions = new Array(quizData.length).fill(false);
+
+    // 初始化
+    function initQuiz() {
+      totalQuestions.textContent = quizData.length;
+      totalCount.textContent = quizData.length;
+      totalScore.textContent = quizData.length;
+      loadQuestion(currentQuestionIndex);
+      updateProgress();
+    }
+
+    // 加载问题
+    function loadQuestion(index) {
+      const question = quizData[index];
+      questionCounter.textContent = index + 1;
+      questionText.textContent = question.question;
+      
+      // 生成选项
+      optionsContainer.innerHTML = '';
+      
+      // 获取当前问题的正确答案
+      const correctAnswer = question.answer;
+      
+      // 创建包含正确答案的选项数组
+      let options = [correctAnswer];
+      
+      // 添加3个随机错误选项
+      while (options.length < 4) {
+        const randomIndex = Math.floor(Math.random() * quizData.length);
+        const randomOption = quizData[randomIndex].answer;
+        if (!options.includes(randomOption)) {
+          options.push(randomOption);
+        }
+      }
+      
+      // 打乱选项顺序
+      options = shuffleArray(options);
+      
+      // 创建选项元素
+      options.forEach((option, i) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'answer-option';
+        optionElement.textContent = option;
+        optionElement.dataset.answer = option;
+        
+        // 如果用户已经回答过这个问题，显示答案状态
+        if (answeredQuestions[index]) {
+          if (option === correctAnswer) {
+            optionElement.classList.add('correct');
+          } else if (option === userAnswers[index] && option !== correctAnswer) {
+            optionElement.classList.add('incorrect');
+          }
+        } else {
+          // 添加点击事件
+          optionElement.addEventListener('click', selectOption);
+        }
+        
+        // 如果是用户之前选择的答案，添加selected类
+        if (option === userAnswers[index]) {
+          optionElement.classList.add('selected');
+        }
+        
+        optionsContainer.appendChild(optionElement);
+      });
+      
+      // 更新按钮状态
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = !answeredQuestions[index];
+      
+      // 如果是最后一题，改变下一题按钮文本
+      if (index === quizData.length - 1) {
+        nextBtn.textContent = '完成';
+      } else {
+        nextBtn.textContent = '下一题';
+      }
+    }
+
+    // 选择选项
+    function selectOption(e) {
+      // 移除所有选项的selected类
+      const options = document.querySelectorAll('.answer-option');
+      options.forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // 为当前选项添加selected类
+      e.target.classList.add('selected');
+      
+      const selectedAnswer = e.target.dataset.answer;
+      const correctAnswer = quizData[currentQuestionIndex].answer;
+      
+      // 标记问题已回答
+      if (!answeredQuestions[currentQuestionIndex]) {
+        answeredQuestions[currentQuestionIndex] = true;
+        
+        // 更新得分
+        if (selectedAnswer === correctAnswer) {
+          score++;
+        }
+      } else if (userAnswers[currentQuestionIndex] === correctAnswer && selectedAnswer !== correctAnswer) {
+        // 如果用户之前选择了正确答案，但现在选择了错误答案
+        score--;
+      } else if (userAnswers[currentQuestionIndex] !== correctAnswer && selectedAnswer === correctAnswer) {
+        // 如果用户之前选择了错误答案，但现在选择了正确答案
+        score++;
+      }
+      
+      // 保存用户的答案
+      userAnswers[currentQuestionIndex] = selectedAnswer;
+      
+      // 显示正确和错误答案
+      options.forEach(option => {
+        const optionAnswer = option.dataset.answer;
+        if (optionAnswer === correctAnswer) {
+          option.classList.add('correct');
+        } else if (optionAnswer === selectedAnswer && optionAnswer !== correctAnswer) {
+          option.classList.add('incorrect');
+        }
+        
+        // 禁用所有选项的点击事件
+        option.removeEventListener('click', selectOption);
+      });
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+
+    // 更新进度
+    function updateProgress() {
+      const answeredCount = answeredQuestions.filter(Boolean).length;
+      const progressPercentage = (answeredCount / quizData.length) * 100;
+      
+      progressBar.style.width = `${progressPercentage}%`;
+      completedCount.textContent = answeredCount;
+      
+      if (answeredCount > 0) {
+        const accuracy = Math.round((score / answeredCount) * 100);
+        accuracySpan.textContent = `${accuracy}%`;
+      } else {
+        accuracySpan.textContent = '0%';
+      }
+    }
+
+    // 显示结果
+    function showResults() {
+      quizContainer.classList.add('hidden');
+      resultsContainer.classList.remove('hidden');
+      finalScore.textContent = score;
+    }
+
+    // 重新开始答题
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(quizData.length).fill(null);
+      answeredQuestions = new Array(quizData.length).fill(false);
+      
+      quizContainer.classList.remove('hidden');
+      resultsContainer.classList.add('hidden');
+      
+      initQuiz();
+    }
+
+    // 打乱数组顺序
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    // 事件监听
+    prevBtn.addEventListener('click', () => {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion(currentQuestionIndex);
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentQuestionIndex < quizData.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion(currentQuestionIndex);
+      } else {
+        showResults();
+      }
+    });
+
+    restartBtn.addEventListener('click', restartQuiz);
+
+    // 初始化答题
+    initQuiz();
+  </script>
+</body>
+</html> 
