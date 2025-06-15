@@ -222,13 +222,19 @@
     } else if (moduleName === '书后练习') {
       moduleIcon.innerHTML = '<i class="fa fa-file-text-o text-blue-500"></i>';
       moduleIcon.className = 'w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center';
+    } else if (moduleName === '模拟练习') {
+      moduleIcon.innerHTML = '<i class="fa fa-pencil-square-o text-gray-500"></i>';
+      moduleIcon.className = 'w-10 h-10 rounded-full bg-gray-500/10 flex items-center justify-center';
+      pageTitle.textContent = '模拟练习';
     }
     
     // 设置问题类型标签
     if (questionType === '选择题') {
       questionTypeLabel.textContent = '请选择正确的选项：';
-    } else {
+    } else if (questionType === '判断题') {
       questionTypeLabel.textContent = '请判断以下说法是否正确：';
+    } else if (questionType === '模拟练习') {
+      questionTypeLabel.textContent = '请回答以下问题：';
     }
 
     // 题库数据映射
@@ -3202,8 +3208,13 @@
           throw new Error('找不到对应的题库文件');
         }
         
+        // 处理模拟练习
+        if (actualFilePath === 'mock-quiz') {
+          // 创建模拟练习题库
+          quizData = createMockQuiz();
+        }
         // 从内嵌数据库中获取数据
-        if (quizDatabase[actualFilePath]) {
+        else if (quizDatabase[actualFilePath]) {
           quizData = quizDatabase[actualFilePath];
         } else {
           throw new Error('题库数据不存在');
@@ -3225,6 +3236,91 @@
         errorContainer.classList.remove('hidden');
         errorMessage.textContent = error.message || '无法加载题目，请稍后再试。';
       }
+    }
+
+    // 创建模拟练习题库
+    function createMockQuiz() {
+      // 选择题库列表
+      const choiceQuizFiles = [
+        'choiceQue/1CPU选择题_converted.json',
+        'choiceQue/2memory选择题.json',
+        'choiceQue/3IO选择题.json',
+        'choiceQue/4外围设备选择题.json',
+        'choiceQue/5Bus选择题.json',
+        'choiceQue/6练习选择题.json'
+      ];
+      
+      // 判断题库列表
+      const judgmentQuizFiles = [
+        'judgmentQue/1CPU判断题.json',
+        'judgmentQue/2memory判断题.json',
+        'judgmentQue/3IO判断题.json',
+        'judgmentQue/4外围设备判断题.json',
+        'judgmentQue/5Bus判断题.json',
+        'judgmentQue/6练习判断题.json',
+        'judgmentQue/7书后判断题.json'
+      ];
+      
+      // 存储抽取的选择题和判断题
+      let choiceQuestions = [];
+      let judgmentQuestions = [];
+      
+      // 从每个选择题题库中随机抽取3道题
+      choiceQuizFiles.forEach(file => {
+        if (quizDatabase[file]) {
+          // 随机抽取3道题
+          const quizPool = [...quizDatabase[file]];
+          for (let i = 0; i < 3; i++) {
+            if (quizPool.length > 0) {
+              // 随机选择一道题
+              const randomIndex = Math.floor(Math.random() * quizPool.length);
+              choiceQuestions.push(quizPool[randomIndex]);
+              // 从题库池中移除已选题目，避免重复
+              quizPool.splice(randomIndex, 1);
+            }
+          }
+        }
+      });
+      
+      // 从书后判断题中随机抽取4道题
+      if (quizDatabase['judgmentQue/7书后判断题.json']) {
+        const bookQuizPool = [...quizDatabase['judgmentQue/7书后判断题.json']];
+        for (let i = 0; i < 4; i++) {
+          if (bookQuizPool.length > 0) {
+            const randomIndex = Math.floor(Math.random() * bookQuizPool.length);
+            judgmentQuestions.push(bookQuizPool[randomIndex]);
+            bookQuizPool.splice(randomIndex, 1);
+          }
+        }
+      }
+      
+      // 从其他每个判断题题库中随机抽取1道题
+      judgmentQuizFiles.slice(0, 6).forEach(file => {
+        if (quizDatabase[file]) {
+          const quizPool = [...quizDatabase[file]];
+          if (quizPool.length > 0) {
+            const randomIndex = Math.floor(Math.random() * quizPool.length);
+            judgmentQuestions.push(quizPool[randomIndex]);
+          }
+        }
+      });
+      
+      // 随机打乱各自的顺序
+      choiceQuestions = shuffleArray(choiceQuestions);
+      judgmentQuestions = shuffleArray(judgmentQuestions);
+      
+      // 先返回选择题，再返回判断题
+      return [...choiceQuestions, ...judgmentQuestions];
+    }
+    
+    // 打乱数组顺序的辅助函数
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
     }
 
     // 初始化答题

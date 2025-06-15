@@ -136,7 +136,7 @@
       </div>
 
       <!-- 模拟练习题库 -->
-      <div class="ios-card" onclick="openModal('模拟练习')">
+      <div class="ios-card" onclick="selectModule('模拟练习')">
         <div class="w-16 h-16 bg-gray-500/10 rounded-2xl flex items-center justify-center mb-4">
           <i class="fa fa-pencil-square-o text-gray-500 text-2xl"></i>
         </div>
@@ -214,6 +214,12 @@
         return;
       }
       
+      // 如果是模拟练习，直接跳转到模拟练习页面
+      if (moduleName === '模拟练习') {
+        navigateToQuiz(moduleName, '模拟练习');
+        return;
+      }
+      
       // 显示题型选择弹窗
       modalTitle.textContent = `${moduleName} - 选择题型`;
       questionTypeModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -253,6 +259,9 @@
         filePath = questionType === '选择题' ? 'choiceQue/6练习选择题.json' : 'judgmentQue/6练习判断题.json';
       } else if (moduleName === '书后练习') {
         filePath = 'judgmentQue/7书后判断题.json';
+      } else if (moduleName === '模拟练习') {
+        // 模拟练习使用特殊标识，实际题目将在quiz页面中动态生成
+        filePath = 'mock-quiz';
       }
       
       // 跳转到答题页面
