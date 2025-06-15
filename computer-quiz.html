@@ -1,0 +1,3406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>计算机组成原理 - 答题</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置 Tailwind CSS -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appleBlue: '#0071E3',
+            appleBlueLight: '#4A90E2',
+            appleGray: '#F5F5F7',
+            appleDarkGray: '#86868B',
+            appleText: '#1D1D1F',
+          },
+          fontFamily: {
+            sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .ios-shadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .ios-card {
+        @apply bg-white rounded-2xl ios-shadow p-6 transition-all duration-300;
+      }
+      .ios-button {
+        @apply bg-appleBlue text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-appleBlueLight hover:shadow-md active:scale-95;
+      }
+      .ios-input {
+        @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-appleBlue focus:ring-2 focus:ring-appleBlue/20 outline-none transition-all;
+      }
+      .answer-option {
+        @apply bg-white rounded-xl p-4 border border-gray-200 cursor-pointer transition-all hover:border-appleBlue hover:shadow-md;
+      }
+      .answer-option.selected {
+        @apply bg-appleBlue/5 border-appleBlue;
+      }
+      .answer-option.correct {
+        @apply bg-green-50 border-green-500;
+      }
+      .answer-option.incorrect {
+        @apply bg-red-50 border-red-500;
+      }
+      .question-content {
+        white-space: pre-wrap;
+      }
+    }
+  </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="computer-organization.html" class="flex items-center space-x-2">
+          <i class="fa fa-arrow-left text-appleBlue text-xl"></i>
+          <span class="text-appleBlue">返回</span>
+        </a>
+      </div>
+      <h1 id="page-title" class="text-xl font-bold">计算机组成原理</h1>
+      <div class="w-20"></div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- 加载中提示 -->
+    <div id="loading" class="text-center py-12">
+      <div class="w-16 h-16 border-4 border-appleBlue/30 border-t-appleBlue rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-appleDarkGray">正在加载题目...</p>
+    </div>
+
+    <!-- 答题区域 -->
+    <div id="quiz-container" class="hidden">
+      <div class="ios-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-2">
+            <div id="module-icon" class="w-10 h-10 rounded-full bg-appleBlue/10 flex items-center justify-center">
+              <i class="fa fa-microchip text-appleBlue"></i>
+            </div>
+            <h2 id="module-title" class="font-semibold">CPU</h2>
+          </div>
+          <div class="px-3 py-1 bg-appleBlue/10 text-appleBlue rounded-full text-sm" id="question-counter">
+            问题 <span id="current-question">1</span>/<span id="total-questions">0</span>
+          </div>
+        </div>
+
+        <div id="question-container" class="mb-6">
+          <h3 id="question-type-label" class="text-lg font-semibold mb-2">请选择正确的选项：</h3>
+          <div id="question-text" class="question-content text-base py-4 px-6 bg-appleGray/50 rounded-xl mb-4"></div>
+        </div>
+
+        <div id="options-container" class="space-y-3 mb-6">
+          <!-- 选项将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="flex justify-between">
+          <button id="prev-btn" class="ios-button bg-appleDarkGray" disabled>上一题</button>
+          <button id="next-btn" class="ios-button" disabled>下一题</button>
+        </div>
+      </div>
+
+      <!-- 答题进度 -->
+      <div class="ios-card">
+        <h3 class="font-semibold mb-4">答题进度</h3>
+        <div class="w-full bg-appleGray/50 rounded-full h-2 mb-2">
+          <div id="progress-bar" class="bg-appleBlue h-2 rounded-full" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-sm text-appleDarkGray">
+          <span>已完成: <span id="completed-count">0</span>/<span id="total-count">0</span></span>
+          <span>正确率: <span id="accuracy">0%</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 结果区域 -->
+    <div id="results-container" class="hidden">
+      <div class="ios-card text-center py-8">
+        <div class="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+          <i class="fa fa-check-circle text-green-500 text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">答题完成！</h3>
+        <p class="text-appleDarkGray mb-6">你的得分是：<span id="final-score" class="text-appleBlue font-bold">0</span>/<span id="total-score">0</span></p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button id="restart-btn" class="ios-button">重新开始</button>
+          <button id="back-to-modules-btn" class="ios-button bg-appleDarkGray">返回题库</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 错误提示 -->
+    <div id="error-container" class="hidden">
+      <div class="ios-card text-center py-8">
+        <div class="w-20 h-20 mx-auto bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+          <i class="fa fa-exclamation-triangle text-red-500 text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">加载失败</h3>
+        <p id="error-message" class="text-appleDarkGray mb-6">无法加载题目，请稍后再试。</p>
+        <button id="back-btn" class="ios-button">返回题库</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 获取URL参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const moduleName = urlParams.get('module') || 'CPU';
+    const questionType = urlParams.get('type') || '选择题';
+    const filePath = urlParams.get('file') || '';
+    
+    // 页面元素
+    const pageTitle = document.getElementById('page-title');
+    const moduleTitle = document.getElementById('module-title');
+    const moduleIcon = document.getElementById('module-icon');
+    const questionTypeLabel = document.getElementById('question-type-label');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const questionCounter = document.getElementById('current-question');
+    const totalQuestions = document.getElementById('total-questions');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const completedCount = document.getElementById('completed-count');
+    const totalCount = document.getElementById('total-count');
+    const accuracySpan = document.getElementById('accuracy');
+    const quizContainer = document.getElementById('quiz-container');
+    const resultsContainer = document.getElementById('results-container');
+    const finalScore = document.getElementById('final-score');
+    const totalScore = document.getElementById('total-score');
+    const restartBtn = document.getElementById('restart-btn');
+    const backToModulesBtn = document.getElementById('back-to-modules-btn');
+    const loadingElement = document.getElementById('loading');
+    const errorContainer = document.getElementById('error-container');
+    const errorMessage = document.getElementById('error-message');
+    const backBtn = document.getElementById('back-btn');
+    
+    // 答题状态
+    let quizData = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userAnswers = [];
+    let answeredQuestions = [];
+
+    // 设置页面标题和模块信息
+    pageTitle.textContent = `${moduleName} - ${questionType}`;
+    moduleTitle.textContent = moduleName;
+    
+    // 设置模块图标
+    if (moduleName === 'CPU') {
+      moduleIcon.innerHTML = '<i class="fa fa-microchip text-appleBlue"></i>';
+      moduleIcon.className = 'w-10 h-10 rounded-full bg-appleBlue/10 flex items-center justify-center';
+    } else if (moduleName === '存储系统') {
+      moduleIcon.innerHTML = '<i class="fa fa-database text-orange-500"></i>';
+      moduleIcon.className = 'w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center';
+    } else if (moduleName === 'IO设备') {
+      moduleIcon.innerHTML = '<i class="fa fa-exchange text-green-500"></i>';
+      moduleIcon.className = 'w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center';
+    } else if (moduleName === '外围设备') {
+      moduleIcon.innerHTML = '<i class="fa fa-desktop text-purple-500"></i>';
+      moduleIcon.className = 'w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center';
+    } else if (moduleName === '总线系统') {
+      moduleIcon.innerHTML = '<i class="fa fa-random text-yellow-500"></i>';
+      moduleIcon.className = 'w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center';
+    } else if (moduleName === '学习通练习') {
+      moduleIcon.innerHTML = '<i class="fa fa-book text-red-500"></i>';
+      moduleIcon.className = 'w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center';
+    } else if (moduleName === '书后练习') {
+      moduleIcon.innerHTML = '<i class="fa fa-file-text-o text-blue-500"></i>';
+      moduleIcon.className = 'w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center';
+    }
+    
+    // 设置问题类型标签
+    if (questionType === '选择题') {
+      questionTypeLabel.textContent = '请选择正确的选项：';
+    } else {
+      questionTypeLabel.textContent = '请判断以下说法是否正确：';
+    }
+
+    // 题库数据映射
+    const fileMapping = {
+      // CPU
+      'CPU选择题': 'choiceQue/1CPU选择题_converted.json',
+      'CPU判断题': 'judgmentQue/1CPU判断题.json',
+      
+      // 存储系统
+      '存储系统选择题': 'choiceQue/2memory选择题.json',
+      '存储系统判断题': 'judgmentQue/2memory判断题.json',
+      
+      // IO设备
+      'IO设备选择题': 'choiceQue/3IO选择题.json',
+      'IO设备判断题': 'judgmentQue/3IO判断题.json',
+      
+      // 外围设备
+      '外围设备选择题': 'choiceQue/4外围设备选择题.json',
+      '外围设备判断题': 'judgmentQue/4外围设备判断题.json',
+      
+      // 总线系统
+      '总线系统选择题': 'choiceQue/5Bus选择题.json',
+      '总线系统判断题': 'judgmentQue/5Bus判断题.json',
+      
+      // 学习通练习
+      '学习通练习选择题': 'choiceQue/6练习选择题.json',
+      '学习通练习判断题': 'judgmentQue/6练习判断题.json',
+      
+      // 书后练习
+      '书后练习判断题': 'judgmentQue/7书后判断题.json'
+    };
+    
+    // 内嵌数据库对象
+    const quizDatabase = {};
+    
+    // 加载内嵌数据库
+    function loadFullDatabase() {
+      // CPU选择题
+      quizDatabase['choiceQue/1CPU选择题_converted.json'] = [
+  {
+    "question": "1. 程序计数器PC属于( )。",
+    "options": [
+      "A. 运算器",
+      "B. 控制器",
+      "C. 存储器",
+      "D. 时序系统"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "2. 微指令由( )直接执行。",
+    "options": [
+      "A. 运算器",
+      "B. 控制器",
+      "C. 主存储器",
+      "D. 总线控制器"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "3. 控制器不包括( )。",
+    "options": [
+      "A. 地址寄存器(MAR)",
+      "B. 指令寄存器",
+      "C. 指令译码器",
+      "D. 地址译码器"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "4. 在CPU中跟踪指令后继地址的寄存器是( )。",
+    "options": [
+      "A. MAR",
+      "B. IR",
+      "C. PC",
+      "D. MDR"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "5. 从取指令开始到指令执行完成所需的时间，称为( )。",
+    "options": [
+      "A. 时钟周期",
+      "B. 机器周期",
+      "C. 总线周期",
+      "D. 指令周期"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "6. 下列说法中( )是正确的。",
+    "options": [
+      "A. 指令周期=机器周期",
+      "B. 机器周期=工作周期",
+      "C. 机器周期=时钟周期",
+      "D. 机器周期=节拍周期"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "7. 在CPU内部的寄存器中，( )对用户是完全透明的。",
+    "options": [
+      "A. 指令寄存器",
+      "B. 程序计数器",
+      "C. 状态寄存器",
+      "D. 通用寄存器"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "8. 同步控制是( )",
+    "options": [
+      "A. 只适用于CPU控制的方式",
+      "B. 由统一时序信号控制的方式",
+      "C. 所有指令执行时间都相同的方式",
+      "D. 适用于1/0设备控制的方式"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "9. 异步控制常用于( )",
+    "options": [
+      "A. CPU访问外部设备时",
+      "B. 微程序控制器中",
+      "C. 微型机的CPU控制中",
+      "D. 组合逻辑控制的主机中"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "10. 计算机操作的最小单位时间是( )。",
+    "options": [
+      "A. 时钟周期",
+      "B. 机器周期",
+      "C. 存储周期",
+      "D. 指令周期"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. 由于CPU内部操作的速度较快，而CPU访问次存储器的时间较长，因此机器周期通常由( )来确定。",
+    "options": [
+      "A. 时钟周期",
+      "B. 指令周期",
+      "C. 存取周期",
+      "D. 间址周期"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "12. 在取指令操作之后，程序计数器PC中存放的是( )",
+    "options": [
+      "A. 当前指令的地址",
+      "B. 操作数的地址",
+      "C. 下一条指令的地址",
+      "D. 程序中指令的数量"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "13. 转移指令的主要操作是( )。",
+    "options": [
+      "A. 改变程序计数器PC的内容",
+      "B. 改变地址寄存器的内容",
+      "C. 改变椎栈指令SP的内容",
+      "D. 改变数据缓冲寄存器的内容"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "14. 子程序调用指令完整的功能是( )。",
+    "options": [
+      "A. 改变程序计数器PC的内容",
+      "B. 改变地址寄存器的内容",
+      "C. 改变程序计数器和堆栈指令SP的内容",
+      "D. 改变指令寄存器的内容"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "15. 在微程序控制器中，机器指令与微指令的关系是( )。",
+    "options": [
+      "A. 每一条机器指令由一条微指令来执行",
+      "B. 若干条机器指令组成一个微程序来执行",
+      "C. 一段微程序由一条机器指令来执行",
+      "D. 每一条机器指令由若干条微指令组成的微程序来解释执行"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "16. 在微程序控制器中，控制部件向执行部件发出的某个控制信号称为( )",
+    "options": [
+      "A. 微指令",
+      "B. 微操作",
+      "C. 微命令",
+      "D. 微程序"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "17. 微程序存放在( )中。",
+    "options": [
+      "A. 内存储器",
+      "B. 控制存储器",
+      "C. 通用寄存器",
+      "D. 指令寄存器"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "18. 在微指令中，操作控制字段的每位代表个控制信号，这种微程序的控制编码方式称为( )。",
+    "options": [
+      "A. 分段直接编码",
+      "B. 直接控制方式",
+      "C. 最短字长编码",
+      "D. 字段间接编码"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "19. 直接寻址的无条件转移指令功能是将指令中的地址码送入( )。",
+    "options": [
+      "A. 地址寄存器MAR",
+      "B. 累加器AX",
+      "C. 状态寄存器PSW",
+      "D. 程序计数器PC"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "20. 下列部件中不属于执行部件的是( )",
+    "options": [
+      "A. 控制器",
+      "B. 存储器",
+      "C. 运算器",
+      "D. 外围设备"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "21. 下列部件中不属于控制部件的是( )",
+    "options": [
+      "A. 指令寄存器",
+      "B. 操作控制器",
+      "C. 程序计数器",
+      "D. 状态条件寄存器"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "22. 中央处理器是指( )",
+    "options": [
+      "A. 控制器",
+      "B. 控制器和运算器",
+      "C. 运算器",
+      "D. 控制器和运算器和主存储器"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "23. 就微命令的编码方式而言,若微操作命令的个数已确定,则( )",
+    "options": [
+      "A. 直接表示法比编码表示法的微指令字长短",
+      "B. 编码表示法比直接表示法的微指令字长短",
+      "C. 编码表示法与直接表示法的微指令字长相等",
+      "D. 编码表示法与直接表示法的微指令字长大小关系不确定"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "24. 下列说法中正确的是( )",
+    "options": [
+      "A. 微程序控制方式和硬联线控制方式相比较,前者可以使指令的执行速度更快",
+      "B. 若采用微程序控制方式,则可用\"μ\" PC取代PC",
+      "C. 控制存储器可以用掩模ROM、EPROM或闪速存储器实现",
+      "D. 指令周期也称为CPU周期"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "25. 下列各条中,不属于微指令结构设计所追求的目标的是( )",
+    "options": [
+      "A. 提高微程序的执行速度",
+      "B. 提高微程序设计的灵活性",
+      "C. 缩短微指令的长度",
+      "D. 增大控制存储器的容量"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "26. 为了确定下一条微指令的地址,通常采用断定方式,其基本思想是( )",
+    "options": [
+      "A. 用程序计数器PC来产生后继续微指令地址",
+      "B. 用微程序计数器μPC来产生后继微指令地址",
+      "C. 通过微指令控制字段由设计者指定或者由设计者指定的判别字段控制产生后继微指令地址",
+      "D. 通过指令中指定一个专门字段来控制产生后继微指令地址"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "27. 下列说法中正确的是( )。",
+    "options": [
+      "A. \"一次重叠\"是一次解释一条指令",
+      "B. \"一次重叠\"是同时解释相邻两条指令",
+      "C. 流水方式是同时只能解释两条指令",
+      "D. \"一次重叠\"是同时可解释很多条指令"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "28. 非线性流水线是指( )。",
+    "options": [
+      "A. 一次运算中使用流水线中的多个功能段",
+      "B. 一次运算中要多次使用流水线中的某些功能段",
+      "C. 流水线中某些功能段在各次运算中的作用不同",
+      "D. 流水线的各个功能段在各种运算中有不同的组合"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "29. 在流水过程中存在的相关冲突中，( )是由于指令之间存在数据依赖性时引起的。",
+    "options": [
+      "A. 资源相关",
+      "B. 数据相关",
+      "C. 能相关",
+      "D. 控制相关"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "30. 下面描述的RISC机器基本概念中正确的句子是( )",
+    "options": [
+      "A. RISC机器不一定是流水CPU",
+      "B. RISC机器一定是流水CPU",
+      "C. RISC机器有复杂的指令系统",
+      "D. CPU配备很少的通用寄存器"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "31. 描述流水CPU基本概念中正确的句子是( )",
+    "options": [
+      "A. 流水CPU是以空间并行性为原理构造的处理器",
+      "B. 流水CPU一定是RISC机器",
+      "C. 流水CPU一定是多媒体CPU",
+      "D. 流水CPU是一种非常经济而实用的时间并行技术"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "32. 在 CPU 的寄存器中，( )对用户是透明的。",
+    "options": [
+      "A. 程序计数器",
+      "B. 状态寄存器",
+      "C. 指令寄存器",
+      "D. 通用寄存器"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "33. 指令寄存器(IR)的位数取决于( )。",
+    "options": [
+      "A. 存储器的容量",
+      "B. 机器字长",
+      "C. 指令字长",
+      "D. 存储字长"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "34. 在计算机系统中表示程序和机器运行状态的部件是( )。",
+    "options": [
+      "A. 程序计数器",
+      "B. 累加寄存器",
+      "C. 中断寄存器",
+      "D. 程序状态字寄存器"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "35. 下列寄存器中，汇编语言程序员可见的是( )。",
+    "options": [
+      "A. 存储器地址寄存器(MAR)",
+      "B. 程序计数器(PC)",
+      "C. 存储器数据寄存器(MDR)",
+      "D. 指令寄存器(IR)"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "36. 某计算机的主存储器空间为 4GB，字长为 32 位，按字节编址，采用 32 位字长指令格式。若指令按字边界对齐存放，则程序计数器(PC)和指令寄存器(IR)的位数至少分别是( )。",
+    "options": [
+      "A. 30,30",
+      "B. 30,32",
+      "C. 32,30",
+      "D. 32,32"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "37. 在一条无条件转移指令的指令周期内，程序计数器(PC)的值被修改了( )次。",
+    "options": [
+      "A. 1",
+      "B. 2",
+      "C. 3",
+      "D. 不能确定"
+    ],
+    "answer": "B"
+  },
+];
+      
+      // CPU判断题
+      quizDatabase['judgmentQue/1CPU判断题.json'] = [
+  {
+    "question": "1. 控制器的基本功能是向其他部件(不包括自身)发送控制信号。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "2. 控制器使用的寄存器都是专用寄存器。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "3. 微命令是直接作用于部件或控制门电路的最基本的控制信号。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "4. 在同一个CPU周期中，可以并行执行的微命令叫相容性微命令。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "5. 就微命令的编码方式而言，若微操作命令的个数已经确定，则直接表示法比编码表示法的微指令字长短。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "6. 典型的时序系统由晶体振荡器、启停控制逻辑、工作脉冲信号发生器、时钟周期信号发生器及工作周期信号发生器等组成。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "7. 无论哪种寻址方式，当取指周期结束之后，程序计数器PC都保存下条指令的存储地址( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "8. 对于字长相同的指令，它们的取指令操作所需的时钟周期个数都是相同的。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "9. CPU 具有指令控制、操作控制、时间控制、数据加工和中断处理等功能。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "10. 现代 CPU 一般由运算器、控制器和 Cache 三大部分组成。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. 指令寄存器用于保存当前正在执行的一条指令。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "12. 程序计数器始终存放下一条指令的地址。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "13. 地址寄存器保存当前 CPU 所访问数据的主存单元地址。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "14. 数据缓冲寄存器用于暂时存放由主存读出或向主存存入的指令或数据字。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "15. 累加寄存器用于暂时存放 ALU 运算的结果信息。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "16. 程序状态寄存器保存由算术指令和逻辑指令运行或测试的结果建立的各种条件码内容。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "17. 指令周期是 CPU 从主存取出一条指令并执行这条指令的时间总和。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "18. 各种指令的指令周期不同，常用 CPU 周期数来表示。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "19. 定长 CPU 周期组成的指令周期中，每条指令的指令周期相同。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "20. 不定长的 CPU 周期可根据指令的复杂性调整，以缩短指令的执行时间。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "21. 取指周期的任务是根据 PC 中的内容从主存中取出指令代码并存放在 IR 中。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "22. 间址周期的任务是取操作数有效地址。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "23. 执行周期的任务是根据 IR 中的指令字的操作码和操作数通过 ALU 操作产生执行结果。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "24. 中断周期的任务是处理中断请求。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "25. 同步通信采用公共的时钟信号进行同步，传输速率较高。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "26. 异步通信依靠传送双方相互制约的 \"握手\" 信号来实现定时控制。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "27. 单指令周期方案中，所有指令都在相同的执行时间内完成。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "28. 多指令周期方案中，不同指令可选用不同个数的时钟周期来完成。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "29. 流水线方案通过在每一个时钟周期启动一条指令，尽量让多条指令同时运行，提高系统运行速度。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "30. 硬布线控制器的速度快，但逻辑复杂，不便形成系列机。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "31. 微程序控制器具有规整性、灵活性、可维护性等优点，但速度相对较慢。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "32. 微程序设计技术是利用软件方法设计硬件的技术。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "33. 微命令编码中的直接表示法简单直观，但微指令字较长。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "34. 编码表示法可用较小的二进制信息位表示较多的微命令信号，但增加了译码电路。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "35. 水平型微指令可以在一条微指令中定义多个微命令，这些微命令在同一 CPU 周期内发出并执行。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "36. 垂直型微指令在一条微指令中只有 1 - 2 个微操作命令，微程序较长。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "37. 静态微程序设计对应的机器指令的微程序设计好后，一般无须改变。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "38. 动态微程序设计可通过改变微指令和微程序来改变机器的指令系统。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "39. 并行性包括同时性和并发性两种含义。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "40. 流水 CPU 的主要问题是资源相关、数据相关和控制相关。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "41. 在直接表示法编码的微指令中，每条微指令完成一个微操作。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "42. 逻辑运算根据进位或借位判断溢出。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "43. 在采用微程序控制器的计算机中，每条指令由一条微指令来控制执行。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "44. 控制器产生的所有控制信号称为微指令。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "45. 微程序控制器的特点是速度快。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "46. 累加器具有加法运算的功能。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "47. CPU 内部采用一条总线将运算器与各寄存器连接起来。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "48. 单总线结构的 CPU 将大部分部件用一条信号线连接起来。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "49. 取指令操作受到当前指令的操作码控制。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "50. 不同的指令有不同的读取操作步骤。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+];
+      
+      // 存储系统选择题
+      quizDatabase['choiceQue/2memory选择题.json'] = [
+  {
+    "question": "1. 某RAM芯片，其容量为32K*8位，除电源和接地端外，该芯片引出线的最小数目是( )。",
+    "options": [
+      "A. 40",
+      "B. 25",
+      "C. 32",
+      "D. 23"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "2. 计算机主存储器中存放信息的部件是( )。",
+    "options": [
+      "A. 读写线路",
+      "B. 存储体",
+      "C. 地址寄存器",
+      "D. 地址译码线路"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "3. 若地址总线为A15(高位)~A0 (低位)，若用2KB的存储器芯片组成8KB存储器，加在各存储器芯片上的地址线是( )。",
+    "options": [
+      "A. AI1~A0",
+      "B. A9~A0",
+      "C. A8~AO",
+      "D. A10~A0"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "4. 下列存储器中可在线改写的只读存储器是( )。",
+    "options": [
+      "A. EEPROM",
+      "B. RAM",
+      "C. ROM",
+      "D. EPROM"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "5. 存储器的存取周期与存储器的存取时间的关系是( )。",
+    "options": [
+      "A. 存取周期小于存取时间",
+      "B. 存取周期大于存取时间",
+      "C. 存取周期等于存取时间",
+      "D. 存取周期与存取时间关系不确定"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "6. 以下几种存储器中,存取速度最快的是( )。",
+    "options": [
+      "A. 寄存器",
+      "B. 内存",
+      "C. Cache",
+      "D. 光盘"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "7. 属于易失性存储器的是( )。",
+    "options": [
+      "A. Flash Memory",
+      "B. CD-ROM",
+      "C. Cache",
+      "D. EEPROM"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "8. 下列关于DRAM刷新的说法中,错误的是( )。",
+    "options": [
+      "A. 由于DRAM内部设有专门的刷新电路,所以访存期间允许进行刷新",
+      "B. 刷新是指对DRAM中的存储电容重新充电",
+      "C. 刷新期间不允许访存,这段时间称为\"访存死区(也叫死时间)\"",
+      "D. 刷新是通过对存储单元进行\"读但不输出数据\"的操作来实现"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "9. 下面说法中正确的是( )。",
+    "options": [
+      "A. 信号应有一定的持续时间,以保证读写操作得以正常完成",
+      "B. 以上说法都正确。",
+      "C. 有了稳定的地址和写入的数据,再有了片选信号才能给出写命令,以便保证无误的写操作",
+      "D. 有了稳定的地址与片选信号才可以读"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "10. 设某按字节编址的计算机已配有00000H-07FFFH的ROM区,地址线为20位,现再用16K*8\nRAM芯片构成剩下的RAM区08000H-FFFFFH，则需要这样的RAM芯片( )片。",
+    "options": [
+      "A. 62",
+      "B. 63",
+      "C. 64",
+      "D. 61"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. 存取周期是指( )。",
+    "options": [
+      "A. 存储器的写人时间",
+      "B. 存储器进行连续写操作允许的最短间隔时间",
+      "C. 存储器进行连续读或写操作所允许的最短间隔时间",
+      "D. 存储器完全读或写操作所用的时间"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "12. 与辅存相比，主存的特点是( )。",
+    "options": [
+      "A. 容量小、速度快，成本低",
+      "B. 容量大、速度快、成本高",
+      "C. 容量小、速度快、成本高",
+      "D. 容量大、速度快、成本低"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "13. 一个8K x16位的存储器，其地址线和数据线的总和是( )。",
+    "options": [
+      "A. 28",
+      "B. 16",
+      "C. 64",
+      "D. 29"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "14. 某计算机字长是32位，它的存储容量是16MB，若按双字编址，它的寻址范围为( )。",
+    "options": [
+      "A. 16MB",
+      "B. 16M",
+      "C. 2M",
+      "D. 8MB"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "15. 某存储器为32Kx16位，则( )。",
+    "options": [
+      "A. 地址线16根，数据线16根",
+      "B. 地址线15根，数据线16根",
+      "C. 地址线32根，数据线16位",
+      "D. 地址线16根，数据线32根"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "16. 下列叙述中正确的是( )。",
+    "options": [
+      "A. 主存可由RAM、ROM和CMOS组成",
+      "B. 主存只能由RAM组成",
+      "C. 主存只能由ROM组成",
+      "D. 主存可由RAM和ROM组成"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "17. 动态RAM的特点是( )。",
+    "options": [
+      "A. 每次读出后，需根据原存内容重写一次",
+      "B. 每隔一定时间，需要根据原存内容重写一遍",
+      "C. 工作中存储内容会产生变化",
+      "D. 工作中需要动态地改变访存地址"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "18. 一个四体并行低位交叉存储器，每个存储体的容量是64Kx32位，存取周期是200s在下述说法中，( )是正确的。",
+    "options": [
+      "A. 在200ns内，存储器他向CPU提供32位二进制信息",
+      "B. 在200ns内，存储器能向CPU提供256位二进制信息",
+      "C. 在200ms内，存储器能向CPU提供64K位二进制信息",
+      "D. 在200ns内，存储器能向CPU提供128位二进制信息"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "19. 在主存和CPU之间增加高速缓冲存储器的目的是( )。",
+    "options": [
+      "A. 扩大主存容量",
+      "B. 解决CPU 与主存之间的速度匹配问题",
+      "C. 提高主存的读写速度",
+      "D. 既扩大主存容量，又提高存取速度"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "20. 在Cache的地址映射中，若主存中的任意一块均可映射到内的任意一块的位置上，则这种方法称为( )",
+    "options": [
+      "A. 直接映射",
+      "B. 组相联映射",
+      "C. 混合映射",
+      "D. 全相联映射"
+    ],
+    "answer": "D"
+  },
+];
+      
+      // 存储系统判断题
+      quizDatabase['judgmentQue/2memory判断题.json'] = [
+  {
+    "question": "1. 无论是哪种ROM,都只能从中读取数据信息，而无法更改其中的数据信息。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "2. 主存储器的总容量=字数x位数，其中字数是指可编程的地址单元数，位数是指每个编址单元的位数。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "3. 磁盘存储器属于随机存储器.( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "4. 内存的数据带宽=(总线频率×带宽位数)/8。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "5. 动态MOS存储单元无论是4管结构还是单管结构，因为在读数据时都会破坏原数据信息，因此读取数据之后需要动态刷新。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "6. 在现代计算机硬件系统中，存储器的层次结构的最顶层是调整缓冲存储器。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "7. 单体多字方式的并行主存系统依靠不同的地址码来并行地访问对应存储单元，从而实现行存取。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "8. 虚拟存储器的本质是把硬盘空间当作内存使用，因此物理内存容量并未增加。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "9. 在段式虚拟存储器中，每段存储空间的大小是相等的。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "10. 在页式虚拟存储器中，页表记录了每一页存储空间的使用状况。由于页表本身需要消耗内容空间，因此页表过长将影响系统性能。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. 随机存储器(RAM)的特点是可以随机存取，且断电后信息会丢失。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "12. 只读存储器(ROM)的内容只能读出而不能写入，常用于存储固定不变的系统程序。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "13. 顺序存取存储器的存取时间与信息所在物理位置密切相关，访问速度较慢。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "14. 直接存取存储器可以通过直接指向存储器的一个小区域，然后顺序检索来存取信息。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "15. 半导体存储器利用电平高低表示信息，具有速度快、集成度高的特点。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "16. 磁性材料存储器利用剩磁状态表示信息，包括磁芯和磁表面两种类型。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "17. 光介质存储器利用不同物态的反光性表示信息，常见的有光盘。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "18. 易失性存储器断电后信息会丢失，而非易失性存储器断电后信息仍能保存。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "19. 主存储器速度快、容量较小、位价格较高，能与 CPU 直接交换信息。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "20. 辅助存储器速度慢、容量大、位价格低，不能与 CPU 直接交换信息。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "21. 静态存储器的存储单元只需要一个晶体管和一个电容器构成。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "22. 静态存储器中的数据是静态不变的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "23. 静态存储器中的数据可以长期保存。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "24. 动态存储器中的数据是不停变化的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "25. 半导体存储器件都是易失性的存储器。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "26. 可编程 ROM 是可擦写的，用户可以写入自己的程序。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "27. 可编程 ROM 用于编写计算机程序。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "28. EPROM 芯片中的数据只能擦除一次。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "29. 多体交叉存储器只有在连续访问的情况下才能提高访问速率。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "30. 全相联映射方式适用于容量大的 Cache。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "31. 在 Cache 替换策略中，先进先出法比近期最少使用法好。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "32. 虚拟存储器的主要功能是增加主存的容量。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "33. 在虚拟存储器中，虚拟地址就是辅助存储器的地址。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "34. 在页式虚拟存储器中，页的长度是根据程序的需要确定的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "35. 在段式虚拟存储器中，段的大小是固定的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "36. 在虚拟存储器中，将地址空间分为相同大小的页。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "37. 在虚拟存储器中，程序员看到的存储器地址是物理地址。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+];
+      
+      // IO设备选择题
+      quizDatabase['choiceQue/3IO选择题.json'] = [
+  {
+    "question": "1. 程序运行时，硬盘与内存之间的数据传送是通过( )方式进行的。",
+    "options": [
+      "A. 中断",
+      "B. 陷阱",
+      "C. 程序直接控制",
+      "D. DMA"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "2. I/O 系统的组成不包括以下哪个部分( )",
+    "options": [
+      "A. 外围设备",
+      "B. 设备控制器",
+      "C. CPU",
+      "D. I/O 接口"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "3. 设备控制器的功能是( )",
+    "options": [
+      "A. 将外围设备生成的各种形式的二进制数码转换成电信号，并根据输入信号的要求，对设备的运行进行控制",
+      "B. 完成外围设备与 CPU 交换信息时在速度、代码形式上的相互匹配",
+      "C. 对外设进行控制与检测",
+      "D. 以上都是"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "4. I/O 接口的基本结构中，CPU 同外设之间的信息传送是对接口中的某些寄存器进行读或写，如传送数据是对( )进行读写操作。",
+    "options": [
+      "A. 状态端口",
+      "B. 数据端口",
+      "C. 控制端口",
+      "D. 地址端口"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "5. I/O 端口的编址方式有存储器统一编址和独立编址两种，其中存储器统一编址的优点是( )",
+    "options": [
+      "A. 输入/输出指令与存储器指令有明显区别，程序编制清晰",
+      "B. 不需要专门的输入/输出指令，可使 CPU 访问 I/O 的操作更灵活、更方便",
+      "C. 端口有较大的编址空间",
+      "D. B 和 C"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "6. 按数据传送方式，I/O 接口可分为( )",
+    "options": [
+      "A. 并行接口和串行接口",
+      "B. 程序查询接口、中断接口和 DMA 接口",
+      "C. 可编程接口和不可编程接口",
+      "D. 以上都是"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "7. 程序查询方式中，CPU 与外围设备交换信息的过程包括( )",
+    "options": [
+      "A. 启动 I/O 设备",
+      "B. 查询设备状态",
+      "C. 发出读/写命令并进行数据传送",
+      "D. 以上都是"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "8. 程序查询方式的工作流程中，CPU 需要循环查询设备状态，这会导致( )",
+    "options": [
+      "A. CPU 与外围设备并行工作",
+      "B. CPU 大量时间处于空闲、等待状态，系统效率较低",
+      "C. CPU 能同时与多台外围设备交换信息",
+      "D. 对 CPU 和外围设备的错误和异常处理能力增强"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "9. 程序中断方式中，中断源向 CPU 发出中断请求信号的条件是( )",
+    "options": [
+      "A. 外围设备处于主动地位",
+      "B. CPU 暂时停止正在执行的程序",
+      "C. 外围设备或事件请求 CPU 处理",
+      "D. CPU 执行完一条现行指令"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "10. CPU 响应中断的条件不包括( )",
+    "options": [
+      "A. 外设向 CPU 发出中断请求",
+      "B. CPU 正在执行中断服务程序",
+      "C. CPU 允许响应中断",
+      "D. 当前指令执行完"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "11. 下列关于程序中断方式和 DMA 方式说法正确的是( )",
+    "options": [
+      "A. 程序中断方式适用于数据传输率较高的外围设备",
+      "B. DMA 方式中数据交换经过 CPU",
+      "C. 程序中断方式中，CPU 通过循环查询设备状态来传送数据",
+      "D. DMA 方式不需要中断请求"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "12. 以下关于 I/O 端口的说法错误的是( )",
+    "options": [
+      "A. I/O 端口主要有数据端口、状态端口和控制端口",
+      "B. CPU 对状态端口只能执行读操作",
+      "C. CPU 对控制端口只能执行写操作",
+      "D. I/O 端口不需要端口地址也能被 CPU 访问"
+    ],
+    "answer": "D"
+  },
+];
+      
+      // IO设备判断题
+      quizDatabase['judgmentQue/3IO判断题.json'] = [
+  {
+    "question": "1. 在单总线计算机系统中，外设可以与主存储器单元统一编址，因此可以不使用IO指令。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. 输入 / 输出系统(I/O 系统)包括外围设备、I/O 接口、通道或 I/O 处理器以及相关编程软件。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "3. I/O 系统的功能仅是选择输入 / 输出设备。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "4. I/O 设备种类繁多，功能结构各异，连接方法和信息交换方法也各不相同，因此 I/O 系统具有多样性和复杂性。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "5. 外围设备可以直接与计算机主机联系，无需通过 I/O 系统连接。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "6. 设备控制器是外围设备与计算机连接的界面，能将外围设备生成的二进制数码转换成电信号，并控制设备运行。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "7. I/O 接口的内部接口与系统总线相连，实质上与主存、CPU 相连，数据传输方式为并行传输。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "8. I/O 接口用于完成外围设备与 CPU 交换信息时的速度、代码形式匹配，使两者能进行信息转换和速度匹配。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "9. I/O 接口的外部接口通过接口电缆与外设相连，数据传输只能是并行方式。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "10. 存储器统一编址是把 I/O 端口当作存储器单元进行地址分配，CPU 可用统一访存指令访问 I/O 端口。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. 独立编址是 I/O 端口地址与存储器地址有关，CPU 无需设置专门输入 / 输出指令访问端口。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "12. 程序查询方式是 CPU 通过程序不断查询 I/O 设备是否准备好，从而控制 I/O 设备与主机交换信息。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "13. 程序中断方式是 I/O 设备准备就绪并向 CPU 发出中断请求时才响应，相比程序查询方式硬件结构更简单。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "14. DMA 方式中主存和 I/O 设备之间有直接数据通路，数据交换时无需调用中断服务程序，数据传送速度快。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "15. I/O 处理机方式中，I/O 处理机基本独立于主机工作，可完成 I/O 控制以及码制变换等操作。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "16. I/O 通道方式设有通道控制部件，每个通道挂接若干外设，主机执行 I/O 命令时只需启动相关通道。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "17. 无条件传送方式中，CPU 需根据外设状态再进行读写操作。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "18. 中断是由外围设备或其他非预期的急需处理的事件引起的，使 CPU 暂时停止正在执行的程序，转至服务程序处理事件。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+];
+      
+      // 外围设备选择题
+      quizDatabase['choiceQue/4外围设备选择题.json'] = [
+  {
+    "question": "1. 硬盘平均寻道时间为12ms，传输速率为10MB/s，磁盘控制器延时为2ms，则一个转速为7200r/min的硬盘写1KB数据时间为( )。",
+    "options": [
+      "A. 2.9 ms",
+      "B. 12.9 ms",
+      "C. 16.9 ms",
+      "D. 14.9 ms"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "2. 已知某磁盘存储器转速为2400 r/min,每道存储容量为96KB,那么磁盘的数据传输率为( )",
+    "options": [
+      "A. 1920 KB/s",
+      "B. 3880 KB/s",
+      "C. 3840 KB/s",
+      "D. 3845 KB/s"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "3. 磁盘上磁道号最小的是( )。",
+    "options": [
+      "A. 最内道",
+      "B. 不一定",
+      "C. 中间道",
+      "D. 最外道"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "4. 磁盘上靠内的磁道上存储的信息量比靠外的磁道存储的信息量( )。",
+    "options": [
+      "A. 多",
+      "B. 相等",
+      "C. 不确定",
+      "D. 少"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "5. 外围设备一般由哪几部分组成?( )",
+    "options": [
+      "A. 硬盘和光盘",
+      "B. 主机和输入/输出系统",
+      "C. 输入设备和输出设备",
+      "D. 媒体、设备和设备控制器"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "6. 以下哪项不是外围设备的分类?( )",
+    "options": [
+      "A. 处理器",
+      "B. 输入设备",
+      "C. 输出设备",
+      "D. 外存储器设备"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "7. 输入设备的功能是( )",
+    "options": [
+      "A. 处理数据",
+      "B. 存储数据",
+      "C. 将数据和程序输入到计算机",
+      "D. 输出计算机的处理结果"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "8. 输出设备的主要作用是( )",
+    "options": [
+      "A. 输入数据",
+      "B. 输出计算机处理结果",
+      "C. 控制计算机运行",
+      "D. 处理数据"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "9. 外存储器设备的作用是( )",
+    "options": [
+      "A. 临时存储数据",
+      "B. 输出数据",
+      "C. 输入数据",
+      "D. 永久存储大量数据和程序"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "10. 磁盘存储设备属于( )",
+    "options": [
+      "A. 输出设备",
+      "B. 处理器",
+      "C. 输入设备",
+      "D. 外存储器设备"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "11. 磁表面存储设备的记录介质是( )",
+    "options": [
+      "A. 磁性材料",
+      "B. 半导体",
+      "C. 硬盘",
+      "D. 光盘"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "12. 硬磁盘机的组成不包括( )",
+    "options": [
+      "A. 磁盘驱动器",
+      "B. 磁记录介质",
+      "C. 显示器",
+      "D. 磁盘控制器"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "13. 温彻斯特磁盘机的特点是( )",
+    "options": [
+      "A. 磁头和盘片分开存放",
+      "B. 磁头和盘片密封在一起",
+      "C. 磁头和盘片可拆卸",
+      "D. 磁头和盘片无需电机驱动"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "14. 磁盘驱动器的定位驱动系统包括( )",
+    "options": [
+      "A. 数据转换系统",
+      "B. 主轴和皮带轮",
+      "C. 磁头和磁盘",
+      "D. 读写臂、小滑架和音圈电机"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "15. 平均存取时间由哪些部分构成?( )",
+    "options": [
+      "A. 数据处理时间、数据传输时间",
+      "B. 寻道时间、旋转延迟时间、传输时间",
+      "C. 数据读取时间、数据写入时间",
+      "D. 磁盘启动时间、磁盘停止时间"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "16. 数据传输率的计算公式是( )",
+    "options": [
+      "A. Dr = n × N(字节/秒)",
+      "B. 以上都是",
+      "C. 以上都不是",
+      "D. Dr = D × v(字节/秒)"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "17. 磁盘地址不包括( )",
+    "options": [
+      "A. 柱面号",
+      "B. 磁头号",
+      "C. 扇区号",
+      "D. 颜色号"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "18. 磁盘存储器的每个扇区记录定长的数据，读/写操作以( )为单位进行。",
+    "options": [
+      "A. 扇区",
+      "B. 磁道",
+      "C. 盘片",
+      "D. 磁头"
+    ],
+    "answer": "A"
+  },
+];
+      
+      // 外围设备判断题
+      quizDatabase['judgmentQue/4外围设备判断题.json'] = [
+  {
+    "question": "1. 外围设备是计算机与外部世界联系的桥梁。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. 输入设备可以将原始数据和程序输入到计算机中。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "3. 输出设备的主要功能是输出计算机的处理结果。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "4. 外存储器设备允许速度较慢，用于存储暂时不参加运算的数据和程序。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "5. 多媒体设备能使计算机直接接受、存储、处理各种形式的多媒体信息。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "6. 网络通信设备用于实现数据通信和资源共享。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "7. 输入/输出处理机可以独立于主机工作。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "8. 磁盘存储设备属于输入设备。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "9. 硬磁盘机的磁头可分为可移动磁头和固定磁头两种。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "10. 温彻斯特磁盘机是密封组合式的硬磁盘。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. 磁盘驱动器是一种精密的电子和机械装置。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "12. 磁盘控制器是主机与磁盘驱动器之间的接口。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "13. 数据传输率是指磁盘存储器在单位时间内向主机传送数据的字节数。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "14. 磁盘地址包括柱面号、磁头号和扇区号。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "15. 在磁盘上，不同的磁道有不同长度，因而有不同的容量。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "16. 在磁盘上，不同的磁道有不同长度，因而有不同数量的扇区。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "17. 磁盘读写信息的最小单位是字节。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+];
+      
+      // 总线系统选择题
+      quizDatabase['choiceQue/5Bus选择题.json'] = [
+  {
+    "question": "1. 根据传送信息的种类不同,系统总线分为( )。",
+    "options": [
+      "A. 地址线和数据线",
+      "B. 地址线、数据线和控制线",
+      "C. 数据线和控制线",
+      "D. 地址线、数据线和响应线"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "2. 信息只用一条传输线，且采用脉冲传输的方式称为( )。",
+    "options": [
+      "A. 串行传输",
+      "B. 并行传输",
+      "C. 并串行传输",
+      "D. 分时传输"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "3. 集中式总线仲裁时，在链式查询方式上，越靠近控制器的设备( )。",
+    "options": [
+      "A. 得到总线使用权的机会越多，优先级越高",
+      "B. 得到总线使用权的机会越少，优先级越低",
+      "C. 得到总线使用权的机会越多，优先级越低",
+      "D. 得到总线使用权的机会越少，优先级越高"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "4. 总线中地址总线的作用是( )。",
+    "options": [
+      "A. 选择存储单元",
+      "B. 选择进行信息传输的设备",
+      "C. 指定存储单元和I/O设备接口电路的选择地址",
+      "D. 决定数据总线上的数据流方向"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "5. 计算机使用总线结构的主要优点是便于实现积木化，同时( )。",
+    "options": [
+      "A. 减少了信息传输量",
+      "B. 提高了信息传输的速度",
+      "C. 减少了信息传输线的条数",
+      "D. 加重了CPU的工作量"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "6. 系统中的地址总线的位数与( )相关。",
+    "options": [
+      "A. 机器字长",
+      "B. 存储单元个数",
+      "C. 存储字长",
+      "D. 存储器带宽"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "7. 某总线在一个总线周期中并行传送4字节的数据,假设一个总线周期等于一个总线时钟周期,总线时钟频率为33MHz,则总线带宽( )",
+    "options": [
+      "A. 148 MB/s",
+      "B. 168MB/s",
+      "C. 132MB/s",
+      "D. 172MB/s"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "8. 假设某系统总线在一个总线周期中并行传输4字节信息，一个总线周期占用2个时钟周期,总线时钟频率为10MHz，则总线带宽是( )。",
+    "options": [
+      "A. 10MB/s",
+      "B. 20MB/s",
+      "C. 40MB/s",
+      "D. 80MB/s"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "9. 访问内存所得到信息经( )传送到CPU。",
+    "options": [
+      "A. 数据总线",
+      "B. 地址总线",
+      "C. 控制总线",
+      "D. 总线控制器"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "10. 在串行通信中，根据数据传输方向不同可以分成三种方式，不包括的方式是( )。",
+    "options": [
+      "A. 单工",
+      "B. 双工",
+      "C. 半单工",
+      "D. 半双工"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "11. 接口的主要功能包括( ),",
+    "options": [
+      "A. 数据转换",
+      "B. 数据缓冲与时序配合",
+      "C. 提供外部设备和接口的状态",
+      "D. 实现主机和外部设备之间的通信联络控制\nE. 电平匹配和负载匹配\nA.仅b,c,d\nB.仅a,b,c,d,e\nC.仅c,d,e\nD.仅a,b,d,e"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "12. 下面关于串行传输的叙述中,不正确的是( )",
+    "options": [
+      "A. 串行总线的数据在数据线上按位进行传输",
+      "B. 串行总线是一种信息传输信道",
+      "C. 串行传输需要一组数据线,线路的成本高,适合于近距离的数据传输",
+      "D. 行传输方式可分为同步方式和异步方式两种"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "13. 下面关于并行传输的叙述中,不正确的是( )",
+    "options": [
+      "A. 并行总线的数据在数据线上同时有多位一起传送",
+      "B. 并行传输每一位要有一根数据线,因此有多根数据线",
+      "C. 衡量并行总线速度的指标是平均数据传输率,即总线上传输的平均信息量",
+      "D. 为了减少线路的数量,可以将并行方式和串行方式结合起来"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "14. 异步传输方式是指没有统一的时钟,也没有固定的时间间隔,完全依靠传送双方相互制约的\"握手信号\"来实现定时控制。在下列各种情况中,最应采用异步传输方式的是( )。",
+    "options": [
+      "A. I/O接口与打印机交换信息",
+      "B. CPU与主存交换信息",
+      "C. CPU和总线交换信息",
+      "D. CPU内部的各个部件"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "15. 如果一个总线中并行传送64位数据,总线频率为66MHz,则总线带宽是( )。",
+    "options": [
+      "A. 1056 MB/s",
+      "B. 528 MB/s",
+      "C. 2112 MB/s",
+      "D. 4224 MB/s"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "16. 若时钟频率为120MHz,传送一个32位字需要8个时钟周期,则该总线系统的数据传输速率是( )",
+    "options": [
+      "A. 20 MB/s",
+      "B. 60 MB/s",
+      "C. 40 MB/s",
+      "D. 80 MB/s"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "17. 在32位总线系统中,若时钟频率为500MHz,传送一个32位字需要5个时钟周期,则该总线系统的数据传送速率是( )。",
+    "options": [
+      "A. 200 MB/s",
+      "B. 400 MB/s",
+      "C. 600 MB/s",
+      "D. 800 MB/s"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "18. CPU总线是一种( )。",
+    "options": [
+      "A. 与CPU直接相连的系统总线",
+      "B. 时钟同步型输入/输出总线",
+      "C. 高速串行总线",
+      "D. 局部总线"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "19. 以下哪项不属于总线的分类?( )",
+    "options": [
+      "A. 片内总线",
+      "B. 系统总线",
+      "C. I/O 总线",
+      "D. 通信总线"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "20. 总线的性能指标中，单位时间内通过总线的数据位数称为( )",
+    "options": [
+      "A. 总线宽度",
+      "B. 总线周期",
+      "C. 总线带宽",
+      "D. 总线频率"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "21. 单总线结构的缺点是( )",
+    "options": [
+      "A. 结构复杂",
+      "B. 不易扩充",
+      "C. 易造成瓶颈现象",
+      "D. 效率低下"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "22. 总线仲裁方式不包括以下哪种?( )",
+    "options": [
+      "A. 集中式仲裁",
+      "B. 分布式仲裁",
+      "C. 独立请求方式",
+      "D. 随机仲裁"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "23. 以下哪种通信方式采用公共的时钟信号进行同步?( )",
+    "options": [
+      "A. 异步通信",
+      "B. 同步通信",
+      "C. 分时传送",
+      "D. 串行传送"
+    ],
+    "answer": "B"
+  },
+];
+      
+      // 总线系统判断题
+      quizDatabase['judgmentQue/5Bus判断题.json'] = [
+  {
+    "question": "1. 组成总线不仅要有传输信息的传输线，还应有实现总线传输控制的器件。它们是总线缓冲器和总线控制器。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. 大多数微型机的总线由地址总线、数据总线和控制总线组成，因此，它们是三总线结构的。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "3. 在单总线计算机系统中，外设可以与主存储器单元统一编址，因此可以不使用IO指令。( )",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "4. 总线是连接计算机系统各个部件的线路，用于传送二进制数据。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "5. 片内总线是 CPU 内部连接各寄存器及运算部件的总线。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "6. 系统总线按传输信息内容的不同，可分为数据总线、地址总线和控制总线。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "7. I/O 总线用于 CPU 与中低速的外围设备之间的通信。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "8. 总线的性能指标包括总线宽度、总线周期和总线带宽。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "9. 单总线结构简单，便于扩充，但易造成计算机系统的瓶颈现象。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "10. 单总线结构简单，便于扩充，但易造成计算机系统的瓶颈现象。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. 双总线结构将 I/O 总线与主存总线分开，提高了系统效率。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "12. 同步通信采用公共的时钟信号进行同步，传输速率较高。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "13. 异步通信依靠传送双方相互制约的 \"握手\" 信号来实现定时控制。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+];
+      
+      // 学习通练习选择题
+      quizDatabase['choiceQue/6练习选择题.json'] = [
+  {
+    "question": "1. 直接寻址的无条件转移指令功能是将指令中的地址码送入( )。",
+    "options": [
+      "A. 地址寄存器MAR",
+      "B. 累加器AX",
+      "C. 状态寄存器PSW",
+      "D. 程序计数器PC"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "2. 寄存器间接寻址方式中，操作数在( )。",
+    "options": [
+      "A. 通用寄存器",
+      "B. 主存单元",
+      "C. 程序计数器",
+      "D. 堆栈"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "3. 基址寻址方式中，操作数的有效地址是( )",
+    "options": [
+      "A. 基址寄存器的内容+形式地址",
+      "B. 程序计数器的内容+形式地址",
+      "C. 变址寄存器中的内容+形式地址",
+      "D. 基址寄存器的内容，不加形式地址"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "4. 堆栈指针SP的内容是( )。",
+    "options": [
+      "A. 栈顶地址",
+      "B. 栈顶内容",
+      "C. 栈底地址",
+      "D. 栈底内容"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "5. 一地址格式的指令( )。",
+    "options": [
+      "A. 只能对单操作数进行加工处理",
+      "B. 只能对双操作数进行加工处理",
+      "C. 既能对单操作数进行加工处理，也能对双操作数进行运算",
+      "D. 无双操作数的加工功能"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "6. 单地址指令中为了完成两个数的算术运算，除地址码指明的一个操作数外，另一个常需采用( )。",
+    "options": [
+      "A. 堆栈寻址方式",
+      "B. 立即寻址方式",
+      "C. 隐含寻址方式",
+      "D. 间接寻址方式"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "7. 用于对某个寄存器中操作数的寻址方式为( )。",
+    "options": [
+      "A. 直接",
+      "B. 间接",
+      "C. 寄存器",
+      "D. 寄存器间接"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "8. 指令系统中采用不同寻址方式的目的主要是( )。",
+    "options": [
+      "A. 降低指令译码难度",
+      "B. 缩短指令字长，扩大寻址空间，提高编程灵活性",
+      "C. 实现程序控制",
+      "D. 降低控制器的设计难度"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "9. 下列数据存储空间为隐含寻址方式的是( )。",
+    "options": [
+      "A. CPU中的通用寄存器",
+      "B. 主存储器",
+      "C. IO接口中的寄存器",
+      "D. 堆栈"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "10. 寄存器间接寻址中,操作数在( )中。",
+    "options": [
+      "A. 通用寄存器",
+      "B. 堆栈",
+      "C. 主存单元",
+      "D. 指令"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "11. 指令的寻址方式有顺序和跳跃两种，采用跳跃寻址方式可以实现( )。",
+    "options": [
+      "A. 程序从外存装入内存",
+      "B. 程序从物理内存转换到虚拟内存",
+      "C. 程序的条件转移和无条件转移",
+      "D. 以上全部不正确"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "12. 指令执行时所需的操作数不可能来自( )。",
+    "options": [
+      "A. 控制存储器CM",
+      "B. 指令本身",
+      "C. 寄存器",
+      "D. 主存储器"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "13. 地址码直接给出的就是操作数本身的数值，这种寻址方式称为( )方式。",
+    "options": [
+      "A. 基址寻址",
+      "B. 立即寻址",
+      "C. 直接寻址",
+      "D. 间接寻址"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "14. 计算机指令中要用到的操作数一般可以来自( )部件。",
+    "options": [
+      "A. 通用寄存器",
+      "B. 外围设备(接口)中的寄存器",
+      "C. 内存的存储单元",
+      "D. 以上答案都正确"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "15. 设机器字长为 32 位，一个容量为 16MB 的存储器，CPU 按半字寻址，其寻址单元数是( )。",
+    "options": [
+      "A. 2^24",
+      "B. 2^23",
+      "C. 2^22",
+      "D. 2^21"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "16. 某指令系统有 200 条指令，对操作码采用固定长度二进制编码，最少需要用( )位。",
+    "options": [
+      "A. 4",
+      "B. 8",
+      "C. 16",
+      "D. 32"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "17. 一个计算机系统采用 32 位单字长指令，地址码为 12 位，若定义了 250 条二地址指令，则还可以有( )条单地址指令。",
+    "options": [
+      "A. 2^12",
+      "B. 2^13",
+      "C. 2^14",
+      "D. 3*2^13"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "18. 堆栈计算机中，有些堆栈类运算指令在指令格式中不给出操作数的地址，参加运算的两个操作数来自( )",
+    "options": [
+      "A. 累加器和寄存器",
+      "B. 累加器和暂存器",
+      "C. 堆栈的栈顶和次栈顶单元",
+      "D. 堆栈的栈顶单元和暂存器"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "19. 能够完成两个数的算术运算的单地址指令，地址指出一个操作数，另一个操作数来自( )方式。",
+    "options": [
+      "A. 立即寻址",
+      "B. 隐含寻址",
+      "C. 间接寻址",
+      "D. 基址寻址"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "20. 程序控制类指令的功能是( )。",
+    "options": [
+      "A. 进行算术运算和逻辑运算",
+      "B. 进行主存与 CPU 之间的数据传送",
+      "C. 改变程序的执行顺序",
+      "D. 进行 CPU和I/O设备之间的数据传送"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "21. 在 CPU 执行指令的过程中，指令的地址由( )给出。",
+    "options": [
+      "A. 程序计数器(PC)",
+      "B. 指令的地址码字段",
+      "C. 操作系统",
+      "D. 程序员"
+    ],
+    "answer": "A"
+  },
+];
+      
+      // 学习通练习判断题
+      quizDatabase['judgmentQue/6练习判断题.json'] = [
+  {
+    "question": "1. 浮点运算指令对用于科学计算的计算机是很有必要的，可以提高机器的运算速度。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. 不设置浮点运算指令的计算机，就不能用于科学计算。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "3. 处理大量输入输出数据的计算机，一定要设置十进制运算指令。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "4. 在计算机的指令系统中，真正必需的指令数是不多的，其余的指令都是为了提高机器速度和便于编程而引入的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "5. 通用寄存器间接寻址方式中，操作数处在主存单元中。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "6. 扩展操作码是操作码字段中用来进行指令分类的代码。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+];
+      
+      // 书后练习判断题
+      quizDatabase['judgmentQue/7书后判断题.json'] = [
+  {
+    "question": "1. 定点数把小数点固定在最低位的后面。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. 原码是表示无符号数的二进制编码方法。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "3. 原码就是把数据的二进制表示作为数据的编码。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "4. 原码表示便于进行数据的加减法运算。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "5. 补码编码保持了数值原来的大小顺序。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "6. 把原码按位取反，最低位加 1 后就得到了这个数据的补码。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "7. 汉字的输入码表示用于在计算机中存储、交换汉字信息。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "8. 奇偶校验码能发现并纠正数据代码中一位出错情况。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "9. 海明码可以纠正数据代码中两位错误。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "10. 浮点数的规格化是为了防止运算时数据溢出。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. 静态存储器的存储单元只需要一个晶体管和一个电容器构成。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "12. 静态存储器中的数据是静态不变的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "13. 静态存储器中的数据可以长期保存。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "14. 动态存储器中的数据是不停变化的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "15. 半导体存储器件都是易失性的存储器。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "16. 可编程 ROM 是可擦写的，用户可以写入自己的程序。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "17. 可编程 ROM 用于编写计算机程序。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "18. EPROM 芯片中的数据只能擦除一次。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "19. 多体交叉存储器只有在连续访问的情况下才能提高访问速率。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "20. 全相联映射方式适用于容量大的 Cache。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "21. 在 Cache 替换策略中，先进先出法比近期最少使用法好。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "22. 虚拟存储器的主要功能是增加主存的容量。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "23. 在虚拟存储器中，虚拟地址就是辅助存储器的地址。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "24. 在页式虚拟存储器中，页的长度是根据程序的需要确定的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "25. 在段式虚拟存储器中，段的大小是固定的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "26. 在虚拟存储器中，将地址空间分为相同大小的页。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "27. 在虚拟存储器中，程序员看到的存储器地址是物理地址。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "28. 浮点运算指令对用于科学计算的计算机是很有必要的，可以提高机器的运算速度。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "29. 不设置浮点运算指令的计算机，就不能用于科学计算。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "30. 处理大量输入输出数据的计算机，一定要设置十进制运算指令。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "31. 在计算机的指令系统中，真正必需的指令数是不多的，其余的指令都是为了提高机器速度和便于编程而引入的。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "32. 通用寄存器间接寻址方式中，操作数处在主存单元中。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "33. 扩展操作码是操作码字段中用来进行指令分类的代码。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "34. 在直接表示法编码的微指令中，每条微指令完成一个微操作。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "35. 逻辑运算根据进位或借位判断溢出。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "36. 在采用微程序控制器的计算机中，每条指令由一条微指令来控制执行。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "37. 控制器产生的所有控制信号称为微指令。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "38. 微程序控制器的特点是速度快。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "39. 累加器具有加法运算的功能。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "40. CPU 内部采用一条总线将运算器与各寄存器连接起来。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "41. 单总线结构的 CPU 将大部分部件用一条信号线连接起来。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "42. 取指令操作受到当前指令的操作码控制。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "43. 不同的指令有不同的读取操作步骤。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "44. 在磁盘上，不同的磁道有不同长度，因而有不同的容量。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "45. 在磁盘上，不同的磁道有不同长度，因而有不同数量的扇区。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "46. 磁盘读写信息的最小单位是字节。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "47. 中断方式是一种程序查询的输入输出方式。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "48. 程序控制的输入输出方式采用 CPU 查询的方法实现输入输出控制。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "49. 为了实现中断处理，应用程序需要提供相应的中断服务程序。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "50. 中断向量就是中断服务程序的入口地址。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "51. 中断请求是由中断源发出的服务请求。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "52. 多重中断就是多级中断。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "53. DMA 比通道具有更强的独立处理数据输入输出的能力。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "54. 有了 DMA 方式后就可以不需要中断机制。",
+    "options": [
+      "A. 对",
+      "B. 错"
+    ],
+    "answer": "B"
+  },
+];
+    }
+
+    // 加载题目数据
+    function loadQuizData() {
+      try {
+        // 初始化内嵌数据库
+        loadFullDatabase();
+        
+        // 如果URL中没有提供文件路径，则根据模块名称和题型获取
+        const actualFilePath = filePath || getFilePath(moduleName, questionType);
+        
+        if (!actualFilePath) {
+          throw new Error('找不到对应的题库文件');
+        }
+        
+        // 从内嵌数据库中获取数据
+        if (quizDatabase[actualFilePath]) {
+          quizData = quizDatabase[actualFilePath];
+        } else {
+          throw new Error('题库数据不存在');
+        }
+        
+        // 初始化答题状态
+        userAnswers = new Array(quizData.length).fill(null);
+        answeredQuestions = new Array(quizData.length).fill(false);
+        
+        // 显示答题界面
+        loadingElement.classList.add('hidden');
+        quizContainer.classList.remove('hidden');
+        
+        // 初始化答题
+        initQuiz();
+      } catch (error) {
+        console.error('加载题目失败:', error);
+        loadingElement.classList.add('hidden');
+        errorContainer.classList.remove('hidden');
+        errorMessage.textContent = error.message || '无法加载题目，请稍后再试。';
+      }
+    }
+
+    // 初始化答题
+    function initQuiz() {
+      totalQuestions.textContent = quizData.length;
+      totalCount.textContent = quizData.length;
+      totalScore.textContent = quizData.length;
+      loadQuestion(currentQuestionIndex);
+      updateProgress();
+    }
+
+    // 加载问题
+    function loadQuestion(index) {
+      const question = quizData[index];
+      questionCounter.textContent = index + 1;
+      questionText.textContent = question.question;
+      
+      // 生成选项
+      optionsContainer.innerHTML = '';
+      
+      // 创建选项元素
+      question.options.forEach((option) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'answer-option';
+        optionElement.textContent = option;
+        optionElement.dataset.answer = option.charAt(0); // 选项字母（A、B、C、D等）
+        
+        // 如果用户已经回答过这个问题，显示答案状态
+        if (answeredQuestions[index]) {
+          if (option.charAt(0) === question.answer) {
+            optionElement.classList.add('correct');
+          } else if (option.charAt(0) === userAnswers[index] && option.charAt(0) !== question.answer) {
+            optionElement.classList.add('incorrect');
+          }
+        } else {
+          // 添加点击事件
+          optionElement.addEventListener('click', selectOption);
+        }
+        
+        // 如果是用户之前选择的答案，添加selected类
+        if (option.charAt(0) === userAnswers[index]) {
+          optionElement.classList.add('selected');
+        }
+        
+        optionsContainer.appendChild(optionElement);
+      });
+      
+      // 更新按钮状态
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = !answeredQuestions[index];
+      
+      // 如果是最后一题，改变下一题按钮文本
+      if (index === quizData.length - 1) {
+        nextBtn.textContent = '完成';
+      } else {
+        nextBtn.textContent = '下一题';
+      }
+    }
+
+    // 选择选项
+    function selectOption(e) {
+      // 移除所有选项的selected类
+      const options = document.querySelectorAll('.answer-option');
+      options.forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // 为当前选项添加selected类
+      e.target.classList.add('selected');
+      
+      const selectedAnswer = e.target.dataset.answer;
+      const correctAnswer = quizData[currentQuestionIndex].answer;
+      
+      // 标记问题已回答
+      if (!answeredQuestions[currentQuestionIndex]) {
+        answeredQuestions[currentQuestionIndex] = true;
+        
+        // 更新得分
+        if (selectedAnswer === correctAnswer) {
+          score++;
+        }
+      } else if (userAnswers[currentQuestionIndex] === correctAnswer && selectedAnswer !== correctAnswer) {
+        // 如果用户之前选择了正确答案，但现在选择了错误答案
+        score--;
+      } else if (userAnswers[currentQuestionIndex] !== correctAnswer && selectedAnswer === correctAnswer) {
+        // 如果用户之前选择了错误答案，但现在选择了正确答案
+        score++;
+      }
+      
+      // 保存用户的答案
+      userAnswers[currentQuestionIndex] = selectedAnswer;
+      
+      // 显示正确和错误答案
+      options.forEach(option => {
+        const optionAnswer = option.dataset.answer;
+        if (optionAnswer === correctAnswer) {
+          option.classList.add('correct');
+        } else if (optionAnswer === selectedAnswer && optionAnswer !== correctAnswer) {
+          option.classList.add('incorrect');
+        }
+        
+        // 禁用所有选项的点击事件
+        option.removeEventListener('click', selectOption);
+      });
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+
+    // 更新进度
+    function updateProgress() {
+      const answeredCount = answeredQuestions.filter(Boolean).length;
+      const progressPercentage = (answeredCount / quizData.length) * 100;
+      
+      progressBar.style.width = `${progressPercentage}%`;
+      completedCount.textContent = answeredCount;
+      
+      if (answeredCount > 0) {
+        const accuracy = Math.round((score / answeredCount) * 100);
+        accuracySpan.textContent = `${accuracy}%`;
+      } else {
+        accuracySpan.textContent = '0%';
+      }
+    }
+
+    // 显示结果
+    function showResults() {
+      quizContainer.classList.add('hidden');
+      resultsContainer.classList.remove('hidden');
+      finalScore.textContent = score;
+    }
+
+    // 重新开始答题
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(quizData.length).fill(null);
+      answeredQuestions = new Array(quizData.length).fill(false);
+      
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      
+      initQuiz();
+    }
+
+    // 事件监听
+    prevBtn.addEventListener('click', () => {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion(currentQuestionIndex);
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentQuestionIndex < quizData.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion(currentQuestionIndex);
+      } else {
+        showResults();
+      }
+    });
+
+    restartBtn.addEventListener('click', restartQuiz);
+    backToModulesBtn.addEventListener('click', () => {
+      window.location.href = 'computer-organization.html';
+    });
+    
+    backBtn.addEventListener('click', () => {
+      window.location.href = 'computer-organization.html';
+    });
+
+    // 加载题目数据
+    loadQuizData();
+  </script>
+</body>
+</html> 

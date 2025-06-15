@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>计算机组成原理 - 题库选择</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置 Tailwind CSS -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appleBlue: '#0071E3',
+            appleBlueLight: '#4A90E2',
+            appleGray: '#F5F5F7',
+            appleDarkGray: '#86868B',
+            appleText: '#1D1D1F',
+          },
+          fontFamily: {
+            sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .ios-shadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .ios-card {
+        @apply bg-white rounded-2xl ios-shadow p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg;
+      }
+      .ios-button {
+        @apply bg-appleBlue text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-appleBlueLight hover:shadow-md active:scale-95;
+      }
+      .ios-input {
+        @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-appleBlue focus:ring-2 focus:ring-appleBlue/20 outline-none transition-all;
+      }
+    }
+  </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="index.html" class="flex items-center space-x-2">
+          <i class="fa fa-arrow-left text-appleBlue text-xl"></i>
+          <span class="text-appleBlue">返回</span>
+        </a>
+      </div>
+      <h1 class="text-xl font-bold">计算机组成原理</h1>
+      <div class="w-20"></div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- 题库选择 -->
+    <section class="mb-10 text-center">
+      <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold mb-2">选择题库</h2>
+      <p class="text-appleDarkGray max-w-md mx-auto">选择你想要复习的知识模块</p>
+    </section>
+
+    <!-- 题库卡片网格 -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- CPU题库 -->
+      <div class="ios-card" onclick="selectModule('CPU')">
+        <div class="w-16 h-16 bg-appleBlue/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-microchip text-appleBlue text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">1. CPU</h3>
+        <p class="text-appleDarkGray text-sm">中央处理器结构与工作原理</p>
+      </div>
+
+      <!-- 存储系统题库 -->
+      <div class="ios-card" onclick="selectModule('存储系统')">
+        <div class="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-database text-orange-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">2. 存储系统</h3>
+        <p class="text-appleDarkGray text-sm">存储器层次结构与工作原理</p>
+      </div>
+
+      <!-- 输入输出I/O设备题库 -->
+      <div class="ios-card" onclick="selectModule('IO设备')">
+        <div class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-exchange text-green-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">3. 输入输出I/O设备</h3>
+        <p class="text-appleDarkGray text-sm">I/O系统与设备控制</p>
+      </div>
+
+      <!-- 外围设备题库 -->
+      <div class="ios-card" onclick="selectModule('外围设备')">
+        <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-desktop text-purple-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">4. 外围设备</h3>
+        <p class="text-appleDarkGray text-sm">计算机外设工作原理</p>
+      </div>
+
+      <!-- 总线系统题库 -->
+      <div class="ios-card" onclick="selectModule('总线系统')">
+        <div class="w-16 h-16 bg-yellow-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-random text-yellow-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">5. 总线系统</h3>
+        <p class="text-appleDarkGray text-sm">总线结构与通信原理</p>
+      </div>
+
+      <!-- 学习通练习题库 -->
+      <div class="ios-card" onclick="selectModule('学习通练习')">
+        <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-book text-red-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">6. 学习通练习</h3>
+        <p class="text-appleDarkGray text-sm">学习通平台练习题</p>
+      </div>
+
+      <!-- 书后练习题库 -->
+      <div class="ios-card" onclick="selectModule('书后练习')">
+        <div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-file-text-o text-blue-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">7. 书后练习</h3>
+        <p class="text-appleDarkGray text-sm">教材课后判断题</p>
+      </div>
+
+      <!-- 模拟练习题库 -->
+      <div class="ios-card" onclick="openModal('模拟练习')">
+        <div class="w-16 h-16 bg-gray-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-pencil-square-o text-gray-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">8. 模拟练习</h3>
+        <p class="text-appleDarkGray text-sm">模拟考试练习题</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 题型选择弹窗 -->
+  <div id="question-type-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6">
+        <h3 id="modal-title" class="text-xl font-bold mb-4 text-center">选择题型</h3>
+        <div class="space-y-4 mb-6">
+          <button id="choice-btn" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-square-o text-xl mr-3"></i>
+              <span class="font-medium">选择题</span>
+            </div>
+          </button>
+          <button id="judgment-btn" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-toggle-on text-xl mr-3"></i>
+              <span class="font-medium">判断题</span>
+            </div>
+          </button>
+        </div>
+        <button id="close-type-modal" class="ios-button w-full">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 功能未开放弹窗 -->
+  <div id="modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-lock text-red-500 text-2xl"></i>
+        </div>
+        <h3 id="modalTitle" class="text-xl font-bold mb-2">功能未开放</h3>
+        <p class="text-appleDarkGray mb-6">也可能懒得开发了，敬请不期待(=´ω`=)</p>
+        <button id="closeModal" class="ios-button w-full">
+          知道了
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 当前选择的模块
+    let currentModule = '';
+    
+    // 题型选择弹窗
+    const questionTypeModal = document.getElementById('question-type-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const choiceBtn = document.getElementById('choice-btn');
+    const judgmentBtn = document.getElementById('judgment-btn');
+    const closeTypeModal = document.getElementById('close-type-modal');
+    
+    // 功能未开放弹窗
+    const modal = document.getElementById('modal');
+    const modalTitleElement = document.getElementById('modalTitle');
+    const closeModal = document.getElementById('closeModal');
+
+    // 选择模块
+    function selectModule(moduleName) {
+      currentModule = moduleName;
+      
+      // 如果是书后练习，直接跳转到判断题
+      if (moduleName === '书后练习') {
+        navigateToQuiz(moduleName, '判断题');
+        return;
+      }
+      
+      // 显示题型选择弹窗
+      modalTitle.textContent = `${moduleName} - 选择题型`;
+      questionTypeModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = questionTypeModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+
+    // 关闭题型选择弹窗
+    function closeTypeModalFunc() {
+      const modalContent = questionTypeModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        questionTypeModal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+
+    // 导航到对应的题目页面
+    function navigateToQuiz(moduleName, questionType) {
+      // 根据模块名称和题型确定文件路径
+      let filePath = '';
+      
+      if (moduleName === 'CPU') {
+        filePath = questionType === '选择题' ? 'choiceQue/1CPU选择题_converted.json' : 'judgmentQue/1CPU判断题.json';
+      } else if (moduleName === '存储系统') {
+        filePath = questionType === '选择题' ? 'choiceQue/2memory选择题.json' : 'judgmentQue/2memory判断题.json';
+      } else if (moduleName === 'IO设备') {
+        filePath = questionType === '选择题' ? 'choiceQue/3IO选择题.json' : 'judgmentQue/3IO判断题.json';
+      } else if (moduleName === '外围设备') {
+        filePath = questionType === '选择题' ? 'choiceQue/4外围设备选择题.json' : 'judgmentQue/4外围设备判断题.json';
+      } else if (moduleName === '总线系统') {
+        filePath = questionType === '选择题' ? 'choiceQue/5Bus选择题.json' : 'judgmentQue/5Bus判断题.json';
+      } else if (moduleName === '学习通练习') {
+        filePath = questionType === '选择题' ? 'choiceQue/6练习选择题.json' : 'judgmentQue/6练习判断题.json';
+      } else if (moduleName === '书后练习') {
+        filePath = 'judgmentQue/7书后判断题.json';
+      }
+      
+      // 跳转到答题页面
+      window.location.href = `computer-quiz.html?module=${encodeURIComponent(moduleName)}&type=${encodeURIComponent(questionType)}&file=${encodeURIComponent(filePath)}`;
+    }
+
+    // 打开功能未开放弹窗
+    function openModal(moduleName) {
+      modalTitleElement.textContent = `${moduleName} - 功能未开放`;
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = modal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+
+    // 关闭功能未开放弹窗
+    function closeModalFunc() {
+      const modalContent = modal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+
+    // 事件监听
+    choiceBtn.addEventListener('click', () => {
+      closeTypeModalFunc();
+      navigateToQuiz(currentModule, '选择题');
+    });
+
+    judgmentBtn.addEventListener('click', () => {
+      closeTypeModalFunc();
+      navigateToQuiz(currentModule, '判断题');
+    });
+
+    closeTypeModal.addEventListener('click', closeTypeModalFunc);
+    closeModal.addEventListener('click', closeModalFunc);
+
+    // 点击模态框外部关闭
+    questionTypeModal.addEventListener('click', (e) => {
+      if (e.target === questionTypeModal) {
+        closeTypeModalFunc();
+      }
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModalFunc();
+      }
+    });
+
+    // 按ESC键关闭模态框
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (!questionTypeModal.classList.contains('opacity-0')) {
+          closeTypeModalFunc();
+        }
+        if (!modal.classList.contains('opacity-0')) {
+          closeModalFunc();
+        }
+      }
+    });
+  </script>
+</body>
+</html> 
