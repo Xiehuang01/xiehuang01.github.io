@@ -55,6 +55,11 @@
         <i class="fa fa-graduation-cap text-appleBlue text-2xl"></i>
         <h1 class="text-xl font-bold">知识复习</h1>
       </div>
+      <div class="flex items-center">
+        <button id="downloadBtn" class="text-appleBlue hover:text-appleBlueLight">
+          <i class="fa fa-download text-xl"></i>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -131,6 +136,27 @@
     </div>
   </div>
 
+  <!-- 下载APP弹窗 -->
+  <div id="downloadModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-appleBlue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-mobile-phone text-appleBlue text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">下载APP</h3>
+        <p class="text-appleDarkGray mb-6">是否下载Xiehuang APP？注意：App版本V0.1只有计组和中国文化翻译模块可以使用</p>
+        <div class="flex space-x-4">
+          <button id="cancelDownload" class="ios-button bg-appleDarkGray flex-1">
+            取消
+          </button>
+          <a id="confirmDownload" href="app/xiehuang.apk" download class="ios-button flex-1 inline-flex items-center justify-center">
+            下载
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 弹窗控制
     const modal = document.getElementById('modal');
@@ -169,6 +195,44 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !modal.classList.contains('opacity-0')) {
         closeModalFunc();
+      }
+    });
+    
+    // 下载APP弹窗控制
+    const downloadModal = document.getElementById('downloadModal');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const cancelDownload = document.getElementById('cancelDownload');
+    
+    // 打开下载弹窗
+    function openDownloadModal() {
+      downloadModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = downloadModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+    
+    // 关闭下载弹窗
+    function closeDownloadModal() {
+      const modalContent = downloadModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        downloadModal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+    
+    // 下载按钮点击事件
+    downloadBtn.addEventListener('click', openDownloadModal);
+    
+    // 取消下载按钮事件
+    cancelDownload.addEventListener('click', closeDownloadModal);
+    
+    // 点击下载弹窗外部关闭
+    downloadModal.addEventListener('click', (e) => {
+      if (e.target === downloadModal) {
+        closeDownloadModal();
       }
     });
   </script>
