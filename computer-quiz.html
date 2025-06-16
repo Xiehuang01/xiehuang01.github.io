@@ -138,6 +138,7 @@
         <p class="text-appleDarkGray mb-6">你的得分是：<span id="final-score" class="text-appleBlue font-bold">0</span>/<span id="total-score">0</span></p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <button id="restart-btn" class="ios-button">重新开始</button>
+          <button id="retry-wrong-btn" class="ios-button bg-yellow-500 hover:bg-yellow-600">重测错题</button>
           <button id="back-to-modules-btn" class="ios-button bg-appleDarkGray">返回题库</button>
         </div>
       </div>
@@ -183,6 +184,7 @@
     const finalScore = document.getElementById('final-score');
     const totalScore = document.getElementById('total-score');
     const restartBtn = document.getElementById('restart-btn');
+    const retryWrongBtn = document.getElementById('retry-wrong-btn');
     const backToModulesBtn = document.getElementById('back-to-modules-btn');
     const loadingElement = document.getElementById('loading');
     const errorContainer = document.getElementById('error-container');
@@ -195,6 +197,7 @@
     let score = 0;
     let userAnswers = [];
     let answeredQuestions = [];
+    let originalQuizData = []; // 保存原始题目数据，用于重测错题
 
     // 设置页面标题和模块信息
     pageTitle.textContent = `${moduleName} - ${questionType}`;
@@ -3220,6 +3223,9 @@
           throw new Error('题库数据不存在');
         }
         
+        // 保存原始题目数据，用于重测错题
+        originalQuizData = JSON.parse(JSON.stringify(quizData));
+        
         // 初始化答题状态
         userAnswers = new Array(quizData.length).fill(null);
         answeredQuestions = new Array(quizData.length).fill(false);
@@ -3468,6 +3474,39 @@
       
       initQuiz();
     }
+    
+    // 重测错题
+    function retryWrongQuestions() {
+      // 收集错题
+      const wrongQuestions = [];
+      
+      for (let i = 0; i < originalQuizData.length; i++) {
+        // 如果用户回答了这道题且答错了
+        if (answeredQuestions[i] && userAnswers[i] !== originalQuizData[i].answer) {
+          wrongQuestions.push(originalQuizData[i]);
+        }
+      }
+      
+      // 如果没有错题，提示用户
+      if (wrongQuestions.length === 0) {
+        alert('恭喜你！没有错题需要重测。');
+        return;
+      }
+      
+      // 重置答题状态
+      quizData = wrongQuestions;
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(quizData.length).fill(null);
+      answeredQuestions = new Array(quizData.length).fill(false);
+      
+      // 显示答题界面
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      
+      // 初始化答题
+      initQuiz();
+    }
 
     // 事件监听
     prevBtn.addEventListener('click', () => {
@@ -3487,6 +3526,7 @@
     });
 
     restartBtn.addEventListener('click', restartQuiz);
+    retryWrongBtn.addEventListener('click', retryWrongQuestions);
     backToModulesBtn.addEventListener('click', () => {
       window.location.href = 'computer-organization.html';
     });
