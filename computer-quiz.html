@@ -3520,6 +3520,8 @@
       
       // 重置答题状态
       quizData = wrongQuestions;
+      // 更新originalQuizData为当前的错题，以便下一次重测时使用
+      originalQuizData = [...wrongQuestions];
       currentQuestionIndex = 0;
       score = 0;
       userAnswers = new Array(quizData.length).fill(null);
