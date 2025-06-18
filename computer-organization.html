@@ -59,6 +59,9 @@
       </div>
       <h1 class="text-xl font-bold">计算机组成原理</h1>
       <div class="flex items-center">
+        <a href="memory-assistant.html" class="text-appleBlue hover:text-appleBlueLight mr-4">
+          <span class="flex items-center"><i class="fa fa-book text-xl mr-1"></i> 名词解析</span>
+        </a>
         <button id="downloadBtn" class="text-appleBlue hover:text-appleBlueLight">
           <i class="fa fa-download text-xl"></i>
         </button>
@@ -76,6 +79,15 @@
 
     <!-- 题库卡片网格 -->
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- 计算机概论题库 -->
+      <div class="ios-card" onclick="selectModule('计算机概论')">
+        <div class="w-16 h-16 bg-teal-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-laptop text-teal-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">0. 计算机概论</h3>
+        <p class="text-appleDarkGray text-sm">计算机基础知识与发展历程</p>
+      </div>
+
       <!-- CPU题库 -->
       <div class="ios-card" onclick="selectModule('CPU')">
         <div class="w-16 h-16 bg-appleBlue/10 rounded-2xl flex items-center justify-center mb-4">
@@ -121,13 +133,13 @@
         <p class="text-appleDarkGray text-sm">总线结构与通信原理</p>
       </div>
 
-      <!-- 学习通练习题库 -->
-      <div class="ios-card" onclick="selectModule('学习通练习')">
-        <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4">
-          <i class="fa fa-book text-red-500 text-2xl"></i>
+      <!-- 指令系统题库 -->
+      <div class="ios-card" onclick="selectModule('指令系统')">
+        <div class="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-code text-indigo-500 text-2xl"></i>
         </div>
-        <h3 class="text-lg font-semibold mb-2">6. 学习通练习</h3>
-        <p class="text-appleDarkGray text-sm">学习通平台练习题</p>
+        <h3 class="text-lg font-semibold mb-2">6. 指令系统</h3>
+        <p class="text-appleDarkGray text-sm">指令系统结构与执行原理</p>
       </div>
 
       <!-- 书后练习题库 -->
@@ -200,7 +212,7 @@
           <i class="fa fa-mobile-phone text-appleBlue text-3xl"></i>
         </div>
         <h3 class="text-xl font-bold mb-2">下载APP</h3>
-        <p class="text-appleDarkGray mb-6">是否下载复习助手APP？注意：App版本V0.1只有计组和中国文化翻译模块可以使用</p>
+        <p class="text-appleDarkGray mb-6">是否下载复习助手APP？注意：App版本V2.0只有计组和中国文化翻译模块可以使用</p>
         <div class="flex space-x-4">
           <button id="cancelDownload" class="ios-button bg-appleDarkGray flex-1">
             取消
@@ -245,6 +257,12 @@
         return;
       }
       
+      // 如果是计算机概论，直接跳转到选择题
+      if (moduleName === '计算机概论') {
+        navigateToQuiz(moduleName, '选择题');
+        return;
+      }
+      
       // 显示题型选择弹窗
       modalTitle.textContent = `${moduleName} - 选择题型`;
       questionTypeModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -270,7 +288,9 @@
       // 根据模块名称和题型确定文件路径
       let filePath = '';
       
-      if (moduleName === 'CPU') {
+      if (moduleName === '计算机概论') {
+        filePath = 'choiceQue/0计算机概论选择题.json';
+      } else if (moduleName === 'CPU') {
         filePath = questionType === '选择题' ? 'choiceQue/1CPU选择题_converted.json' : 'judgmentQue/1CPU判断题.json';
       } else if (moduleName === '存储系统') {
         filePath = questionType === '选择题' ? 'choiceQue/2memory选择题.json' : 'judgmentQue/2memory判断题.json';
@@ -280,7 +300,7 @@
         filePath = questionType === '选择题' ? 'choiceQue/4外围设备选择题.json' : 'judgmentQue/4外围设备判断题.json';
       } else if (moduleName === '总线系统') {
         filePath = questionType === '选择题' ? 'choiceQue/5Bus选择题.json' : 'judgmentQue/5Bus判断题.json';
-      } else if (moduleName === '学习通练习') {
+      } else if (moduleName === '指令系统') {
         filePath = questionType === '选择题' ? 'choiceQue/6练习选择题.json' : 'judgmentQue/6练习判断题.json';
       } else if (moduleName === '书后练习') {
         filePath = 'judgmentQue/7书后判断题.json';

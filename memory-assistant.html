@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计算机组成原理 - 名词解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        appleBlue: '#0071E3',
+                        appleBlueLight: '#4A90E2',
+                        appleGray: '#F5F5F7',
+                        appleDarkGray: '#86868B',
+                        appleText: '#1D1D1F',
+                        primary: '#0071E3',
+                        secondary: '#36D399',
+                        accent: '#FFAB00',
+                    },
+                    fontFamily: {
+                        sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .ios-shadow {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+            .ios-button {
+                @apply bg-appleBlue text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-appleBlueLight hover:shadow-md active:scale-95;
+            }
+            .card-flip {
+                perspective: 1000px;
+                transform-style: preserve-3d;
+            }
+            .card-front, .card-back {
+                backface-visibility: hidden;
+                transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .card-back {
+                transform: rotateY(180deg);
+            }
+            .card-flipped .card-front {
+                transform: rotateY(180deg);
+            }
+            .card-flipped .card-back {
+                transform: rotateY(0deg);
+            }
+            .progress-bar {
+                transition: width 0.5s ease-in-out;
+            }
+            .fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fa fa-arrow-left text-appleBlue text-xl"></i>
+                    <span class="text-appleBlue">返回</span>
+                </a>
+            </div>
+            <h1 class="text-xl font-bold">计算机组成原理</h1>
+            <div class="flex items-center">
+                <button id="stats-btn" class="flex items-center space-x-1 bg-appleBlue/10 hover:bg-appleBlue/20 text-appleBlue px-3 py-1.5 rounded-lg transition-colors">
+                    <i class="fa fa-bar-chart"></i>
+                    <span>统计</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-10">
+        <!-- 控制面板 -->
+        <div class="mb-8 fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-1">名词解析题</h2>
+                    <p class="text-appleDarkGray">共 <span id="total-terms" class="font-semibold text-appleBlue">33</span> 个名词解析题</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <div class="relative">
+                        <select id="category-filter" class="appearance-none bg-white border border-gray-200 rounded-lg py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-appleBlue/50 transition-all">
+                            <option value="all">全部类别</option>
+                            <option value="storage">存储系统</option>
+                            <option value="cpu">CPU核心概念</option>
+                            <option value="instruction">指令与程序</option>
+                            <option value="architecture">系统架构</option>
+                            <option value="conflict">冲突与控制</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fa fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                    <button id="shuffle-btn" class="bg-appleBlue hover:bg-appleBlueLight text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                        <i class="fa fa-random"></i>
+                        <span>随机排序</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="bg-gray-100 rounded-full h-2.5 mb-2">
+                <div id="progress-bar" class="bg-appleBlue h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-sm text-appleDarkGray">
+                <span>已掌握: <span id="mastered-count" class="font-medium">0</span></span>
+                <span>剩余: <span id="remaining-count" class="font-medium">33</span></span>
+            </div>
+        </div>
+
+        <!-- 卡片区域 -->
+        <div id="card-container" class="max-w-3xl mx-auto">
+            <!-- 卡片将通过JS动态生成 -->
+            <div id="empty-state" class="py-16 text-center fade-in">
+                <i class="fa fa-search text-gray-300 text-5xl mb-4"></i>
+                <h3 class="text-xl font-medium text-gray-500 mb-2">选择类别或点击随机开始学习</h3>
+                <p class="text-gray-400">使用上方控制面板筛选术语或随机排序</p>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4 z-40">
+            <button id="prev-btn" class="bg-white shadow-lg hover:bg-gray-50 text-dark px-5 py-3 rounded-full transition-all flex items-center space-x-2 opacity-90 hover:opacity-100">
+                <i class="fa fa-arrow-left"></i>
+                <span class="inline"></span>
+            </button>
+            <button id="next-btn" class="bg-white shadow-lg hover:bg-gray-50 text-dark px-5 py-3 rounded-full transition-all flex items-center space-x-2 opacity-90 hover:opacity-100">
+                <span class="inline"></span>
+                <i class="fa fa-arrow-right"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- 统计模态框 -->
+    <div id="stats-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform scale-95 transition-transform duration-300">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-appleText">学习统计</h3>
+                    <button id="close-stats" class="text-appleDarkGray hover:text-gray-700">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-appleDarkGray">总术语数</span>
+                            <span class="text-sm font-semibold text-appleBlue">33</span>
+                        </div>
+                        <div class="bg-gray-100 rounded-full h-2">
+                            <div class="bg-gray-400 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-appleDarkGray">已掌握</span>
+                            <span id="stats-mastered" class="text-sm font-semibold text-secondary">0</span>
+                        </div>
+                        <div class="bg-gray-100 rounded-full h-2">
+                            <div id="stats-mastered-bar" class="bg-secondary h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-appleDarkGray">学习中</span>
+                            <span id="stats-learning" class="text-sm font-semibold text-accent">0</span>
+                        </div>
+                        <div class="bg-gray-100 rounded-full h-2">
+                            <div id="stats-learning-bar" class="bg-accent h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-appleDarkGray">未学习</span>
+                            <span id="stats-unlearned" class="text-sm font-semibold text-appleDarkGray">33</span>
+                        </div>
+                        <div class="bg-gray-100 rounded-full h-2">
+                            <div id="stats-unlearned-bar" class="bg-appleDarkGray h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 flex justify-end">
+                <button id="reset-stats" class="text-sm text-red-500 font-medium">
+                    重置学习进度
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知组件 -->
+    <div id="notification" class="fixed top-4 right-4 bg-white shadow-lg rounded-lg p-4 transform translate-x-[200%] opacity-0 transition-all duration-300 flex items-center space-x-3 z-50">
+        <i id="notification-icon" class="fa fa-check-circle text-secondary text-xl"></i>
+        <p id="notification-message" class="text-appleText"></p>
+    </div>
+
+    <script>
+        // 术语数据
+        const termsData = [
+            {
+                id: 1,
+                term: "外存",
+                definition: "外部存储器的简称，如硬盘、U盘等，容量大、速度慢，主要用于长期存储数据。",
+                category: "storage",
+                mastered: false
+            },
+            {
+                id: 2,
+                term: "主频",
+                definition: "CPU的时钟频率，表示CPU每秒可执行的指令节拍数，单位是MHz或GHz，主频越高，性能越强（通常情况下）。",
+                category: "cpu",
+                mastered: false
+            },
+            {
+                id: 3,
+                term: "CPU时钟周期",
+                definition: "指CPU内部时钟信号的一个周期，是CPU执行最基本操作的时间单位。",
+                category: "cpu",
+                mastered: false
+            },
+            {
+                id: 4,
+                term: "基本字长",
+                definition: "计算机一次能处理的数据位数，通常与寄存器宽度、ALU结构有关，如32位、64位。",
+                category: "cpu",
+                mastered: false
+            },
+            {
+                id: 5,
+                term: "CPI",
+                definition: "平均每条指令需要的时钟周期数，是衡量CPU效率的重要指标。",
+                category: "cpu",
+                mastered: false
+            },
+            {
+                id: 6,
+                term: "编译程序",
+                definition: "将高级语言一次性翻译成目标机器代码（如可执行文件）的程序。",
+                category: "instruction",
+                mastered: false
+            },
+            {
+                id: 7,
+                term: "解释程序",
+                definition: "逐条翻译并立即执行高级语言程序的工具，不生成目标代码。",
+                category: "instruction",
+                mastered: false
+            },
+            {
+                id: 8,
+                term: "基数",
+                definition: "数制中所采用的基本单位，如十进制为10，二进制为2。",
+                category: "instruction",
+                mastered: false
+            },
+            {
+                id: 9,
+                term: "机器数",
+                definition: "用计算机规定格式（如补码）表示的数值，供计算机处理使用。",
+                category: "instruction",
+                mastered: false
+            },
+            {
+                id: 10,
+                term: "溢出",
+                definition: "运算结果超出了数据类型能表示的范围，导致结果不正确。",
+                category: "storage",
+                mastered: false
+            },
+            {
+                id: 11,
+                term: "直接映射",
+                definition: "将主存块固定映射到Cache中的某一行，简单快速，但容易冲突。",
+                category: "storage",
+                mastered: false
+            },
+            {
+                id: 12,
+                term: "组相联映射",
+                definition: "将Cache划分为多个组，每组可容纳多个主存块，结合了直接映射和全相联映射的特点。",
+                category: "storage",
+                mastered: false
+            },
+            {
+                id: 13,
+                term: "全相联映射",
+                definition: "主存块可映射到Cache的任意位置，冲突少，但实现复杂、成本高。",
+                category: "storage",
+                mastered: false
+            },
+            {
+                id: 14,
+                term: "虚拟存储器",
+                definition: "将磁盘空间部分当作内存使用，实现程序地址空间的扩展。",
+                category: "storage",
+                mastered: false
+            },
+            {
+                id: 15,
+                term: "Cache的命中率",
+                definition: "CPU访问的数据命中Cache的比率，是衡量Cache性能的重要指标。",
+                category: "storage",
+                mastered: false
+            },
+            {
+                id: 16,
+                term: "操作码",
+                definition: "指令中用于表示操作类型的部分，如加法、跳转等。",
+                category: "instruction",
+                mastered: false
+            },
+            {
+                id: 17,
+                term: "寻址方式",
+                definition: "指令中操作数地址的获取方式，如立即寻址、寄存器寻址、间接寻址等。",
+                category: "instruction",
+                mastered: false
+            },
+            {
+                id: 18,
+                term: "指令周期",
+                definition: "执行一条机器指令所需的全部时间，包含取指、译码、执行等步骤。",
+                category: "cpu",
+                mastered: false
+            },
+            {
+                id: 19,
+                term: "机器周期",
+                definition: "完成一个基本操作（如取一个字节）的最小时间单位，通常是1个或多个时钟周期。",
+                category: "cpu",
+                mastered: false
+            },
+            {
+                id: 20,
+                term: "微指令",
+                definition: "控制CPU执行微操作的指令，位于微程序控制器中。",
+                category: "cpu",
+                mastered: false
+            },
+            {
+                id: 21,
+                term: "微命令",
+                definition: "微指令中规定的一个具体操作，如\"将数据从寄存器A传送到B\"",
+                category: "cpu",
+                mastered: false
+            },
+            {
+                id: 22,
+                term: "相容性的微操作",
+                definition: "可以在同一个时钟周期内同时执行的微操作，彼此不会冲突。",
+                category: "conflict",
+                mastered: false
+            },
+            {
+                id: 23,
+                term: "相斥性的微操作",
+                definition: "不能在同一个时钟周期内同时执行的微操作，会发生资源冲突。",
+                category: "conflict",
+                mastered: false
+            },
+            {
+                id: 24,
+                term: "资源相关",
+                definition: "多条指令因共享硬件资源（如同一个寄存器）而冲突。",
+                category: "conflict",
+                mastered: false
+            },
+            {
+                id: 25,
+                term: "数据相关",
+                definition: "后一条指令需用到前一条指令的结果，需等待数据准备好。",
+                category: "conflict",
+                mastered: false
+            },
+            {
+                id: 26,
+                term: "控制相关",
+                definition: "指令执行流程改变（如跳转指令）造成的不确定性，影响流水线执行。",
+                category: "conflict",
+                mastered: false
+            },
+            {
+                id: 27,
+                term: "总线",
+                definition: "连接CPU、存储器、I/O设备的通道，分为地址总线、数据总线、控制总线。",
+                category: "architecture",
+                mastered: false
+            },
+            {
+                id: 28,
+                term: "接口",
+                definition: "硬件或软件之间的连接点，用于协调数据传输。",
+                category: "architecture",
+                mastered: false
+            },
+            {
+                id: 29,
+                term: "端口",
+                definition: "设备与CPU或内存交互的数据通道，分为输入端口和输出端口。",
+                category: "architecture",
+                mastered: false
+            },
+            {
+                id: 30,
+                term: "同步通信",
+                definition: "发送方与接收方按共同时钟节拍进行数据传输。",
+                category: "architecture",
+                mastered: false
+            },
+            {
+                id: 31,
+                term: "异步通信",
+                definition: "发送方与接收方无共同时钟，依靠起始位和停止位进行协调。",
+                category: "architecture",
+                mastered: false
+            },
+            {
+                id: 32,
+                term: "中断",
+                definition: "CPU在执行当前任务时，响应来自外部或内部的请求，暂时中止当前程序，转而执行中断服务程序。",
+                category: "architecture",
+                mastered: false
+            },
+            {
+                id: 33,
+                term: "中断源",
+                definition: "引起中断的事件或设备，如定时器、I/O设备等。",
+                category: "architecture",
+                mastered: false
+            }
+        ];
+
+        // DOM元素
+        const cardContainer = document.getElementById('card-container');
+        const emptyState = document.getElementById('empty-state');
+        const progressBar = document.getElementById('progress-bar');
+        const masteredCount = document.getElementById('mastered-count');
+        const remainingCount = document.getElementById('remaining-count');
+        const categoryFilter = document.getElementById('category-filter');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const statsBtn = document.getElementById('stats-btn');
+        const statsModal = document.getElementById('stats-modal');
+        const closeStats = document.getElementById('close-stats');
+        const resetStats = document.getElementById('reset-stats');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notification-message');
+        const notificationIcon = document.getElementById('notification-icon');
+
+        // 状态变量
+        let currentTermIndex = 0;
+        let filteredTerms = [...termsData];
+
+        // 初始化
+        function init() {
+            // 加载保存的学习进度
+            const savedProgress = localStorage.getItem('termsProgress');
+            if (savedProgress) {
+                const parsedProgress = JSON.parse(savedProgress);
+                termsData.forEach(term => {
+                    const savedTerm = parsedProgress.find(t => t.id === term.id);
+                    if (savedTerm) {
+                        term.mastered = savedTerm.mastered;
+                    }
+                });
+            }
+
+            // 初始渲染
+            renderTerms();
+            updateProgress();
+            updateStats();
+
+            // 绑定事件
+            bindEvents();
+        }
+
+        // 绑定事件监听器
+        function bindEvents() {
+            // 分类筛选
+            categoryFilter.addEventListener('change', () => {
+                filterTerms();
+                renderTerms();
+            });
+
+            // 随机排序
+            shuffleBtn.addEventListener('click', () => {
+                shuffleArray(filteredTerms);
+                currentTermIndex = 0;
+                renderTerms();
+                showNotification('术语已随机排序', 'success');
+            });
+
+            // 上一个/下一个按钮
+            prevBtn.addEventListener('click', () => {
+                if (filteredTerms.length > 0) {
+                    currentTermIndex = (currentTermIndex - 1 + filteredTerms.length) % filteredTerms.length;
+                    renderTerms();
+                    scrollToCard();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (filteredTerms.length > 0) {
+                    currentTermIndex = (currentTermIndex + 1) % filteredTerms.length;
+                    renderTerms();
+                    scrollToCard();
+                }
+            });
+
+            // 统计模态框
+            statsBtn.addEventListener('click', () => {
+                statsModal.classList.remove('opacity-0', 'pointer-events-none');
+                statsModal.querySelector('div').classList.remove('scale-95');
+                statsModal.querySelector('div').classList.add('scale-100');
+            });
+
+            closeStats.addEventListener('click', () => {
+                statsModal.classList.add('opacity-0', 'pointer-events-none');
+                statsModal.querySelector('div').classList.remove('scale-100');
+                statsModal.querySelector('div').classList.add('scale-95');
+            });
+
+            // 重置统计
+            resetStats.addEventListener('click', () => {
+                if (confirm('确定要重置所有学习进度吗？')) {
+                    termsData.forEach(term => {
+                        term.mastered = false;
+                    });
+                    localStorage.setItem('termsProgress', JSON.stringify(termsData));
+                    updateProgress();
+                    updateStats();
+                    renderTerms();
+                    showNotification('学习进度已重置', 'info');
+                }
+            });
+
+            // 点击卡片翻转
+            cardContainer.addEventListener('click', (e) => {
+                const card = e.target.closest('.card-flip');
+                if (card) {
+                    card.classList.toggle('card-flipped');
+                }
+            });
+
+            // 掌握状态切换
+            cardContainer.addEventListener('click', (e) => {
+                const toggleBtn = e.target.closest('.mastery-toggle');
+                if (toggleBtn) {
+                    const termId = parseInt(toggleBtn.dataset.id);
+                    const term = termsData.find(t => t.id === termId);
+                    if (term) {
+                        term.mastered = !term.mastered;
+                        localStorage.setItem('termsProgress', JSON.stringify(termsData));
+                        updateProgress();
+                        updateStats();
+                        renderTerms();
+                        showNotification(term.mastered ? '已标记为掌握' : '已取消掌握标记', 'success');
+                    }
+                }
+            });
+
+            // 点击外部关闭模态框
+            statsModal.addEventListener('click', (e) => {
+                if (e.target === statsModal) {
+                    closeStats.click();
+                }
+            });
+
+            // 滚动时导航栏样式变化
+            window.addEventListener('scroll', () => {
+                const nav = document.querySelector('nav');
+                if (window.scrollY > 10) {
+                    nav.classList.add('shadow-md');
+                    nav.classList.remove('shadow-sm');
+                } else {
+                    nav.classList.remove('shadow-md');
+                    nav.classList.add('shadow-sm');
+                }
+            });
+        }
+
+        // 筛选术语
+        function filterTerms() {
+            const selectedCategory = categoryFilter.value;
+            if (selectedCategory === 'all') {
+                filteredTerms = [...termsData];
+            } else {
+                filteredTerms = termsData.filter(term => term.category === selectedCategory);
+            }
+        }
+
+        // 渲染术语卡片
+        function renderTerms() {
+            if (filteredTerms.length === 0) {
+                cardContainer.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            cardContainer.innerHTML = '';
+
+            // 为每个术语创建卡片
+            filteredTerms.forEach((term, index) => {
+                const isCurrent = index === currentTermIndex;
+                const categoryName = getCategoryName(term.category);
+                const categoryColor = getCategoryColor(term.category);
+                
+                const card = document.createElement('div');
+                card.className = `card-flip mb-6 ${isCurrent ? 'fade-in' : 'opacity-0 pointer-events-none absolute'}`;
+                card.style.transition = 'opacity 0.3s ease-in-out';
+                
+                card.innerHTML = `
+                    <div class="relative w-full h-[300px] md:h-[350px] rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:shadow-xl">
+                        <!-- 卡片正面 -->
+                        <div class="card-front absolute inset-0 bg-white p-6 flex flex-col">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-xs font-medium px-2.5 py-1 rounded-full ${categoryColor}">
+                                    ${categoryName}
+                                </span>
+                                <button class="mastery-toggle p-1.5 rounded-full ${term.mastered ? 'bg-secondary/20 text-secondary' : 'bg-gray-100 text-gray-500'}" data-id="${term.id}">
+                                    <i class="fa ${term.mastered ? 'fa-check' : 'fa-circle-o'}"></i>
+                                </button>
+                            </div>
+                            <div class="flex-grow flex flex-col justify-center items-center">
+                                <h3 class="text-3xl md:text-4xl font-bold text-center mb-2">${term.term}</h3>
+                                <p class="text-sm text-gray-500">点击卡片查看解释</p>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-500">${index + 1}/${filteredTerms.length}</span>
+                                <div class="flex items-center space-x-1">
+                                    <i class="fa fa-eye text-gray-400"></i>
+                                    <span class="text-gray-500">点击翻转</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 卡片背面 -->
+                        <div class="card-back absolute inset-0 bg-white p-6 flex flex-col">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-xs font-medium px-2.5 py-1 rounded-full ${categoryColor}">
+                                    ${categoryName}
+                                </span>
+                                <button class="mastery-toggle p-1.5 rounded-full ${term.mastered ? 'bg-secondary/20 text-secondary' : 'bg-gray-100 text-gray-500'}" data-id="${term.id}">
+                                    <i class="fa ${term.mastered ? 'fa-check' : 'fa-circle-o'}"></i>
+                                </button>
+                            </div>
+                            <div class="flex-grow overflow-y-auto pr-2">
+                                <p class="text-lg leading-relaxed">${term.definition}</p>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-500">${index + 1}/${filteredTerms.length}</span>
+                                <div class="flex items-center space-x-1">
+                                    <i class="fa fa-eye text-gray-400"></i>
+                                    <span class="text-gray-500">点击返回</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                cardContainer.appendChild(card);
+                
+                // 如果是当前卡片，确保显示
+                if (isCurrent) {
+                    setTimeout(() => {
+                        card.classList.remove('opacity-0', 'pointer-events-none', 'absolute');
+                    }, 50);
+                }
+            });
+        }
+
+        // 更新进度条和计数
+        function updateProgress() {
+            const total = termsData.length;
+            const mastered = termsData.filter(term => term.mastered).length;
+            const remaining = total - mastered;
+            const progressPercentage = (mastered / total) * 100;
+            
+            progressBar.style.width = `${progressPercentage}%`;
+            masteredCount.textContent = mastered;
+            remainingCount.textContent = remaining;
+            
+            // 更新统计面板
+            document.getElementById('stats-mastered').textContent = mastered;
+            document.getElementById('stats-unlearned').textContent = remaining;
+            document.getElementById('stats-learning').textContent = total - mastered - remaining;
+            
+            document.getElementById('stats-mastered-bar').style.width = `${progressPercentage}%`;
+            document.getElementById('stats-unlearned-bar').style.width = `${(remaining / total) * 100}%`;
+            document.getElementById('stats-learning-bar').style.width = `0%`;
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const total = termsData.length;
+            const mastered = termsData.filter(term => term.mastered).length;
+            const remaining = total - mastered;
+            
+            document.getElementById('stats-mastered').textContent = mastered;
+            document.getElementById('stats-unlearned').textContent = remaining;
+            document.getElementById('stats-learning').textContent = 0; // 简化版没有"学习中"状态
+            
+            document.getElementById('stats-mastered-bar').style.width = `${(mastered / total) * 100}%`;
+            document.getElementById('stats-unlearned-bar').style.width = `${(remaining / total) * 100}%`;
+            document.getElementById('stats-learning-bar').style.width = `0%`;
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            notificationMessage.textContent = message;
+            
+            // 设置图标和颜色
+            if (type === 'success') {
+                notificationIcon.className = 'fa fa-check-circle text-secondary text-xl';
+            } else if (type === 'info') {
+                notificationIcon.className = 'fa fa-info-circle text-appleBlue text-xl';
+            } else if (type === 'warning') {
+                notificationIcon.className = 'fa fa-exclamation-circle text-accent text-xl';
+            } else if (type === 'error') {
+                notificationIcon.className = 'fa fa-times-circle text-red-500 text-xl';
+            }
+            
+            // 显示通知
+            notification.classList.remove('translate-x-[200%]', 'opacity-0');
+            notification.classList.add('translate-x-0', 'opacity-100');
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0', 'opacity-100');
+                notification.classList.add('translate-x-[200%]', 'opacity-0');
+            }, 3000);
+        }
+
+        // 滚动到当前卡片
+        function scrollToCard() {
+            const currentCard = cardContainer.querySelector('.card-flip:not(.opacity-0)');
+            if (currentCard) {
+                currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const categories = {
+                'storage': '存储系统',
+                'cpu': 'CPU核心概念',
+                'instruction': '指令与程序',
+                'architecture': '系统架构',
+                'conflict': '冲突与控制'
+            };
+            return categories[category] || category;
+        }
+
+        // 获取分类颜色
+        function getCategoryColor(category) {
+            const colors = {
+                'storage': 'bg-blue-100 text-blue-800',
+                'cpu': 'bg-green-100 text-green-800',
+                'instruction': 'bg-purple-100 text-purple-800',
+                'architecture': 'bg-orange-100 text-orange-800',
+                'conflict': 'bg-red-100 text-red-800'
+            };
+            return colors[category] || 'bg-gray-100 text-gray-800';
+        }
+
+        // 随机打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 启动应用
+        init();
+    </script>
+</body>
+</html>
+    
