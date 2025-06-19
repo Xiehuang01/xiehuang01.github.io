@@ -142,12 +142,21 @@
         <p class="text-appleDarkGray text-sm">指令系统结构与执行原理</p>
       </div>
 
+      <!-- 数据运算与运算器题库 -->
+      <div class="ios-card" onclick="selectModule('数据运算与运算器')">
+        <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-calculator text-red-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">7. 数据运算与运算器</h3>
+        <p class="text-appleDarkGray text-sm">数据运算原理与运算器结构</p>
+      </div>
+
       <!-- 书后练习题库 -->
       <div class="ios-card" onclick="selectModule('书后练习')">
         <div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-4">
           <i class="fa fa-file-text-o text-blue-500 text-2xl"></i>
         </div>
-        <h3 class="text-lg font-semibold mb-2">7. 书后练习</h3>
+        <h3 class="text-lg font-semibold mb-2">8. 书后练习</h3>
         <p class="text-appleDarkGray text-sm">教材课后判断题</p>
       </div>
 
@@ -156,7 +165,7 @@
         <div class="w-16 h-16 bg-gray-500/10 rounded-2xl flex items-center justify-center mb-4">
           <i class="fa fa-pencil-square-o text-gray-500 text-2xl"></i>
         </div>
-        <h3 class="text-lg font-semibold mb-2">8. 模拟练习</h3>
+        <h3 class="text-lg font-semibold mb-2">9. 模拟练习</h3>
         <p class="text-appleDarkGray text-sm">模拟考试练习题</p>
       </div>
     </section>
@@ -302,6 +311,8 @@
         filePath = questionType === '选择题' ? 'choiceQue/5Bus选择题.json' : 'judgmentQue/5Bus判断题.json';
       } else if (moduleName === '指令系统') {
         filePath = questionType === '选择题' ? 'choiceQue/6练习选择题.json' : 'judgmentQue/6练习判断题.json';
+      } else if (moduleName === '数据运算与运算器') {
+        filePath = questionType === '选择题' ? 'choiceQue/9数据运算与运算器选择题.json' : 'judgmentQue/9数据运算与运算器判断题.json';
       } else if (moduleName === '书后练习') {
         filePath = 'judgmentQue/7书后判断题.json';
       } else if (moduleName === '模拟练习') {
