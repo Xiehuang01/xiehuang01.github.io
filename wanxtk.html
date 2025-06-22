@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>完形填空</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置 Tailwind CSS -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appleBlue: '#0071E3',
+            appleBlueLight: '#4A90E2',
+            appleGray: '#F5F5F7',
+            appleDarkGray: '#86868B',
+            appleText: '#1D1D1F',
+          },
+          fontFamily: {
+            sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .ios-shadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .ios-card {
+        @apply bg-white rounded-2xl ios-shadow p-6 transition-all duration-300;
+      }
+      .ios-button {
+        @apply bg-appleBlue text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-appleBlueLight hover:shadow-md active:scale-95;
+      }
+      .ios-input {
+        @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-appleBlue focus:ring-2 focus:ring-appleBlue/20 outline-none transition-all;
+      }
+      .answer-option {
+        @apply bg-white rounded-xl p-4 border border-gray-200 cursor-pointer transition-all hover:border-appleBlue hover:shadow-md;
+      }
+      .answer-option.selected {
+        @apply bg-appleBlue/5 border-appleBlue;
+      }
+      .answer-option.correct {
+        @apply bg-green-50 border-green-500;
+      }
+      .answer-option.incorrect {
+        @apply bg-red-50 border-red-500;
+      }
+    }
+  </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="index.html" class="flex items-center space-x-2">
+          <i class="fa fa-arrow-left text-appleBlue text-xl"></i>
+          <span class="text-appleBlue">返回</span>
+        </a>
+      </div>
+      <h1 class="text-xl font-bold"></h1>
+      <div class="flex items-center space-x-4">
+        <button id="simulationBtn" class="text-appleBlue hover:text-appleBlueLight flex items-center">
+          <span>模拟测试</span>
+        </button>
+        <button id="downloadBtn" class="text-appleBlue hover:text-appleBlueLight">
+          <i class="fa fa-download text-xl"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- 答题区域 -->
+    <div class="ios-card mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+            <i class="fa fa-book text-green-500"></i>
+          </div>
+          <h2 class="font-semibold">完形填空</h2>
+        </div>
+        <div class="px-3 py-1 bg-appleBlue/10 text-appleBlue rounded-full text-sm" id="question-counter">
+          问题 <span id="current-question">1</span>/<span id="total-questions">16</span>
+        </div>
+      </div>
+
+      <div id="quiz-container">
+        <div id="question-container" class="mb-6">
+          <h3 class="text-lg font-semibold mb-2">请选择正确的选项：</h3>
+          <p id="question-text" class="text-xl font-bold py-4 px-6 bg-appleGray/50 rounded-xl"></p>
+        </div>
+
+        <div id="options-container" class="space-y-3 mb-6">
+          <!-- 选项将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="flex justify-between">
+          <button id="prev-btn" class="ios-button bg-appleDarkGray" disabled>上一题</button>
+          <button id="next-btn" class="ios-button" disabled>下一题</button>
+        </div>
+      </div>
+
+      <div id="results-container" class="hidden text-center py-8">
+        <div class="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+          <i class="fa fa-check-circle text-green-500 text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">答题完成！</h3>
+        <p class="text-appleDarkGray mb-6">你的得分是：<span id="final-score" class="text-appleBlue font-bold">0</span>/<span id="total-score">16</span></p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button id="restart-btn" class="ios-button">重新开始</button>
+          <button id="retry-wrong-btn" class="ios-button bg-yellow-500 hover:bg-yellow-600">重测错题</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 答题进度 -->
+    <div class="ios-card">
+      <h3 class="font-semibold mb-4">答题进度</h3>
+      <div class="w-full bg-appleGray/50 rounded-full h-2 mb-2">
+        <div id="progress-bar" class="bg-appleBlue h-2 rounded-full" style="width: 0%"></div>
+      </div>
+      <div class="flex justify-between text-sm text-appleDarkGray">
+        <span>已完成: <span id="completed-count">0</span>/<span id="total-count">16</span></span>
+        <span>正确率: <span id="accuracy">0%</span></span>
+      </div>
+    </div>
+  </main>
+
+  <!-- 下载APP弹窗 -->
+  <div id="downloadModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-appleBlue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-mobile-phone text-appleBlue text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">下载APP</h3>
+        <p class="text-appleDarkGray mb-6">是否下载复习助手APP？注意：App版本V2.0只有计组和中国文化翻译模块可以使用</p>
+        <div class="flex space-x-4">
+          <button id="cancelDownload" class="ios-button bg-appleDarkGray flex-1">
+            取消
+          </button>
+          <a id="confirmDownload" href="app/xiehuang.apk" download class="ios-button flex-1 inline-flex items-center justify-center">
+            下载
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模拟测试弹窗 -->
+  <div id="simulationModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[95%] max-w-4xl transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+      <div class="p-6 overflow-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold">完形填空模拟测试</h3>
+          <button id="closeSimulation" class="text-appleDarkGray hover:text-appleText">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div id="simulation-content">
+          <p class="text-appleDarkGray mb-4">请根据下面的题目，从选项A-I中选择最合适的答案填入空白处。</p>
+          
+          <div id="simulation-questions" class="space-y-6 mb-6">
+            <!-- 题目将通过JavaScript动态生成 -->
+          </div>
+          
+          <div class="bg-appleGray/30 p-4 rounded-xl mb-6">
+            <h4 class="font-semibold mb-2">选项：</h4>
+            <div id="simulation-options" class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <!-- 选项将通过JavaScript动态生成 -->
+            </div>
+          </div>
+          
+          <div class="flex justify-center">
+            <button id="check-simulation" class="ios-button">
+              提交答案
+            </button>
+          </div>
+        </div>
+        
+        <div id="simulation-results" class="hidden text-center">
+          <div class="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+            <i class="fa fa-check-circle text-green-500 text-4xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">测试完成！</h3>
+          <p class="text-appleDarkGray mb-6">你的得分是：<span id="simulation-score" class="text-appleBlue font-bold">0</span>/8</p>
+          <div id="simulation-answers" class="text-left mb-6 bg-appleGray/30 p-4 rounded-xl">
+            <!-- 答案将通过JavaScript动态生成 -->
+          </div>
+          <button id="retry-simulation" class="ios-button">
+            重新测试
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Questions data structure
+    let questions = [
+      {
+        id: 1,
+        question: "Smaug from 'The Hobbit' is a typical dragon figure in Western literature, a cruel, ____ and ____ creature living on the earth.",
+        options: ["avaricious; bloodthirsty", "benevolent; bloodthirsty", "timid; playful", "avaricious; benevolent"],
+        correct: 0
+      },
+      {
+        id: 2,
+        question: "The Chinese dragon is an ____ creature symbolizing strength, ____, good luck and power over the elements of wind and water.",
+        options: ["ominous; folly", "auspicious; wisdom", "ordinary; ignorance", "aggressive; wrath"],
+        correct: 1
+      },
+      {
+        id: 3,
+        question: "It is believed that a dragon appearing in a pregnant mother's dream was an auspicious sign indicating she would give birth to ____.",
+        options: ["scholar", "warrior", "a future emperor", "peasant"],
+        correct: 2
+      },
+      {
+        id: 4,
+        question: "In China, the dragon was worshiped as the God of Rain and people would visit a ____ to pray for more favorable weather during flooding or drought.",
+        options: ["mountain shrine", "river altar", "forest sanctuary", "dragon-king temple"],
+        correct: 3
+      },
+      {
+        id: 5,
+        question: "The dragon's power to control rain and waves is also closely related to its rank in the pantheon of 12 ____.",
+        options: ["celestial bodies", "mountain deities", "zodiac animals", "ocean spirits"],
+        correct: 2
+      },
+      {
+        id: 6,
+        question: "People born in the year of the dragon are said to be natural leaders-____, ____, free-spirited, and flamboyant.",
+        options: ["shy; cautious", "lazy; unmotivated", "timid; fearful", "charismatic; innovative"],
+        correct: 3
+      },
+      {
+        id: 7,
+        question: "Traditional Chinese medicine has sustained the ____ of the world's longest ongoing civilization for over five thousand years.",
+        options: ["health and longevity", "wealth and prosperity", "warfare and conquest", "art and literature"],
+        correct: 0
+      },
+      {
+        id: 8,
+        question: "The ancient Chinese texts written by medical practitioners thousands of years ago remain as ____ to contemporary practitioners today as they were to those who transcribed them through the ages.",
+        options: ["confusing and obscure", "clear and intelligible", "irrelevant and outdated", "complicated and difficult"],
+        correct: 1
+      },
+      {
+        id: 9,
+        question: "Among the many branches of traditional Chinese medicine, ____ constitutes the biggest and most important one.",
+        options: ["acupuncture", "massage therapy", "herbal medicine", "dietary therapy"],
+        correct: 2
+      },
+      {
+        id: 10,
+        question: "But in the course of their search, the mountain hermits discovered that the plants they'd been fiddling with for so long did in fact have all sorts of practical ____.",
+        options: ["ornamental value", "culinary uses", "spiritual meanings", "therapeutic benefits"],
+        correct: 3
+      },
+      {
+        id: 11,
+        question: "Rock cut tombs were hewn during the ____ Dynasty, possibly shortly after the beginning of the ____ era.",
+        options: ["Han; Christian", "Tang; Buddhist", "Qin; Islamic", "Song; Taoist"],
+        correct: 0
+      },
+      {
+        id: 12,
+        question: "____ were in use before the hewing of rock-cut tombs.",
+        options: ["Pyramids", "Cave dwellings", "Wooden coffins", "Stone circles"],
+        correct: 1
+      },
+      {
+        id: 13,
+        question: "____ made the cave ascend to architectural prominence.",
+        options: ["The Greek philosophy", "The Roman engineering", "The Indian idea", "The Egyptian design"],
+        correct: 2
+      },
+      {
+        id: 14,
+        question: "Columns in most caves are ____.",
+        options: ["triangular", "square", "round", "octagonal"],
+        correct: 3
+      },
+      {
+        id: 15,
+        question: "____ have taken their permanent positions in the vocabulary of Chinese ornamental motifs.",
+        options: ["Egyptian symbols", "Greco-Buddhist motifs", "Roman patterns", "Persian designs"],
+        correct: 1
+      },
+      {
+        id: 16,
+        question: "____ is the element most informative to posterity in the architectural treatment of these caves.",
+        options: ["The use of colored pigments", "The size of the caves", "The location of the caves", "The presentation of the timber construction in stone carving"],
+        correct: 3
+      }
+    ];
+
+    // DOM Elements
+    const questionCounter = document.getElementById('current-question');
+    const totalQuestions = document.getElementById('total-questions');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const completedCount = document.getElementById('completed-count');
+    const totalCount = document.getElementById('total-count');
+    const accuracySpan = document.getElementById('accuracy');
+    const quizContainer = document.getElementById('quiz-container');
+    const resultsContainer = document.getElementById('results-container');
+    const finalScore = document.getElementById('final-score');
+    const totalScore = document.getElementById('total-score');
+    const restartBtn = document.getElementById('restart-btn');
+    const retryWrongBtn = document.getElementById('retry-wrong-btn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const downloadModal = document.getElementById('downloadModal');
+    const cancelDownload = document.getElementById('cancelDownload');
+
+    // 答题状态
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let answeredQuestions = new Array(questions.length).fill(false);
+    let originalQuestions = [...questions]; // 保存原始题目数据，用于重测错题
+
+    // 初始化
+    function initQuiz() {
+      totalQuestions.textContent = questions.length;
+      totalCount.textContent = questions.length;
+      totalScore.textContent = questions.length;
+      loadQuestion(currentQuestionIndex);
+      updateProgress();
+    }
+
+    // 加载问题
+    function loadQuestion(index) {
+      const question = questions[index];
+      questionCounter.textContent = index + 1;
+      questionText.textContent = question.question;
+      
+      // 生成选项
+      optionsContainer.innerHTML = '';
+      
+      // 创建选项元素
+      question.options.forEach((option, i) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'answer-option';
+        optionElement.textContent = option;
+        optionElement.dataset.answer = i;
+        
+        // 如果用户已经回答过这个问题，显示答案状态
+        if (answeredQuestions[index]) {
+          if (i === question.correct) {
+            optionElement.classList.add('correct');
+          } else if (i === userAnswers[index] && i !== question.correct) {
+            optionElement.classList.add('incorrect');
+          }
+        } else {
+          // 添加点击事件
+          optionElement.addEventListener('click', selectOption);
+        }
+        
+        // 如果是用户之前选择的答案，添加selected类
+        if (i === userAnswers[index]) {
+          optionElement.classList.add('selected');
+        }
+        
+        optionsContainer.appendChild(optionElement);
+      });
+      
+      // 更新按钮状态
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = !answeredQuestions[index];
+      
+      // 如果是最后一题，改变下一题按钮文本
+      if (index === questions.length - 1) {
+        nextBtn.textContent = '完成';
+      } else {
+        nextBtn.textContent = '下一题';
+      }
+    }
+
+    // 选择选项
+    function selectOption(e) {
+      // 获取当前问题和选项
+      const selectedOption = e.target;
+      const selectedIndex = parseInt(selectedOption.dataset.answer);
+      
+      // 如果已经回答过，不做任何操作
+      if (answeredQuestions[currentQuestionIndex]) return;
+      
+      // 标记问题已回答
+      answeredQuestions[currentQuestionIndex] = true;
+      
+      // 保存用户的答案
+      userAnswers[currentQuestionIndex] = selectedIndex;
+      
+      // 获取正确答案
+      const correctIndex = questions[currentQuestionIndex].correct;
+      
+      // 显示正确和错误答案
+      const options = optionsContainer.querySelectorAll('.answer-option');
+      options.forEach((option, index) => {
+        // 禁用所有选项的点击事件
+        option.removeEventListener('click', selectOption);
+        
+        // 标记正确和错误答案
+        if (index === correctIndex) {
+          option.classList.add('correct');
+        } else if (index === selectedIndex && index !== correctIndex) {
+          option.classList.add('incorrect');
+        }
+      });
+      
+      // 添加selected类到选中的选项
+      selectedOption.classList.add('selected');
+      
+      // 更新得分
+      if (selectedIndex === correctIndex) {
+        score++;
+      }
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+
+    // 更新进度
+    function updateProgress() {
+      const answeredCount = answeredQuestions.filter(Boolean).length;
+      const progressPercentage = (answeredCount / questions.length) * 100;
+      
+      progressBar.style.width = `${progressPercentage}%`;
+      completedCount.textContent = answeredCount;
+      
+      if (answeredCount > 0) {
+        const accuracy = Math.round((score / answeredCount) * 100);
+        accuracySpan.textContent = `${accuracy}%`;
+      } else {
+        accuracySpan.textContent = '0%';
+      }
+    }
+
+    // 显示结果
+    function showResults() {
+      quizContainer.classList.add('hidden');
+      resultsContainer.classList.remove('hidden');
+      finalScore.textContent = score;
+    }
+
+    // 重新开始答题
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(questions.length).fill(null);
+      answeredQuestions = new Array(questions.length).fill(false);
+      
+      quizContainer.classList.remove('hidden');
+      resultsContainer.classList.add('hidden');
+      
+      initQuiz();
+    }
+
+    // 重测错题
+    function retryWrongQuestions() {
+      // 收集错题
+      const wrongQuestions = [];
+      
+      for (let i = 0; i < originalQuestions.length; i++) {
+        // 如果用户回答了这道题且答错了
+        if (answeredQuestions[i] && userAnswers[i] !== originalQuestions[i].correct) {
+          wrongQuestions.push(originalQuestions[i]);
+        }
+      }
+      
+      // 如果没有错题，提示用户
+      if (wrongQuestions.length === 0) {
+        alert('恭喜你！没有错题需要重测。');
+        return;
+      }
+      
+      // 重置答题状态
+      questions = wrongQuestions;
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(questions.length).fill(null);
+      answeredQuestions = new Array(questions.length).fill(false);
+      
+      // 显示答题界面
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      
+      // 初始化答题
+      initQuiz();
+    }
+
+    // 事件监听
+    prevBtn.addEventListener('click', () => {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion(currentQuestionIndex);
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion(currentQuestionIndex);
+      } else {
+        showResults();
+      }
+    });
+
+    restartBtn.addEventListener('click', restartQuiz);
+    retryWrongBtn.addEventListener('click', retryWrongQuestions);
+    
+    // 下载按钮点击事件
+    downloadBtn.addEventListener('click', () => {
+      downloadModal.classList.add('opacity-100', 'pointer-events-auto');
+      setTimeout(() => {
+        const modalContent = downloadModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    });
+    
+    // 取消下载按钮事件
+    cancelDownload.addEventListener('click', () => {
+      const modalContent = downloadModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        downloadModal.classList.remove('opacity-100', 'pointer-events-auto');
+      }, 300);
+    });
+    
+    // 点击下载弹窗外部关闭
+    downloadModal.addEventListener('click', (e) => {
+      if (e.target === downloadModal) {
+        cancelDownload.click();
+      }
+    });
+
+    // 模拟测试功能
+    const simulationBtn = document.getElementById('simulationBtn');
+    const simulationModal = document.getElementById('simulationModal');
+    const closeSimulation = document.getElementById('closeSimulation');
+    const simulationQuestions = document.getElementById('simulation-questions');
+    const simulationOptions = document.getElementById('simulation-options');
+    const checkSimulation = document.getElementById('check-simulation');
+    const simulationResults = document.getElementById('simulation-results');
+    const simulationContent = document.getElementById('simulation-content');
+    const simulationScore = document.getElementById('simulation-score');
+    const simulationAnswers = document.getElementById('simulation-answers');
+    const retrySimulation = document.getElementById('retry-simulation');
+    
+    let simulationSelectedQuestions = [];
+    let simulationUserAnswers = {};
+    
+    // 打开模拟测试弹窗
+    simulationBtn.addEventListener('click', () => {
+      simulationModal.classList.add('opacity-100', 'pointer-events-auto');
+      setTimeout(() => {
+        const modalContent = simulationModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+      
+      // 初始化模拟测试
+      initSimulation();
+    });
+    
+    // 关闭模拟测试弹窗
+    closeSimulation.addEventListener('click', () => {
+      const modalContent = simulationModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        simulationModal.classList.remove('opacity-100', 'pointer-events-auto');
+      }, 300);
+    });
+    
+    // 初始化模拟测试
+    function initSimulation() {
+      // 重置界面
+      simulationContent.classList.remove('hidden');
+      simulationResults.classList.add('hidden');
+      simulationUserAnswers = {};
+      
+      // 随机选择8道题目
+      simulationSelectedQuestions = getRandomQuestions(questions, 8);
+      
+      // 获取所有正确答案
+      const correctAnswers = simulationSelectedQuestions.map((q, index) => {
+        return {
+          id: index,
+          text: q.options[q.correct],
+          questionId: q.id
+        };
+      });
+      
+      // 打乱正确答案的顺序作为选项
+      const shuffledOptions = shuffleArray([...correctAnswers]);
+      
+      // 渲染题目
+      renderSimulationQuestions(simulationSelectedQuestions, shuffledOptions);
+      
+      // 渲染选项
+      renderSimulationOptions(shuffledOptions);
+    }
+    
+    // 获取随机题目
+    function getRandomQuestions(allQuestions, count) {
+      const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    }
+    
+    // 渲染模拟测试题目
+    function renderSimulationQuestions(questions, options) {
+      simulationQuestions.innerHTML = '';
+      
+      questions.forEach((question, index) => {
+        const questionElement = document.createElement('div');
+        questionElement.className = 'bg-white p-4 rounded-xl shadow-sm';
+        
+        // 不再替换问题中的空白为下拉选择框，而是将下拉框放在题号右边
+        questionElement.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <p class="font-semibold">问题 ${index + 1}：</p>
+            <select class="simulation-select px-2 py-1 rounded border border-appleBlue text-appleBlue font-bold" data-question="${index}">
+              <option value="">选择答案</option>
+              ${options.map((option, i) => `<option value="${i}">${String.fromCharCode(65 + i)}</option>`).join('')}
+            </select>
+          </div>
+          <p>${question.question}</p>
+        `;
+        
+        simulationQuestions.appendChild(questionElement);
+      });
+      
+      // 添加下拉框的事件监听
+      document.querySelectorAll('.simulation-select').forEach(select => {
+        select.addEventListener('change', (e) => {
+          const questionId = e.target.dataset.question;
+          const optionId = e.target.value;
+          simulationUserAnswers[questionId] = optionId;
+          
+          // 检查是否所有问题都已回答
+          checkAllAnswered();
+        });
+      });
+    }
+    
+    // 渲染模拟测试选项
+    function renderSimulationOptions(options) {
+      simulationOptions.innerHTML = '';
+      
+      options.forEach((option, index) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'bg-white p-3 rounded-lg shadow-sm';
+        optionElement.innerHTML = `
+          <span class="font-bold text-appleBlue">${String.fromCharCode(65 + index)}.</span> ${option.text}
+        `;
+        
+        simulationOptions.appendChild(optionElement);
+      });
+    }
+    
+    // 检查是否所有问题都已回答
+    function checkAllAnswered() {
+      const allAnswered = Object.keys(simulationUserAnswers).length === simulationSelectedQuestions.length;
+      checkSimulation.disabled = !allAnswered;
+      
+      if (allAnswered) {
+        checkSimulation.classList.remove('bg-appleDarkGray');
+        checkSimulation.classList.add('bg-appleBlue');
+      } else {
+        checkSimulation.classList.add('bg-appleDarkGray');
+        checkSimulation.classList.remove('bg-appleBlue');
+      }
+    }
+    
+    // 检查模拟测试答案
+    checkSimulation.addEventListener('click', () => {
+      let score = 0;
+      const results = [];
+      
+      simulationSelectedQuestions.forEach((question, index) => {
+        const userOptionIndex = simulationUserAnswers[index];
+        if (userOptionIndex === undefined) return;
+        
+        const userOption = document.querySelectorAll('.simulation-select')[index].options[parseInt(userOptionIndex) + 1].text;
+        const correctOptionText = question.options[question.correct];
+        const shuffledOptions = Array.from(simulationOptions.children).map(el => {
+          const optionText = el.textContent.trim().substring(3); // 去掉 "A. " 前缀
+          return optionText;
+        });
+        
+        const correctShuffledIndex = shuffledOptions.findIndex(opt => opt === correctOptionText);
+        const isCorrect = shuffledOptions[userOptionIndex] === correctOptionText;
+        
+        if (isCorrect) {
+          score++;
+        }
+        
+        results.push({
+          question: question.question,
+          userAnswer: userOption,
+          correctAnswer: String.fromCharCode(65 + correctShuffledIndex),
+          isCorrect: isCorrect
+        });
+      });
+      
+      // 显示结果
+      showSimulationResults(score, results);
+    });
+    
+    // 显示模拟测试结果
+    function showSimulationResults(score, results) {
+      simulationContent.classList.add('hidden');
+      simulationResults.classList.remove('hidden');
+      simulationScore.textContent = score;
+      
+      // 渲染答案详情
+      simulationAnswers.innerHTML = '<h4 class="font-semibold mb-2">答案详情：</h4>';
+      
+      results.forEach((result, index) => {
+        const resultElement = document.createElement('div');
+        resultElement.className = `mb-4 p-3 rounded-lg ${result.isCorrect ? 'bg-green-50' : 'bg-red-50'}`;
+        
+        // 不再替换问题中的空白
+        resultElement.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-semibold">问题 ${index + 1}：</span>
+            <span class="font-bold ${result.isCorrect ? 'text-green-600' : 'text-red-600'}">${result.userAnswer}</span>
+          </div>
+          <p class="mb-2">${result.question}</p>
+          <p class="text-sm ${result.isCorrect ? 'text-green-600' : 'text-red-600'}">
+            你的答案: ${result.userAnswer} (${result.isCorrect ? '正确' : '错误'})
+            ${!result.isCorrect ? `<span class="ml-2">正确答案: ${result.correctAnswer}</span>` : ''}
+          </p>
+        `;
+        
+        simulationAnswers.appendChild(resultElement);
+      });
+    }
+    
+    // 重新测试
+    retrySimulation.addEventListener('click', initSimulation);
+    
+    // 打乱数组顺序
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    // 初始化答题
+    initQuiz();
+  </script>
+</body>
+</html>

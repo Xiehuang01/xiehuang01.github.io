@@ -1,0 +1,142 @@
+[
+  {
+    "question": "1. Sqoop 支持的数据导入导出操作包括（ ）",
+    "options": [
+      "A. 在不同关系数据库间迁移数据",
+      "B. 从关系数据库导入到 Hadoop",
+      "C. 在 Hadoop 不同组件间迁移数据",
+      "D. 从 Hadoop 导出到关系数据库"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "2. YARN（Hadoop资源管理器）的核心组件包括哪些？（ ）",
+    "options": [
+      "A. JobTracker：监控任务执行状态",
+      "B. ApplicationMaster（AM）：负责具体应用程序的资源申请和任务协调",
+      "C. ResourceManager（RM）：负责全局资源管理和应用程序调度",
+      "D. NodeManager（NM）：管理单个节点的资源和容器（Container）"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "3. Flume的数据流中包含以下哪些基本组件？（ ）",
+    "options": [
+      "A. Broker",
+      "B. Channel",
+      "C. Source",
+      "D. Sink"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "4. Hadoop的MapReduce框架中，以下哪些是JobTracker的职责？（ ）",
+    "options": [
+      "A. 资源调度",
+      "B. 数据分片（Split）",
+      "C. 任务分配",
+      "D. 故障恢复"
+    ],
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "5. 以下关于 ZooKeeper 的描述，哪个是正确的？（ ）",
+    "options": [
+      "A. ZooKeeper 采用 Zab 协议来实现消息传输的一致性",
+      "B. ZooKeeper 采用树形层次结构的数据模型",
+      "C. ZooKeeper 节点可以向 Leader 同步最新数据",
+      "D. ZooKeeper 中的数据节点分为临时节点和永久节点"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "6. 大数据具有哪些特点（ ）",
+    "options": [
+      "A. Velocity",
+      "B. BigData",
+      "C. Value",
+      "D. Volume"
+    ],
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "7. 关于HBase架构和组件，正确的有哪些？（ ）",
+    "options": [
+      "A. 支持强事务（ACID），保证跨行操作的一致性",
+      "B. 面向列族存储，每个列族包含多个动态列",
+      "C. 行键（RowKey）全局唯一，决定数据的存储顺序",
+      "D. 数据按时间戳版本存储，默认保留最新3个版本"
+    ],
+    "answer": [
+      "B",
+      "C"
+    ]
+  },
+  {
+    "question": "8. 以下哪些命令可以查看HDFS文件内容？（ ）",
+    "options": [
+      "A. hdfs dfs -tail",
+      "B. hdfs dfs -head",
+      "C. hdfs dfs -cat",
+      "D. hdfs dfs -text"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "9. MapReduce 的 Shuffle 过程主要包括（ ）",
+    "options": [
+      "A. 合并",
+      "B. 分区",
+      "C. 分组",
+      "D. 排序"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "10. MapReduce 编程中，Combiner 的作用有（ ）",
+    "options": [
+      "A. 减少网络传输数据量",
+      "B. 减少 Map 输出数据量",
+      "C. 提高 MapReduce 作业性能",
+      "D. 替代 Reducer"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  }
+]

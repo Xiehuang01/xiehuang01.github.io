@@ -1,0 +1,141 @@
+[
+  {
+    "question": "1. Hive 支持的数据类型有（ ）",
+    "options": [
+      "A. 复杂数据类型",
+      "B. 基本数据类型",
+      "C. 集合数据类型",
+      "D. 自定义数据类型"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "question": "2. 以下关于 HDFS 的 NameNode 说法正确的有（ ）",
+    "options": [
+      "A. 存储实际数据",
+      "B. 管理命名空间",
+      "C. 可以有多个（HA 模式下）",
+      "D. 记录文件元数据"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "3. Sqoop主要支持在Hadoop和哪些系统之间进行数据传输？（ ）",
+    "options": [
+      "A. MongoDB",
+      "B. MySQL",
+      "C. PostgreSQL",
+      "D. Oracle"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "4. 关于HDFS的特点，以下描述正确的是（ ）",
+    "options": [
+      "A. HDFS采用主从架构，NameNode管理元数据，DataNode存储数据块",
+      "B. HDFS不适合存储大量小文件（元数据管理开销大）",
+      "C. HDFS设计用于高吞吐量而非低延迟访问",
+      "D. HDFS通过多副本机制实现高容错性，默认副本数为3"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "5. 关于Hive的表类型，正确的描述是？（ ）",
+    "options": [
+      "A. 桶表：通过哈希分桶提升抽样和JOIN效率",
+      "B. 分区表：通过目录分区存储数据，必须指定分区字段",
+      "C. 外部表：数据存储在Hive之外，删除表时仅删除元数据",
+      "D. 内部表：数据存储由Hive管理，删除表时数据同步删除"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "6. Hive 的查询语句可以使用的子句有（ ）",
+    "options": [
+      "A. FROM",
+      "B. LIST",
+      "C. GROUP BY",
+      "D. WHERE"
+    ],
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "7. Hive中的分区和分桶操作可以带来哪些好处？（ ）",
+    "options": [
+      "A. 减少存储空间",
+      "B. 提高查询效率",
+      "C. 简化数据建模",
+      "D. 优化JOIN性能"
+    ],
+    "answer": [
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "8. HDFS具有哪些特点？（ ）",
+    "options": [
+      "A. 低延迟",
+      "B. 适合大量小文件存储",
+      "C. 高容错性",
+      "D. 高吞吐量"
+    ],
+    "answer": [
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "9. 以下哪些场景适合使用HBase？（ ）",
+    "options": [
+      "A. 数据频繁更新和事务性要求高的场景",
+      "B. 高并发的单行数据快速方位（如用户画像查询）",
+      "C. 复杂SQL查询和数据分析（如报表生成）",
+      "D. 海量结构化数据的实时随机读写（如用户行为日志）"
+    ],
+    "answer": [
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "10. HBase 的架构组成包括（ ）",
+    "options": [
+      "A. Master",
+      "B. ZooKeeper",
+      "C. RegionServer",
+      "D. NameNode"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  }
+]

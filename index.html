@@ -83,7 +83,7 @@
       </div>
 
       <!-- 中国文化翻译模块 -->
-      <div class="ios-card" onclick="window.location.href='culture-quiz.html'">
+      <div class="ios-card" onclick="openCultureModal()">
         <div class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mb-4">
           <i class="fa fa-language text-green-500 text-2xl"></i>
         </div>
@@ -101,7 +101,7 @@
       </div>
 
       <!-- Hadoop模块 -->
-      <div class="ios-card" onclick="openModal('Hadoop')">
+      <div class="ios-card" onclick="openHadoopModal()">
         <div class="w-16 h-16 bg-green-600/10 rounded-2xl flex items-center justify-center mb-4">
           <i class="fa fa-cloud text-green-600 text-2xl"></i>
         </div>
@@ -183,6 +183,128 @@
     </div>
   </div>
 
+  <!-- Hadoop内测码验证弹窗 -->
+  <div id="hadoopVerifyModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-green-600/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-lock text-green-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Hadoop模块验证</h3>
+        <p class="text-appleDarkGray mb-4">请输入内测码以访问Hadoop模块</p>
+        <input type="text" id="hadoopTestCode" class="ios-input mb-6" placeholder="请输入内测码">
+        <div class="flex space-x-4">
+          <button id="cancelHadoopVerify" class="ios-button bg-appleDarkGray flex-1">
+            取消
+          </button>
+          <button id="confirmHadoopVerify" class="ios-button flex-1">
+            确认
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hadoop选择弹窗 -->
+  <div id="hadoopModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col">
+      <div class="p-6 overflow-hidden flex flex-col">
+        <h3 class="text-xl font-bold mb-4 text-center">选择题目类型</h3>
+        <div class="space-y-4 mb-6 overflow-y-auto pr-2">
+          <button onclick="window.location.href='hadoop-quiz.html?type=单选题&key=单选题1'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-circle-o text-xl mr-3"></i>
+              <span class="font-medium">单选题1</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=单选题&key=单选题2'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-circle-o text-xl mr-3"></i>
+              <span class="font-medium">单选题2</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=单选题&key=单选题3'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-circle-o text-xl mr-3"></i>
+              <span class="font-medium">单选题3</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=多选题&key=多选题1'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-square-o text-xl mr-3"></i>
+              <span class="font-medium">多选题1</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=多选题&key=多选题2'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-square-o text-xl mr-3"></i>
+              <span class="font-medium">多选题2</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=多选题&key=多选题3'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-square-o text-xl mr-3"></i>
+              <span class="font-medium">多选题3</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=填空题&key=填空题1'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-pencil text-xl mr-3"></i>
+              <span class="font-medium">填空题1</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=填空题&key=填空题2'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-pencil text-xl mr-3"></i>
+              <span class="font-medium">填空题2</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=填空题&key=填空题3'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-pencil text-xl mr-3"></i>
+              <span class="font-medium">填空题3</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='hadoop-quiz.html?type=模拟练习&key=模拟练习'" class="w-full py-4 px-6 bg-green-500/10 text-green-500 rounded-xl hover:bg-green-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-random text-xl mr-3"></i>
+              <span class="font-medium">模拟练习</span>
+            </div>
+          </button>
+        </div>
+        <button id="closeHadoopModal" class="ios-button w-full mt-auto">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中国文化翻译选择弹窗 -->
+  <div id="cultureModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6">
+        <h3 class="text-xl font-bold mb-4 text-center">选择题目类型</h3>
+        <div class="space-y-4 mb-6">
+          <button onclick="window.location.href='culture-quiz.html'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-exchange text-xl mr-3"></i>
+              <span class="font-medium">中英互译</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='wanxtk.html'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-pencil-square-o text-xl mr-3"></i>
+              <span class="font-medium">完形填空</span>
+            </div>
+          </button>
+        </div>
+        <button id="closeCultureModal" class="ios-button w-full">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 弹窗控制
     const modal = document.getElementById('modal');
@@ -257,6 +379,15 @@
         if (!computerOrganizationModal.classList.contains('opacity-0')) {
           closeComputerOrganizationModalFunc();
         }
+        if (!hadoopVerifyModal.classList.contains('opacity-0')) {
+          closeHadoopVerifyModal();
+        }
+        if (!hadoopModal.classList.contains('opacity-0')) {
+          closeHadoopModalFunc();
+        }
+        if (!cultureModal.classList.contains('opacity-0')) {
+          closeCultureModalFunc();
+        }
       }
     });
     
@@ -295,6 +426,128 @@
     downloadModal.addEventListener('click', (e) => {
       if (e.target === downloadModal) {
         closeDownloadModal();
+      }
+    });
+
+    // Hadoop内测码验证弹窗控制
+    const hadoopVerifyModal = document.getElementById('hadoopVerifyModal');
+    const hadoopTestCode = document.getElementById('hadoopTestCode');
+    const confirmHadoopVerify = document.getElementById('confirmHadoopVerify');
+    const cancelHadoopVerify = document.getElementById('cancelHadoopVerify');
+    
+    function openHadoopModal() {
+      // 显示内测码验证窗口
+      hadoopVerifyModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = hadoopVerifyModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+        // 聚焦到输入框
+        hadoopTestCode.focus();
+      }, 10);
+    }
+    
+    // 验证内测码并打开Hadoop模块
+    function verifyAndOpenHadoop() {
+      const testCode = hadoopTestCode.value;
+      if (testCode === "xiehuangtest") {
+        // 关闭验证窗口
+        closeHadoopVerifyModal();
+        // 打开Hadoop模块窗口
+        hadoopModal.classList.remove('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+          const modalContent = hadoopModal.querySelector('div');
+          modalContent.classList.remove('scale-95');
+          modalContent.classList.add('scale-100');
+        }, 10);
+      } else {
+        alert("内测码不正确，无法访问Hadoop模块！");
+        hadoopTestCode.value = "";
+        hadoopTestCode.focus();
+      }
+    }
+    
+    // 关闭验证窗口
+    function closeHadoopVerifyModal() {
+      const modalContent = hadoopVerifyModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        hadoopVerifyModal.classList.add('opacity-0', 'pointer-events-none');
+        hadoopTestCode.value = ""; // 清空输入框
+      }, 300);
+    }
+    
+    // 确认按钮点击事件
+    confirmHadoopVerify.addEventListener('click', verifyAndOpenHadoop);
+    
+    // 取消按钮点击事件
+    cancelHadoopVerify.addEventListener('click', closeHadoopVerifyModal);
+    
+    // 回车键提交
+    hadoopTestCode.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        verifyAndOpenHadoop();
+      }
+    });
+    
+    // 点击验证窗口外部关闭
+    hadoopVerifyModal.addEventListener('click', (e) => {
+      if (e.target === hadoopVerifyModal) {
+        closeHadoopVerifyModal();
+      }
+    });
+
+    // Hadoop模态框控制
+    const hadoopModal = document.getElementById('hadoopModal');
+    const closeHadoopModal = document.getElementById('closeHadoopModal');
+    
+    function closeHadoopModalFunc() {
+      const modalContent = hadoopModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        hadoopModal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+    
+    closeHadoopModal.addEventListener('click', closeHadoopModalFunc);
+    
+    // 点击Hadoop模态框外部关闭
+    hadoopModal.addEventListener('click', (e) => {
+      if (e.target === hadoopModal) {
+        closeHadoopModalFunc();
+      }
+    });
+
+    // 中国文化翻译模态框控制
+    const cultureModal = document.getElementById('cultureModal');
+    const closeCultureModal = document.getElementById('closeCultureModal');
+    
+    function openCultureModal() {
+      cultureModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = cultureModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+    
+    function closeCultureModalFunc() {
+      const modalContent = cultureModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        cultureModal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+    
+    closeCultureModal.addEventListener('click', closeCultureModalFunc);
+    
+    // 点击中国文化翻译模态框外部关闭
+    cultureModal.addEventListener('click', (e) => {
+      if (e.target === cultureModal) {
+        closeCultureModalFunc();
       }
     });
   </script>

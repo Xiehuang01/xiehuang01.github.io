@@ -1,0 +1,202 @@
+[
+  {
+    "question": "1. MapReduce 中，负责将 Map 阶段输出进行排序和合并的是（ ）",
+    "options": [
+      "A. Combiner",
+      "B. Reduce 任务",
+      "C. Shuffle 过程",
+      "D. Map 任务"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "2. 以下哪个组件可以指定对key进行Reduce分发的策略?( )",
+    "options": [
+      "A. RecordReader",
+      "B. FileInputFormat",
+      "C. Partitioner",
+      "D. Combiner"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "3. 以下哪个组件是 Hadoop 分布式计算框架（ ）",
+    "options": [
+      "A. MapReduce",
+      "B. HDFS",
+      "C. Hive",
+      "D. HBase"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "4. 以下关于 MapReduce 工作流程的描述，哪一项是错误的（ ）？",
+    "options": [
+      "A. Map 阶段结束后会对数据进行分区处理",
+      "B. Map 阶段的输出数据会转换为 Reduce 阶段的输入数据",
+      "C. MapReduce 对输入文件会进行切片规划",
+      "D. MapReduce 处理的键值对可以直接存放 Java 基础数据类型如 int,double 等"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "5. 关于HDFS集群中的DataNode的描述不正确的是?( )",
+    "options": [
+      "A. 响应客户端的所有读写数据请求，为客户端的存储和读取数据提供支撑",
+      "B. 存储客户端上传的数据的数据块",
+      "C. 一个DataNode上存储一个数据块的多个副本",
+      "D. 当Datanode读取数据块的时候，会计算它的校验和(checksum)，如果计算后的校验和，与数据块创建时值不一样，说明该数据块已经损坏"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "6. MapReduce的Shuffle过程中哪个操作是最后做的? ( )",
+    "options": [
+      "A. 溢写",
+      "B. 分区",
+      "C. 排序",
+      "D. 合并"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "7. 关于 SecondaryNameNode 哪项是正确的? ( )",
+    "options": [
+      "A. SecondaryNameNode应与NameNode部署到一个节点",
+      "B. 它对内存没有要求",
+      "C. 它是NameNode的热备",
+      "D. 它的目的是帮助NameNode合并编辑日志，减少NameNode启动时间"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "8. Zookeeper的Leader默认监听的端口是?( )",
+    "options": [
+      "A. 2888",
+      "B. 8088",
+      "C. 3888",
+      "D. 2181"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "9. Sqoop 的主要功能是（ ）",
+    "options": [
+      "A. 数据在 Hadoop 与关系数据库间传输",
+      "B. 数据处理",
+      "C. 数据转换",
+      "D. 数据存储"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "10. 下面描述HBase的Region的内部结构不正确的是? ( )",
+    "options": [
+      "A. 每个Store由一个MemStore和0至多个StoreFile组成",
+      "B. 每个Store保存一个 Column",
+      "C. MemStore存储在内存中，StoreFile存储在HDFS",
+      "D. Region由一个或者多个Store组成"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "11. HDFS 中负责管理命名空间、记录文件元数据的是（ ）",
+    "options": [
+      "A. DataNode",
+      "B. ResourceManager",
+      "C. NameNode",
+      "D. SecondaryNameNode"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "12. Hadoop 3.X的哪个组件提供了数据仓库功能，并支持SQL查询？（ ）",
+    "options": [
+      "A. HDFS",
+      "B. Hive",
+      "C. HBase",
+      "D. YARN"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "13. Flume支持的事务处理是为了保证（ ）",
+    "options": [
+      "A. 数据的传输速度",
+      "B. 组件的可扩展性",
+      "C. 系统的高可用性",
+      "D. 数据的一致性和完整性"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "14. 下面对YARN调度器描述正确的是?( )",
+    "options": [
+      "A. Hadoop 2.0中Fair Scheduler 是 YARN 中默认的资源调度器",
+      "B. Yarn 的 NodeManager 是每个节点上的资源和任务管理器",
+      "C. Capacity Scheduler 是一种单队列的调度器",
+      "D. 多用户的情况下，Fair Scheduler 可以最大化集群的吞吐和利用率"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "15. Hive在嵌入式部署的时候，元数据默认存储在（ ）",
+    "options": [
+      "A. Oracle",
+      "B. Derby",
+      "C. PostgreSQL",
+      "D. MySQL"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "16. Hive的外部表除了元数据外，表的数据存储在（ ）",
+    "options": [
+      "A. 数据库",
+      "B. 本地文件系统",
+      "C. HBase",
+      "D. HDFS"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "17. Hadoop 3.X 中默认的 HDFS 副本数是（ ）",
+    "options": [
+      "A. 1",
+      "B. 2",
+      "C. 4",
+      "D. 3"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "18. Hive哪一种数据模型，删除表时，存储目录中的数据不会被删除，只是删除与数据的链接?( )",
+    "options": [
+      "A. 桶表",
+      "B. 内部表(托管表)",
+      "C. 分区表",
+      "D. 外部表"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "19. 安装Hadoop时，发现50070对应的页面无法打开，可以通过下面哪个命令查看某个端口(TCP或UDP)是否在监听?( )",
+    "options": [
+      "A. ps",
+      "B. netstat",
+      "C. ping",
+      "D. ifconfig"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "20. HDFS检查点(CheckPoint)的作用是可以减少下面哪个组件的启动时间?( )",
+    "options": [
+      "A. DataNode",
+      "B. NameNode",
+      "C. SecondaryNameNode",
+      "D. JournalNode"
+    ],
+    "answer": "B"
+  }
+]

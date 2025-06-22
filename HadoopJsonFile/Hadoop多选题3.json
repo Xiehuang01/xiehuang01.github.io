@@ -1,0 +1,140 @@
+[
+  {
+    "question": "1. 以下哪些命令可以查看HDFS文件内容？（ ）",
+    "options": [
+      "A. hdfs dfs -text",
+      "B. hdfs dfs -tail",
+      "C. hdfs dfs -cat",
+      "D. hdfs dfs -head"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "2. 大数据具有哪些特点（ ）",
+    "options": [
+      "A. BigData",
+      "B. Value",
+      "C. Volume",
+      "D. Velocity"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "3. 以下关于 HDFS 的 NameNode 说法正确的有（ ）",
+    "options": [
+      "A. 管理命名空间",
+      "B. 记录文件元数据",
+      "C. 存储实际数据",
+      "D. 可以有多个（HA 模式下）"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "4. HDFS具有哪些特点？（ ）",
+    "options": [
+      "A. 低延迟",
+      "B. 适合大量小文件存储",
+      "C. 高吞吐量",
+      "D. 高容错性"
+    ],
+    "answer": [
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "5. YARN（Hadoop资源管理器）的核心组件包括哪些？（ ）",
+    "options": [
+      "A. ResourceManager（RM）：负责全局资源管理和应用程序调度",
+      "B. ApplicationMaster（AM）：负责具体应用程序的资源申请和任务协调",
+      "C. JobTracker：监控任务执行状态",
+      "D. NodeManager（NM）：管理单个节点的资源和容器（Container）"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "6. 关于HBase架构和组件，正确的有哪些？（ ）",
+    "options": [
+      "A. 行键（RowKey）全局唯一，决定数据的存储顺序",
+      "B. 支持强事务（ACID），保证跨行操作的一致性",
+      "C. 数据按时间戳版本存储，默认保留最新3个版本",
+      "D. 面向列族存储，每个列族包含多个动态列"
+    ],
+    "answer": [
+      "A",
+      "D"
+    ]
+  },
+  {
+    "question": "7. 以下哪些场景适合使用HBase？（ ）",
+    "options": [
+      "A. 数据频繁更新和事务性要求高的场景",
+      "B. 高并发的单行数据快速方位（如用户画像查询）",
+      "C. 复杂SQL查询和数据分析（如报表生成）",
+      "D. 海量结构化数据的实时随机读写（如用户行为日志）"
+    ],
+    "answer": [
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "8. Sqoop 支持的数据导入导出操作包括（ ）",
+    "options": [
+      "A. 在不同关系数据库间迁移数据",
+      "B. 从关系数据库导入到 Hadoop",
+      "C. 从 Hadoop 导出到关系数据库",
+      "D. 在 Hadoop 不同组件间迁移数据"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "question": "9. Hive 支持的数据类型有（ ）",
+    "options": [
+      "A. 基本数据类型",
+      "B. 集合数据类型",
+      "C. 复杂数据类型",
+      "D. 自定义数据类型"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "question": "10. 以下关于 ZooKeeper 的描述，哪个是正确的？（ ）",
+    "options": [
+      "A. ZooKeeper 节点可以向 Leader 同步最新数据",
+      "B. ZooKeeper 采用 Zab 协议来实现消息传输的一致性",
+      "C. ZooKeeper 采用树形层次结构的数据模型",
+      "D. ZooKeeper 中的数据节点分为临时节点和永久节点"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  }
+]

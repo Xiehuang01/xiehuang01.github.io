@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hadoop大数据 - 答题</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置 Tailwind CSS -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appleBlue: '#0071E3',
+            appleBlueLight: '#4A90E2',
+            appleGray: '#F5F5F7',
+            appleDarkGray: '#86868B',
+            appleText: '#1D1D1F',
+          },
+          fontFamily: {
+            sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .ios-shadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .ios-card {
+        @apply bg-white rounded-2xl ios-shadow p-6 transition-all duration-300;
+      }
+      .ios-button {
+        @apply bg-appleBlue text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-appleBlueLight hover:shadow-md active:scale-95;
+      }
+      .green-button {
+        @apply bg-green-500 text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-green-600 hover:shadow-md active:scale-95;
+      }
+      .ios-input {
+        @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-appleBlue focus:ring-2 focus:ring-appleBlue/20 outline-none transition-all;
+      }
+      .answer-option {
+        @apply bg-white rounded-xl p-4 border border-gray-200 cursor-pointer transition-all hover:border-appleBlue hover:shadow-md;
+      }
+      .answer-option.selected {
+        @apply bg-appleBlue/5 border-appleBlue;
+      }
+      .answer-option.correct {
+        @apply bg-green-50 border-green-500;
+      }
+      .answer-option.incorrect {
+        @apply bg-red-50 border-red-500;
+      }
+      .question-content {
+        white-space: pre-wrap;
+      }
+    }
+  </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="index.html" class="flex items-center space-x-2">
+          <i class="fa fa-arrow-left text-appleBlue text-xl"></i>
+          <span class="text-appleBlue">返回</span>
+        </a>
+      </div>
+      <h1 id="page-title" class="text-xl font-bold">Hadoop大数据</h1>
+      <div class="flex items-center">
+        <button id="downloadBtn" class="text-appleBlue hover:text-appleBlueLight">
+          <i class="fa fa-download text-xl"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- 加载中提示 -->
+    <div id="loading" class="text-center py-12">
+      <div class="w-16 h-16 border-4 border-appleBlue/30 border-t-appleBlue rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-appleDarkGray">正在加载题目...</p>
+    </div>
+
+    <!-- 答题区域 -->
+    <div id="quiz-container" class="hidden">
+      <div class="ios-card mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-2">
+            <div id="module-icon" class="w-10 h-10 rounded-full bg-appleBlue/10 flex items-center justify-center">
+              <i class="fa fa-database text-appleBlue"></i>
+            </div>
+            <h2 id="module-title" class="font-semibold">Hadoop</h2>
+          </div>
+          <div class="px-3 py-1 bg-appleBlue/10 text-appleBlue rounded-full text-sm" id="question-counter">
+            问题 <span id="current-question">1</span>/<span id="total-questions">0</span>
+          </div>
+        </div>
+
+        <div id="question-container" class="mb-6">
+          <h3 id="question-type-label" class="text-lg font-semibold mb-2">请选择正确的选项：</h3>
+          <div id="question-text" class="question-content text-base py-4 px-6 bg-appleGray/50 rounded-xl mb-4"></div>
+        </div>
+
+        <div id="options-container" class="space-y-3 mb-6">
+          <!-- 选项将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="flex justify-between">
+          <button id="prev-btn" class="ios-button bg-appleDarkGray" disabled>上一题</button>
+          <button id="next-btn" class="ios-button" disabled>下一题</button>
+        </div>
+      </div>
+
+      <!-- 答题进度 -->
+      <div class="ios-card">
+        <h3 class="font-semibold mb-4">答题进度</h3>
+        <div class="w-full bg-appleGray/50 rounded-full h-2 mb-2">
+          <div id="progress-bar" class="bg-appleBlue h-2 rounded-full" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-sm text-appleDarkGray">
+          <span>已完成: <span id="completed-count">0</span>/<span id="total-count">0</span></span>
+          <span>正确率: <span id="accuracy">0%</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 结果区域 -->
+    <div id="results-container" class="hidden">
+      <div class="ios-card text-center py-8">
+        <div class="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+          <i class="fa fa-check-circle text-green-500 text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">答题完成！</h3>
+        <p class="text-appleDarkGray mb-6">你的得分是：<span id="final-score" class="text-appleBlue font-bold">0</span>/<span id="total-score">0</span></p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button id="restart-btn" class="ios-button">重新开始</button>
+          <button id="retry-wrong-btn" class="ios-button bg-yellow-500 hover:bg-yellow-600">重测错题</button>
+          <button id="back-to-modules-btn" class="ios-button bg-appleDarkGray">返回题库</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 错误提示 -->
+    <div id="error-container" class="hidden">
+      <div class="ios-card text-center py-8">
+        <div class="w-20 h-20 mx-auto bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+          <i class="fa fa-exclamation-triangle text-red-500 text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">加载失败</h3>
+        <p id="error-message" class="text-appleDarkGray mb-6">无法加载题目，请稍后再试。</p>
+        <button id="back-btn" class="ios-button">返回题库</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 下载APP弹窗 -->
+  <div id="downloadModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-appleBlue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-mobile-phone text-appleBlue text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">下载APP</h3>
+        <p class="text-appleDarkGray mb-6">是否下载复习助手APP？注意：App版本V2.0只有计组和中国文化翻译模块可以使用</p>
+        <div class="flex space-x-4">
+          <button id="cancelDownload" class="ios-button bg-appleDarkGray flex-1">
+            取消
+          </button>
+          <a id="confirmDownload" href="app/xiehuang.apk" download class="ios-button flex-1 inline-flex items-center justify-center">
+            下载
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 获取URL参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const moduleName = urlParams.get('module') || 'Hadoop';
+    const questionType = urlParams.get('type') || '选择题';
+    const key = urlParams.get('key') || `${questionType}1`;
+    
+    // 页面元素
+    const pageTitle = document.getElementById('page-title');
+    const moduleTitle = document.getElementById('module-title');
+    const moduleIcon = document.getElementById('module-icon');
+    const questionTypeLabel = document.getElementById('question-type-label');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const questionCounter = document.getElementById('current-question');
+    const totalQuestions = document.getElementById('total-questions');
+    const progressBar = document.getElementById('progress-bar');
+    const completedCount = document.getElementById('completed-count');
+    const totalCount = document.getElementById('total-count');
+    const accuracyDisplay = document.getElementById('accuracy');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const quizContainer = document.getElementById('quiz-container');
+    const loadingContainer = document.getElementById('loading');
+    const resultsContainer = document.getElementById('results-container');
+    const errorContainer = document.getElementById('error-container');
+    const errorMessage = document.getElementById('error-message');
+    const finalScore = document.getElementById('final-score');
+    const totalScore = document.getElementById('total-score');
+    const restartBtn = document.getElementById('restart-btn');
+    const retryWrongBtn = document.getElementById('retry-wrong-btn');
+    const backToModulesBtn = document.getElementById('back-to-modules-btn');
+    const backBtn = document.getElementById('back-btn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const downloadModal = document.getElementById('downloadModal');
+    const cancelDownload = document.getElementById('cancelDownload');
+    const confirmDownload = document.getElementById('confirmDownload');
+
+    // 设置页面标题和模块名称
+    pageTitle.textContent = 'Hadoop大数据';
+    moduleTitle.textContent = moduleName;
+
+    // 根据问题类型设置标签
+    if (questionType === '单选题') {
+      questionTypeLabel.textContent = '请选择正确的选项：';
+    } else if (questionType === '多选题') {
+      questionTypeLabel.textContent = '请选择所有正确的选项：';
+    } else if (questionType === '填空题') {
+      questionTypeLabel.textContent = '请填写正确答案：';
+    }
+
+    // 题目数据
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+    let wrongQuestions = [];
+
+    // 内嵌JSON数据
+    const jsonData = {
+      '单选题1':[
+  {
+    "question": "1. MapReduce 中，负责将 Map 阶段输出进行排序和合并的是（ ）",
+    "options": [
+      "A. Combiner",
+      "B. Reduce 任务",
+      "C. Shuffle 过程",
+      "D. Map 任务"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "2. 以下哪个组件可以指定对key进行Reduce分发的策略?( )",
+    "options": [
+      "A. RecordReader",
+      "B. FileInputFormat",
+      "C. Partitioner",
+      "D. Combiner"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "3. 以下哪个组件是 Hadoop 分布式计算框架（ ）",
+    "options": [
+      "A. MapReduce",
+      "B. HDFS",
+      "C. Hive",
+      "D. HBase"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "4. 以下关于 MapReduce 工作流程的描述，哪一项是错误的（ ）？",
+    "options": [
+      "A. Map 阶段结束后会对数据进行分区处理",
+      "B. Map 阶段的输出数据会转换为 Reduce 阶段的输入数据",
+      "C. MapReduce 对输入文件会进行切片规划",
+      "D. MapReduce 处理的键值对可以直接存放 Java 基础数据类型如 int,double 等"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "5. 关于HDFS集群中的DataNode的描述不正确的是?( )",
+    "options": [
+      "A. 响应客户端的所有读写数据请求，为客户端的存储和读取数据提供支撑",
+      "B. 存储客户端上传的数据的数据块",
+      "C. 一个DataNode上存储一个数据块的多个副本",
+      "D. 当Datanode读取数据块的时候，会计算它的校验和(checksum)，如果计算后的校验和，与数据块创建时值不一样，说明该数据块已经损坏"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "6. MapReduce的Shuffle过程中哪个操作是最后做的? ( )",
+    "options": [
+      "A. 溢写",
+      "B. 分区",
+      "C. 排序",
+      "D. 合并"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "7. 关于 SecondaryNameNode 哪项是正确的? ( )",
+    "options": [
+      "A. SecondaryNameNode应与NameNode部署到一个节点",
+      "B. 它对内存没有要求",
+      "C. 它是NameNode的热备",
+      "D. 它的目的是帮助NameNode合并编辑日志，减少NameNode启动时间"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "8. Zookeeper的Leader默认监听的端口是?( )",
+    "options": [
+      "A. 2888",
+      "B. 8088",
+      "C. 3888",
+      "D. 2181"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "9. Sqoop 的主要功能是（ ）",
+    "options": [
+      "A. 数据在 Hadoop 与关系数据库间传输",
+      "B. 数据处理",
+      "C. 数据转换",
+      "D. 数据存储"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "10. 下面描述HBase的Region的内部结构不正确的是? ( )",
+    "options": [
+      "A. 每个Store由一个MemStore和0至多个StoreFile组成",
+      "B. 每个Store保存一个 Column",
+      "C. MemStore存储在内存中，StoreFile存储在HDFS",
+      "D. Region由一个或者多个Store组成"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "11. HDFS 中负责管理命名空间、记录文件元数据的是（ ）",
+    "options": [
+      "A. DataNode",
+      "B. ResourceManager",
+      "C. NameNode",
+      "D. SecondaryNameNode"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "12. Hadoop 3.X的哪个组件提供了数据仓库功能，并支持SQL查询？（ ）",
+    "options": [
+      "A. HDFS",
+      "B. Hive",
+      "C. HBase",
+      "D. YARN"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "13. Flume支持的事务处理是为了保证（ ）",
+    "options": [
+      "A. 数据的传输速度",
+      "B. 组件的可扩展性",
+      "C. 系统的高可用性",
+      "D. 数据的一致性和完整性"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "14. 下面对YARN调度器描述正确的是?( )",
+    "options": [
+      "A. Hadoop 2.0中Fair Scheduler 是 YARN 中默认的资源调度器",
+      "B. Yarn 的 NodeManager 是每个节点上的资源和任务管理器",
+      "C. Capacity Scheduler 是一种单队列的调度器",
+      "D. 多用户的情况下，Fair Scheduler 可以最大化集群的吞吐和利用率"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "15. Hive在嵌入式部署的时候，元数据默认存储在（ ）",
+    "options": [
+      "A. Oracle",
+      "B. Derby",
+      "C. PostgreSQL",
+      "D. MySQL"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "16. Hive的外部表除了元数据外，表的数据存储在（ ）",
+    "options": [
+      "A. 数据库",
+      "B. 本地文件系统",
+      "C. HBase",
+      "D. HDFS"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "17. Hadoop 3.X 中默认的 HDFS 副本数是（ ）",
+    "options": [
+      "A. 1",
+      "B. 2",
+      "C. 4",
+      "D. 3"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "18. Hive哪一种数据模型，删除表时，存储目录中的数据不会被删除，只是删除与数据的链接?( )",
+    "options": [
+      "A. 桶表",
+      "B. 内部表(托管表)",
+      "C. 分区表",
+      "D. 外部表"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "19. 安装Hadoop时，发现50070对应的页面无法打开，可以通过下面哪个命令查看某个端口(TCP或UDP)是否在监听?( )",
+    "options": [
+      "A. ps",
+      "B. netstat",
+      "C. ping",
+      "D. ifconfig"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "20. HDFS检查点(CheckPoint)的作用是可以减少下面哪个组件的启动时间?( )",
+    "options": [
+      "A. DataNode",
+      "B. NameNode",
+      "C. SecondaryNameNode",
+      "D. JournalNode"
+    ],
+    "answer": "B"
+  }
+],
+      '单选题2': [
+  {
+    "question": "1. HBase 中用于定位 Region 位置的是（ ）",
+    "options": [
+      "A. META 表",
+      "B. ZooKeeper",
+      "C. RegionServer",
+      "D. Master"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. 对Zookeeper的ZNode表达不正确的是?( )",
+    "options": [
+      "A. znode上都会保存自己的数据内容，同时会保存一系列属性信息.",
+      "B. Znode可分为持久节点，临时节点两类",
+      "C. 每个Znode其有一个唯一的路径标识",
+      "D. znode适合保存任意长度的数据"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "3. MapReduce 的编程模型中，Mapper 的输出会作为（ ）的输入",
+    "options": [
+      "A. Combiner",
+      "B. Partitioner",
+      "C. Reducer",
+      "D. InputFormat"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "4. 在MapReduce中，哪个组件如果用户不指定，则不会默认存有的? ( )",
+    "options": [
+      "A. OutputFormat",
+      "B. InputFormat",
+      "C. Combiner",
+      "D. Partitioner"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "5. 下面哪个命令可以实现将HDFS中的文件下载到Linux本地?( )",
+    "options": [
+      "A. hdfs dfs -cp",
+      "B. hdfs dfs -put",
+      "C. hdfs dfs -copyFromLocal",
+      "D. hdfs dfs -copyToLocal"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "6. Hadoop 的配置文件中， 负责配置HDFS访问地址的是哪个配置文件？（ ）",
+    "options": [
+      "A. yarn-site.xml",
+      "B. mapred-site.xml",
+      "C. core-site.xml",
+      "D. hdfs-site.xml"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "7. YARN中，一个运用程序的资源请求和任务调度由（ ）负责。",
+    "options": [
+      "A. NameNode",
+      "B. ApplicationMaster",
+      "C. NodeManager",
+      "D. ResourceManager"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "8. 安装Hadoop时，配置项\"hadoop.tmp.dir\"应该配置在哪个文件?( )",
+    "options": [
+      "A. mapred-site.xml",
+      "B. hdfs-site.xml",
+      "C. yarn-site.xml",
+      "D. core-site.xml"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "9. 以下哪个不属于是 HDFS 的运行进程？（ ）",
+    "options": [
+      "A. SecondaryNameNode",
+      "B. DataNode",
+      "C. ResourceManager",
+      "D. NameNode"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "10. Sqoop 导入数据时，指定连接数据库的参数是（ ）",
+    "options": [
+      "A. --table",
+      "B. --username",
+      "C. --query",
+      "D. --connect"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "11. 下面哪个程序负责HDFS中数据块存储?( )",
+    "options": [
+      "A. DataNode",
+      "B. NameNode",
+      "C. NodeManager",
+      "D. ResourceManager"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "12. 下列哪种场景不适合采用列式存储?( )",
+    "options": [
+      "A. 事务使用率不高，数据量非常大",
+      "B. 对于更新某些行的频率很高",
+      "C. 对于单列，获取频率较高",
+      "D. 对于大数据的环境，利于数据压缩和线性扩展"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "13. Hadoop的容错性是通过以下哪种机制实现的？（ ）",
+    "options": [
+      "A. 检查点",
+      "B. 以上都是",
+      "C. 心跳检测",
+      "D. 数据备份"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "14. Hive 中对数据进行分组可以使用的关键字是（ ）",
+    "options": [
+      "A. FROM",
+      "B. SELECT",
+      "C. WHERE",
+      "D. GROUP BY"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "15. YARN Web界面默认占用哪个端口?( )",
+    "options": [
+      "A. 50070",
+      "B. 9000",
+      "C. 50090",
+      "D. 8088"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "16. MapReduce的特点不包括:( )",
+    "options": [
+      "A. 良好的扩展性",
+      "B. 高容错性",
+      "C. 易于编程",
+      "D. 擅长对PB级以上海量数据进行实时处理"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "17. 以下哪个不属于HDFS的进程?( )",
+    "options": [
+      "A. SecondaryNamenode",
+      "B. Datanode",
+      "C. MRAppMaster/YarnChild",
+      "D. Namenode"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "18. HBase 中，RegionServer 负责（ ）",
+    "options": [
+      "A. 管理命名空间",
+      "B. 管理 Region",
+      "C. 管理元数据",
+      "D. 管理 ZooKeeper"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "19. 从存储位置上，可以拿Hive与HDFS进行比较，下面说法不正确的是?( )",
+    "options": [
+      "A. Hive的桶保存到HDFS上是一个目录",
+      "B. Hive的分区保存到HDFS上是一个目录",
+      "C. Hive的表保存到HDFS上是一个目录",
+      "D. Hive的数据保存到HDFS上是一个文件"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "20. HBase的存储模型是（ ）",
+    "options": [
+      "A. 行式存储",
+      "B. 文档存储",
+      "C. 列式存储",
+      "D. 键值对存储"
+    ],
+    "answer": "C"
+  }
+],
+      '单选题3': [
+  {
+    "question": "1. Hadoop的核心组件不包括以下哪一项（ ）",
+    "options": [
+      "A. Hive",
+      "B. YARN",
+      "C. MapReduce",
+      "D. HDFS"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. HiveQL中，用于去除重复行的关键字是？（ ）",
+    "options": [
+      "A. Stinct",
+      "B. limit",
+      "C. Distinct",
+      "D. unique"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "3. HDFS Web界面默认占用哪个端口？（ ）",
+    "options": [
+      "A. 50090",
+      "B. 9870",
+      "C. 50070",
+      "D. 8088"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "4. HBase与Hive的主要区别是什么？ （ ）",
+    "options": [
+      "A. HBase基于MySQL，Hive基于HDFS",
+      "B. HBase是关系型数据库，Hive是NoSQL",
+      "C. HBase支持实时读写，Hive适用于批处理",
+      "D. HBase不支持SQL查询，Hive支持"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "5. Hive中，以下哪种数据类型表示字符串？（ ）",
+    "options": [
+      "A. FLOAT",
+      "B. STRING",
+      "C. BOOLEAN",
+      "D. TEXT"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "6. 以下哪个工具用于从关系型数据库导入数据到HDFS？（ ）",
+    "options": [
+      "A. Pig",
+      "B. Sqoop",
+      "C. Kafka",
+      "D. Flume"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "7. 下面的配置项配置在hadoop哪个配置文件？（ ） fs.trash.interval 1440",
+    "options": [
+      "A. core-site.xml",
+      "B. mapred-site.xml",
+      "C. hdfs-site.xml",
+      "D. yarn-site.xml"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "8. 以下哪个命令用于格式化HDFS文件系统？（ ）",
+    "options": [
+      "A. C.Hdfs secondarynamenode -format",
+      "B. Hdfs datanode -format",
+      "C. Hdfs fsck -format",
+      "D. A.Hdfs namenode -format"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "9. Hadoop中，以下哪个目录是HDFS的根目录？（ ）",
+    "options": [
+      "A. /home",
+      "B. /home/hadoop",
+      "C. /",
+      "D. /user/hadoop"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "10. Hadoop中用于数据采集的工具是？（ ）",
+    "options": [
+      "A. Flume",
+      "B. Sqoop",
+      "C. HBase",
+      "D. Zookeeper"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. Hive哪一种数据模型，删除表时，存储目录中的数据不会被删除，只是删除与数据的链接？（ ）",
+    "options": [
+      "A. 桶表",
+      "B. 外部表",
+      "C. 内部表（托管表）",
+      "D. 分区表"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "12. MapReduce编程模型中，负责处理中间结果合并的阶段是？（ ）",
+    "options": [
+      "A. Shuffle阶段",
+      "B. Map阶段",
+      "C. Combiner阶段",
+      "D. Reduce阶段"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "13. HDFS中负责管理文件系统的命名空间和客户端访问的组件是？（ ）",
+    "options": [
+      "A. SecondaryNameNode",
+      "B. DataNode",
+      "C. ResourceManager",
+      "D. NameNode"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "14. HBase是一种？（ ）",
+    "options": [
+      "A. 文档型数据库",
+      "B. 列式存储数据库",
+      "C. 关系型数据库",
+      "D. 键值对数据库"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "15. HiveQL中用于创建外部表的关键词是？（ ）",
+    "options": [
+      "A. CREATE TABLE",
+      "B. CREATE TEMPORARY TABLE",
+      "C. CREATE DATABASE",
+      "D. CREATE EXTERNAL TABLE"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "16. HDFS的缺点包括？（ ）",
+    "options": [
+      "A. 不适合小文件存储",
+      "B. 以上都是",
+      "C. 不适合低延迟访问",
+      "D. 不支持并发写入"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "17. 在Hadoop中，负责协调分布式任务调度的核心组件是？（ ）",
+    "options": [
+      "A. MapReduce",
+      "B. Hive",
+      "C. YARN",
+      "D. HDFS"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "18. HDFS中默认的块（Block）大小是？（ ）",
+    "options": [
+      "A. 64MB",
+      "B. 128MB",
+      "C. 512MB",
+      "D. 256MB"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "19. Hadoop中，以下哪个组件负责存储实际数据？（ ）",
+    "options": [
+      "A. ResourceManager",
+      "B. DataNode",
+      "C. NameNode",
+      "D. SecondaryNameNode"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "20. Hadoop中，默认的副本数量是多少？（ ）",
+    "options": [
+      "A. 1",
+      "B. 2",
+      "C. 4",
+      "D. 3"
+    ],
+    "answer": "D"
+  }
+],
+      '多选题1': [
+  {
+    "question": "1. Sqoop 支持的数据导入导出操作包括（ ）",
+    "options": [
+      "A. 在不同关系数据库间迁移数据",
+      "B. 从关系数据库导入到 Hadoop",
+      "C. 在 Hadoop 不同组件间迁移数据",
+      "D. 从 Hadoop 导出到关系数据库"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "2. YARN（Hadoop资源管理器）的核心组件包括哪些？（ ）",
+    "options": [
+      "A. JobTracker：监控任务执行状态",
+      "B. ApplicationMaster（AM）：负责具体应用程序的资源申请和任务协调",
+      "C. ResourceManager（RM）：负责全局资源管理和应用程序调度",
+      "D. NodeManager（NM）：管理单个节点的资源和容器（Container）"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "3. Flume的数据流中包含以下哪些基本组件？（ ）",
+    "options": [
+      "A. Broker",
+      "B. Channel",
+      "C. Source",
+      "D. Sink"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "4. Hadoop的MapReduce框架中，以下哪些是JobTracker的职责？（ ）",
+    "options": [
+      "A. 资源调度",
+      "B. 数据分片（Split）",
+      "C. 任务分配",
+      "D. 故障恢复"
+    ],
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "5. 以下关于 ZooKeeper 的描述，哪个是正确的？（ ）",
+    "options": [
+      "A. ZooKeeper 采用 Zab 协议来实现消息传输的一致性",
+      "B. ZooKeeper 采用树形层次结构的数据模型",
+      "C. ZooKeeper 节点可以向 Leader 同步最新数据",
+      "D. ZooKeeper 中的数据节点分为临时节点和永久节点"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "6. 大数据具有哪些特点（ ）",
+    "options": [
+      "A. Velocity",
+      "B. BigData",
+      "C. Value",
+      "D. Volume"
+    ],
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "7. 关于HBase架构和组件，正确的有哪些？（ ）",
+    "options": [
+      "A. 支持强事务（ACID），保证跨行操作的一致性",
+      "B. 面向列族存储，每个列族包含多个动态列",
+      "C. 行键（RowKey）全局唯一，决定数据的存储顺序",
+      "D. 数据按时间戳版本存储，默认保留最新3个版本"
+    ],
+    "answer": [
+      "B",
+      "C"
+    ]
+  },
+  {
+    "question": "8. 以下哪些命令可以查看HDFS文件内容？（ ）",
+    "options": [
+      "A. hdfs dfs -tail",
+      "B. hdfs dfs -head",
+      "C. hdfs dfs -cat",
+      "D. hdfs dfs -text"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "9. MapReduce 的 Shuffle 过程主要包括（ ）",
+    "options": [
+      "A. 合并",
+      "B. 分区",
+      "C. 分组",
+      "D. 排序"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "10. MapReduce 编程中，Combiner 的作用有（ ）",
+    "options": [
+      "A. 减少网络传输数据量",
+      "B. 减少 Map 输出数据量",
+      "C. 提高 MapReduce 作业性能",
+      "D. 替代 Reducer"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  }
+],
+      '多选题2': [
+  {
+    "question": "1. Hive 支持的数据类型有（ ）",
+    "options": [
+      "A. 复杂数据类型",
+      "B. 基本数据类型",
+      "C. 集合数据类型",
+      "D. 自定义数据类型"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "question": "2. 以下关于 HDFS 的 NameNode 说法正确的有（ ）",
+    "options": [
+      "A. 存储实际数据",
+      "B. 管理命名空间",
+      "C. 可以有多个（HA 模式下）",
+      "D. 记录文件元数据"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "3. Sqoop主要支持在Hadoop和哪些系统之间进行数据传输？（ ）",
+    "options": [
+      "A. MongoDB",
+      "B. MySQL",
+      "C. PostgreSQL",
+      "D. Oracle"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "4. 关于HDFS的特点，以下描述正确的是（ ）",
+    "options": [
+      "A. HDFS采用主从架构，NameNode管理元数据，DataNode存储数据块",
+      "B. HDFS不适合存储大量小文件（元数据管理开销大）",
+      "C. HDFS设计用于高吞吐量而非低延迟访问",
+      "D. HDFS通过多副本机制实现高容错性，默认副本数为3"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "5. 关于Hive的表类型，正确的描述是？（ ）",
+    "options": [
+      "A. 桶表：通过哈希分桶提升抽样和JOIN效率",
+      "B. 分区表：通过目录分区存储数据，必须指定分区字段",
+      "C. 外部表：数据存储在Hive之外，删除表时仅删除元数据",
+      "D. 内部表：数据存储由Hive管理，删除表时数据同步删除"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "6. Hive 的查询语句可以使用的子句有（ ）",
+    "options": [
+      "A. FROM",
+      "B. LIST",
+      "C. GROUP BY",
+      "D. WHERE"
+    ],
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "7. Hive中的分区和分桶操作可以带来哪些好处？（ ）",
+    "options": [
+      "A. 减少存储空间",
+      "B. 提高查询效率",
+      "C. 简化数据建模",
+      "D. 优化JOIN性能"
+    ],
+    "answer": [
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "8. HDFS具有哪些特点？（ ）",
+    "options": [
+      "A. 低延迟",
+      "B. 适合大量小文件存储",
+      "C. 高容错性",
+      "D. 高吞吐量"
+    ],
+    "answer": [
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "9. 以下哪些场景适合使用HBase？（ ）",
+    "options": [
+      "A. 数据频繁更新和事务性要求高的场景",
+      "B. 高并发的单行数据快速方位（如用户画像查询）",
+      "C. 复杂SQL查询和数据分析（如报表生成）",
+      "D. 海量结构化数据的实时随机读写（如用户行为日志）"
+    ],
+    "answer": [
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "10. HBase 的架构组成包括（ ）",
+    "options": [
+      "A. Master",
+      "B. ZooKeeper",
+      "C. RegionServer",
+      "D. NameNode"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  }
+],
+      '多选题3': [
+  {
+    "question": "1. 以下哪些命令可以查看HDFS文件内容？（ ）",
+    "options": [
+      "A. hdfs dfs -text",
+      "B. hdfs dfs -tail",
+      "C. hdfs dfs -cat",
+      "D. hdfs dfs -head"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "2. 大数据具有哪些特点（ ）",
+    "options": [
+      "A. BigData",
+      "B. Value",
+      "C. Volume",
+      "D. Velocity"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "3. 以下关于 HDFS 的 NameNode 说法正确的有（ ）",
+    "options": [
+      "A. 管理命名空间",
+      "B. 记录文件元数据",
+      "C. 存储实际数据",
+      "D. 可以有多个（HA 模式下）"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "4. HDFS具有哪些特点？（ ）",
+    "options": [
+      "A. 低延迟",
+      "B. 适合大量小文件存储",
+      "C. 高吞吐量",
+      "D. 高容错性"
+    ],
+    "answer": [
+      "C",
+      "D"
+    ]
+  },
+  {
+    "question": "5. YARN（Hadoop资源管理器）的核心组件包括哪些？（ ）",
+    "options": [
+      "A. ResourceManager（RM）：负责全局资源管理和应用程序调度",
+      "B. ApplicationMaster（AM）：负责具体应用程序的资源申请和任务协调",
+      "C. JobTracker：监控任务执行状态",
+      "D. NodeManager（NM）：管理单个节点的资源和容器（Container）"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "6. 关于HBase架构和组件，正确的有哪些？（ ）",
+    "options": [
+      "A. 行键（RowKey）全局唯一，决定数据的存储顺序",
+      "B. 支持强事务（ACID），保证跨行操作的一致性",
+      "C. 数据按时间戳版本存储，默认保留最新3个版本",
+      "D. 面向列族存储，每个列族包含多个动态列"
+    ],
+    "answer": [
+      "A",
+      "D"
+    ]
+  },
+  {
+    "question": "7. 以下哪些场景适合使用HBase？（ ）",
+    "options": [
+      "A. 数据频繁更新和事务性要求高的场景",
+      "B. 高并发的单行数据快速方位（如用户画像查询）",
+      "C. 复杂SQL查询和数据分析（如报表生成）",
+      "D. 海量结构化数据的实时随机读写（如用户行为日志）"
+    ],
+    "answer": [
+      "B",
+      "D"
+    ]
+  },
+  {
+    "question": "8. Sqoop 支持的数据导入导出操作包括（ ）",
+    "options": [
+      "A. 在不同关系数据库间迁移数据",
+      "B. 从关系数据库导入到 Hadoop",
+      "C. 从 Hadoop 导出到关系数据库",
+      "D. 在 Hadoop 不同组件间迁移数据"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "question": "9. Hive 支持的数据类型有（ ）",
+    "options": [
+      "A. 基本数据类型",
+      "B. 集合数据类型",
+      "C. 复杂数据类型",
+      "D. 自定义数据类型"
+    ],
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "question": "10. 以下关于 ZooKeeper 的描述，哪个是正确的？（ ）",
+    "options": [
+      "A. ZooKeeper 节点可以向 Leader 同步最新数据",
+      "B. ZooKeeper 采用 Zab 协议来实现消息传输的一致性",
+      "C. ZooKeeper 采用树形层次结构的数据模型",
+      "D. ZooKeeper 中的数据节点分为临时节点和永久节点"
+    ],
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ]
+  }
+],
+      '填空题1': [
+  {
+    "question": "1. 若要将 Flume 采集的数据存储到 Hadoop 分布式文件系统，应使用（_）Sink。",
+    "answer": "HDFS"
+  },
+  {
+    "question": "2. Hadoop 是一个由（_）基金会管理和维护的大数据分布式处理框架。",
+    "answer": "Apache"
+  },
+  {
+    "question": "3. 在Hive中，将数据按某个字段进行划分的操作称为（_）。",
+    "answer": "分区"
+  },
+  {
+    "question": "4. MapReduce 编程模型中，（_）阶段可以并行执行，以提高处理效率。",
+    "answer": "Map"
+  },
+  {
+    "question": "5. HBase依赖于（_）来维护集群状态信息和元数据。",
+    "answer": "Zookeeper"
+  }
+],
+      '填空题2': [
+  {
+    "question": "1. Hive 是基于 Hadoop 的数据仓库工具，它提供了类似（_）的查询语言HiveQL。",
+    "answer": "SQL"
+  },
+  {
+    "question": "2. HDFS 中负责存储实际数据块的是（_） 。",
+    "answer": "DataNode"
+  },
+  {
+    "question": "3. YARN是Hadoop2.x之后引入的资源调度框架，其核心组件包括ResourceManager 和（_）。",
+    "answer": "NodeManager"
+  },
+  {
+    "question": "4. Zookeeper是一个开源的分布式协调服务，它提供了类似文件系统的（_）点来保存数据。",
+    "answer": "节点"
+  },
+  {
+    "question": "5. MapReduce是一种编程模型，用于大规模数据集的（_）和处理。",
+    "answer": "并行计算"
+  }
+],
+      '填空题3': [
+  {
+    "question": "1. HDFS 中负责存储实际数据块的是（_） 。",
+    "answer": "DataNode"
+  },
+  {
+    "question": "2. MapReduce 编程模型中，（_）阶段可以并行执行，以提高处理效率。",
+    "answer": "Map"
+  },
+  {
+    "question": "3. Hive 是基于 Hadoop 的数据仓库工具，它提供了类似（_）的查询语言HiveQL。",
+    "answer": "SQL"
+  },
+  {
+    "question": "4. YARN是Hadoop2.x之后引入的资源调度框架，其核心组件包括ResourceManager 和（_）。",
+    "answer": "NodeManager"
+  },
+  {
+    "question": "5. 在Hive中，将数据按某个字段进行划分的操作称为（_）。",
+    "answer": "分区"
+  }
+],
+      '模拟练习': [] // 这里将动态生成模拟练习题目
+    };
+
+    // 生成模拟练习题目
+    function generateMockExam() {
+      const mockExam = [];
+      
+      // 从3套单选题中各抽6题
+      const singleChoiceQuestions = [];
+      ['单选题1', '单选题2', '单选题3'].forEach(key => {
+        const questions = jsonData[key];
+        // 随机抽取6题
+        const selectedQuestions = getRandomQuestions(questions, 6);
+        singleChoiceQuestions.push(...selectedQuestions);
+      });
+      
+      // 从3套多选题中各抽3题
+      const multipleChoiceQuestions = [];
+      ['多选题1', '多选题2', '多选题3'].forEach(key => {
+        const questions = jsonData[key];
+        // 随机抽取3题
+        const selectedQuestions = getRandomQuestions(questions, 3);
+        multipleChoiceQuestions.push(...selectedQuestions);
+      });
+      
+      // 从3套填空题中各抽3题
+      const fillBlankQuestions = [];
+      ['填空题1', '填空题2', '填空题3'].forEach(key => {
+        const questions = jsonData[key];
+        // 随机抽取3题
+        const selectedQuestions = getRandomQuestions(questions, 3);
+        fillBlankQuestions.push(...selectedQuestions);
+      });
+      
+      // 合并所有题目
+      mockExam.push(...singleChoiceQuestions);
+      mockExam.push(...multipleChoiceQuestions);
+      mockExam.push(...fillBlankQuestions);
+      
+      // 更新模拟练习题目
+      jsonData['模拟练习'] = mockExam;
+      
+      return mockExam;
+    }
+    
+    // 从数组中随机抽取n个元素
+    function getRandomQuestions(array, n) {
+      // 复制数组，避免修改原数组
+      const shuffled = [...array];
+      // 随机打乱数组
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      // 返回前n个元素
+      return shuffled.slice(0, n);
+    }
+
+    // 加载题目数据
+    async function loadQuestions() {
+      try {
+        // 如果是模拟练习，先生成题目
+        if (key === '模拟练习') {
+          generateMockExam();
+        }
+        
+        // 从内嵌数据中获取题目
+        if (jsonData[key]) {
+          questions = jsonData[key];
+        } else {
+          throw new Error(`未找到对应的题目数据: ${key}`);
+        }
+        
+        // 初始化用户答案数组
+        userAnswers = new Array(questions.length).fill(null);
+        
+        // 显示题目
+        showQuestion(currentQuestionIndex);
+        
+        // 更新总题数
+        totalQuestions.textContent = questions.length;
+        totalCount.textContent = questions.length;
+        totalScore.textContent = questions.length;
+        
+        // 隐藏加载中提示，显示题目区域
+        loadingContainer.classList.add('hidden');
+        quizContainer.classList.remove('hidden');
+        
+        // 禁用下一题按钮，直到用户回答当前题目
+        nextBtn.disabled = true;
+      } catch (error) {
+        console.error('加载题目失败:', error);
+        loadingContainer.classList.add('hidden');
+        errorContainer.classList.remove('hidden');
+        errorMessage.textContent = `加载题目失败: ${error.message}`;
+      }
+    }
+
+    // 显示当前题目
+    function showQuestion(index) {
+      const question = questions[index];
+      questionText.textContent = question.question;
+      questionCounter.textContent = index + 1;
+      
+      // 清空选项容器
+      optionsContainer.innerHTML = '';
+      
+      // 根据题目类型显示不同的选项界面
+      if (question.options) { // 有选项的是选择题
+        if (Array.isArray(question.answer)) { // 答案是数组的是多选题
+          showMultipleChoiceQuestion(index, question);
+        } else { // 否则是单选题
+          showSingleChoiceQuestion(index, question);
+        }
+      } else { // 没有选项的是填空题
+        showFillBlankQuestion(index, question);
+      }
+      
+      // 更新按钮状态
+      prevBtn.disabled = index === 0;
+      
+      // 如果用户已经回答了当前问题，启用下一题按钮
+      nextBtn.disabled = userAnswers[index] === null || 
+                         (question.options && Array.isArray(question.answer) && Array.isArray(userAnswers[index]) && !userAnswers[index].submitted) ||
+                         (!question.options && !userAnswers[index].submitted);
+      
+      // 如果是最后一题，将"下一题"按钮改为"提交"
+      if (index === questions.length - 1) {
+        nextBtn.textContent = '提交';
+        nextBtn.classList.add('submit');
+      } else {
+        nextBtn.textContent = '下一题';
+        nextBtn.classList.remove('submit');
+      }
+      
+      // 更新进度
+      updateProgress();
+    }
+
+    // 显示单选题
+    function showSingleChoiceQuestion(index, question) {
+      // 设置题目类型标签
+      questionTypeLabel.textContent = '请选择正确的选项：';
+      
+      question.options.forEach((option, i) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'answer-option';
+        optionElement.textContent = option;
+        optionElement.dataset.answer = String.fromCharCode(65 + i);
+        
+        // 如果用户已经回答过这个问题，显示答案状态
+        if (userAnswers[index] !== null) {
+          const correctAnswer = question.answer;
+          if (String.fromCharCode(65 + i) === correctAnswer) {
+            optionElement.classList.add('correct');
+          } else if (String.fromCharCode(65 + i) === userAnswers[index] && String.fromCharCode(65 + i) !== correctAnswer) {
+            optionElement.classList.add('incorrect');
+          }
+          
+          // 如果是用户之前选择的答案，添加selected类
+          if (String.fromCharCode(65 + i) === userAnswers[index]) {
+            optionElement.classList.add('selected');
+          }
+        } else {
+          // 添加点击事件
+          optionElement.addEventListener('click', () => selectOption(index, String.fromCharCode(65 + i)));
+        }
+        
+        optionsContainer.appendChild(optionElement);
+      });
+    }
+
+    // 显示多选题
+    function showMultipleChoiceQuestion(index, question) {
+      // 设置题目类型标签
+      questionTypeLabel.textContent = '请选择所有正确的选项：';
+      
+      // 创建选项容器
+      const optionsWrapper = document.createElement('div');
+      optionsWrapper.className = 'space-y-3 mb-4';
+      
+      question.options.forEach((option, i) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'answer-option';
+        optionElement.textContent = option;
+        optionElement.dataset.answer = String.fromCharCode(65 + i);
+        
+        // 如果用户已经回答过这个问题，显示答案状态
+        if (userAnswers[index] !== null && Array.isArray(userAnswers[index])) {
+          const correctAnswers = question.answer;
+          const isSelected = userAnswers[index].includes(String.fromCharCode(65 + i));
+          
+          if (correctAnswers.includes(String.fromCharCode(65 + i))) {
+            optionElement.classList.add('correct');
+          } else if (isSelected && !correctAnswers.includes(String.fromCharCode(65 + i))) {
+            optionElement.classList.add('incorrect');
+          }
+          
+          // 如果是用户之前选择的答案，添加selected类
+          if (isSelected) {
+            optionElement.classList.add('selected');
+          }
+        } else {
+          // 添加点击事件
+          optionElement.addEventListener('click', () => selectMultipleOption(index, String.fromCharCode(65 + i)));
+        }
+        
+        optionsWrapper.appendChild(optionElement);
+      });
+      
+      // 添加提交按钮
+      const submitButton = document.createElement('button');
+      submitButton.className = 'green-button w-full mt-4';
+      submitButton.textContent = '确认答案';
+      submitButton.id = 'submit-multi-answer';
+      
+      // 如果用户已经回答过这个问题，禁用提交按钮
+      if (userAnswers[index] !== null && Array.isArray(userAnswers[index]) && userAnswers[index].length > 0 && userAnswers[index].submitted) {
+        submitButton.disabled = true;
+        submitButton.classList.add('bg-gray-400');
+        submitButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+      } else {
+        // 添加提交事件
+        submitButton.addEventListener('click', () => checkMultipleAnswer(index));
+      }
+      
+      optionsContainer.appendChild(optionsWrapper);
+      optionsContainer.appendChild(submitButton);
+    }
+
+    // 显示填空题
+    function showFillBlankQuestion(index, question) {
+      // 设置题目类型标签
+      questionTypeLabel.textContent = '请填写正确答案：';
+      
+      const inputElement = document.createElement('div');
+      inputElement.className = 'mt-4';
+      inputElement.innerHTML = `
+        <input type="text" class="ios-input" placeholder="请输入答案" value="${userAnswers[index] || ''}">
+      `;
+      
+      const input = inputElement.querySelector('input');
+      
+      // 如果用户已经回答过这个问题，显示答案状态
+      if (userAnswers[index] !== null && userAnswers[index].submitted) {
+        const correctAnswer = question.answer;
+        if (userAnswers[index].trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+          input.classList.add('border-green-500');
+          input.classList.add('bg-green-50');
+        } else {
+          input.classList.add('border-red-500');
+          input.classList.add('bg-red-50');
+          
+          // 添加正确答案提示
+          const answerHint = document.createElement('div');
+          answerHint.className = 'text-green-500 mt-2';
+          answerHint.textContent = `正确答案: ${correctAnswer}`;
+          inputElement.appendChild(answerHint);
+        }
+        
+        // 禁用输入框
+        input.disabled = true;
+      } else {
+        input.addEventListener('input', (e) => {
+          userAnswers[index] = e.target.value;
+          updateProgress();
+          
+          // 启用确认按钮
+          const submitButton = document.getElementById('submit-blank-answer');
+          if (e.target.value.trim() !== '') {
+            submitButton.disabled = false;
+            submitButton.classList.remove('bg-gray-400');
+          } else {
+            submitButton.disabled = true;
+            submitButton.classList.add('bg-gray-400');
+          }
+        });
+      }
+      
+      // 添加确认答案按钮
+      const submitButton = document.createElement('button');
+      submitButton.className = 'green-button w-full mt-4';
+      submitButton.textContent = '确认答案';
+      submitButton.id = 'submit-blank-answer';
+      
+      // 如果用户没有输入答案或已经提交，禁用按钮
+      if (!userAnswers[index] || userAnswers[index].trim() === '' || (userAnswers[index] && userAnswers[index].submitted)) {
+        submitButton.disabled = true;
+        submitButton.classList.add('bg-gray-400');
+        submitButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+      }
+      
+      // 添加确认事件
+      submitButton.addEventListener('click', () => checkAnswer(index));
+      
+      optionsContainer.appendChild(inputElement);
+      optionsContainer.appendChild(submitButton);
+    }
+
+    // 选择单选题选项
+    function selectOption(questionIndex, selectedOption) {
+      // 保存用户的答案
+      userAnswers[questionIndex] = selectedOption;
+      
+      // 显示正确和错误答案
+      const options = optionsContainer.querySelectorAll('.answer-option');
+      const correctAnswer = questions[questionIndex].answer;
+      
+      options.forEach(option => {
+        const optionAnswer = option.dataset.answer;
+        if (optionAnswer === correctAnswer) {
+          option.classList.add('correct');
+        } else if (optionAnswer === selectedOption && optionAnswer !== correctAnswer) {
+          option.classList.add('incorrect');
+        }
+        
+        // 如果是用户选择的答案，添加selected类
+        if (optionAnswer === selectedOption) {
+          option.classList.add('selected');
+        }
+        
+        // 禁用所有选项的点击事件
+        option.removeEventListener('click', () => selectOption(questionIndex, optionAnswer));
+        // 添加禁用样式
+        option.style.pointerEvents = 'none';
+      });
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+
+    // 选择多选题选项
+    function selectMultipleOption(questionIndex, selectedOption) {
+      // 初始化用户答案数组
+      if (!userAnswers[questionIndex] || !Array.isArray(userAnswers[questionIndex])) {
+        userAnswers[questionIndex] = [];
+      }
+      
+      const index = userAnswers[questionIndex].indexOf(selectedOption);
+      
+      if (index === -1) {
+        // 添加选项
+        userAnswers[questionIndex].push(selectedOption);
+      } else {
+        // 移除选项
+        userAnswers[questionIndex].splice(index, 1);
+      }
+      
+      // 如果没有选择任何选项，将答案设为null
+      if (userAnswers[questionIndex].length === 0) {
+        userAnswers[questionIndex] = null;
+        document.getElementById('submit-multi-answer').disabled = true;
+        document.getElementById('submit-multi-answer').classList.add('bg-gray-400');
+        document.getElementById('submit-multi-answer').classList.remove('bg-green-500', 'hover:bg-green-600');
+      } else {
+        document.getElementById('submit-multi-answer').disabled = false;
+        document.getElementById('submit-multi-answer').classList.remove('bg-gray-400');
+        document.getElementById('submit-multi-answer').classList.add('bg-green-500', 'hover:bg-green-600');
+      }
+      
+      // 更新选项显示
+      const options = optionsContainer.querySelectorAll('.answer-option');
+      options.forEach(option => {
+        const optionAnswer = option.dataset.answer;
+        
+        option.classList.remove('selected');
+        
+        if (userAnswers[questionIndex] && userAnswers[questionIndex].includes(optionAnswer)) {
+          option.classList.add('selected');
+        }
+      });
+      
+      // 更新进度
+      updateProgress();
+    }
+    
+    // 检查多选题答案
+    function checkMultipleAnswer(questionIndex) {
+      const question = questions[questionIndex];
+      const userAnswer = userAnswers[questionIndex];
+      const correctAnswers = question.answer;
+      
+      // 如果用户没有选择任何选项，不进行检查
+      if (!userAnswer || userAnswer.length === 0) {
+        return;
+      }
+      
+      // 标记为已提交
+      userAnswers[questionIndex].submitted = true;
+      
+      // 检查答案是否正确
+      const options = optionsContainer.querySelectorAll('.answer-option');
+      
+      options.forEach(option => {
+        const optionAnswer = option.dataset.answer;
+        
+        if (correctAnswers.includes(optionAnswer)) {
+          option.classList.add('correct');
+        } else if (userAnswer.includes(optionAnswer)) {
+          option.classList.add('incorrect');
+        }
+        
+        // 禁用所有选项的点击事件
+        option.removeEventListener('click', () => selectMultipleOption(questionIndex, optionAnswer));
+        // 添加禁用样式
+        option.style.pointerEvents = 'none';
+      });
+      
+      // 禁用提交按钮
+      const submitButton = document.getElementById('submit-multi-answer');
+      submitButton.disabled = true;
+      submitButton.classList.add('bg-gray-400');
+      submitButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+    
+    // 检查填空题答案
+    function checkAnswer(questionIndex) {
+      const question = questions[questionIndex];
+      const userAnswer = userAnswers[questionIndex];
+      const correctAnswer = question.answer;
+      
+      // 如果用户没有输入答案，不进行检查
+      if (!userAnswer || userAnswer.trim() === '') {
+        return;
+      }
+      
+      // 标记为已提交
+      userAnswers[questionIndex].submitted = true;
+      
+      // 检查答案是否正确（忽略大小写和空格）
+      const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+      
+      // 显示答案状态
+      const input = optionsContainer.querySelector('input');
+      if (isCorrect) {
+        input.classList.add('border-green-500');
+        input.classList.add('bg-green-50');
+      } else {
+        input.classList.add('border-red-500');
+        input.classList.add('bg-red-50');
+        
+        // 添加正确答案提示
+        const answerHint = document.createElement('div');
+        answerHint.className = 'text-green-500 mt-2';
+        answerHint.textContent = `正确答案: ${correctAnswer}`;
+        input.parentNode.appendChild(answerHint);
+      }
+      
+      // 禁用输入框
+      input.disabled = true;
+      
+      // 禁用确认按钮
+      const submitButton = document.getElementById('submit-blank-answer');
+      submitButton.disabled = true;
+      submitButton.classList.add('bg-gray-400');
+      submitButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+    
+    // 更新进度
+    function updateProgress() {
+      // 计算已完成的题目数量
+      const completedQuestions = userAnswers.filter(answer => answer !== null).length;
+      completedCount.textContent = completedQuestions;
+      
+      // 更新进度条
+      const progressPercentage = (completedQuestions / questions.length) * 100;
+      progressBar.style.width = `${progressPercentage}%`;
+      
+      // 计算正确率（如果有答案的话）
+      if (wrongQuestions.length > 0) {
+        const correctCount = questions.length - wrongQuestions.length;
+        const accuracy = Math.round((correctCount / questions.length) * 100);
+        accuracyDisplay.textContent = `${accuracy}%`;
+      }
+    }
+
+    // 检查答案
+    function checkAnswers() {
+      let score = 0;
+      wrongQuestions = [];
+      
+      questions.forEach((question, index) => {
+        let isCorrect = false;
+        
+        if (questionType === '单选题') {
+          isCorrect = userAnswers[index] === question.answer;
+        } else if (questionType === '多选题') {
+          // 多选题需要选项完全匹配
+          if (userAnswers[index] && Array.isArray(userAnswers[index]) && Array.isArray(question.answer)) {
+            // 排序后比较
+            const sortedUserAnswer = [...userAnswers[index]].sort();
+            const sortedCorrectAnswer = [...question.answer].sort();
+            isCorrect = JSON.stringify(sortedUserAnswer) === JSON.stringify(sortedCorrectAnswer);
+          }
+        } else if (questionType === '填空题') {
+          // 填空题答案比较（忽略大小写和空格）
+          const userAnswer = userAnswers[index] ? userAnswers[index].trim().toLowerCase() : '';
+          const correctAnswer = question.answer.trim().toLowerCase();
+          isCorrect = userAnswer === correctAnswer;
+        }
+        
+        if (isCorrect) {
+          score++;
+        } else {
+          wrongQuestions.push(index);
+        }
+      });
+      
+      // 显示结果
+      finalScore.textContent = score;
+      quizContainer.classList.add('hidden');
+      resultsContainer.classList.remove('hidden');
+      
+      // 计算正确率
+      const accuracy = Math.round((score / questions.length) * 100);
+      accuracyDisplay.textContent = `${accuracy}%`;
+    }
+
+    // 重新开始答题
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      userAnswers = new Array(questions.length).fill(null);
+      wrongQuestions = [];
+      showQuestion(currentQuestionIndex);
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      accuracyDisplay.textContent = '0%';
+    }
+
+    // 重测错题
+    function retryWrongQuestions() {
+      if (wrongQuestions.length === 0) {
+        alert('没有错题需要重测！');
+        return;
+      }
+      
+      // 创建一个新的问题数组，只包含错题
+      const wrongQuestionsArray = wrongQuestions.map(index => questions[index]);
+      questions = wrongQuestionsArray;
+      
+      // 重置用户答案和当前题目索引
+      currentQuestionIndex = 0;
+      userAnswers = new Array(questions.length).fill(null);
+      wrongQuestions = [];
+      
+      // 更新总题数
+      totalQuestions.textContent = questions.length;
+      totalCount.textContent = questions.length;
+      totalScore.textContent = questions.length;
+      
+      // 显示第一题
+      showQuestion(currentQuestionIndex);
+      
+      // 隐藏结果区域，显示题目区域
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      
+      // 重置进度
+      accuracyDisplay.textContent = '0%';
+    }
+
+    // 事件监听
+    prevBtn.addEventListener('click', () => {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(currentQuestionIndex);
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (nextBtn.classList.contains('submit')) {
+        // 提交答案
+        checkAnswers();
+      } else if (currentQuestionIndex < questions.length - 1) {
+        // 如果是填空题且用户已输入答案但未检查，先检查答案
+        if (questionType === '填空题' && 
+            userAnswers[currentQuestionIndex] !== null && 
+            !optionsContainer.querySelector('input').disabled) {
+          checkAnswer(currentQuestionIndex);
+        }
+        
+        // 进入下一题
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+      }
+    });
+
+    restartBtn.addEventListener('click', restartQuiz);
+    retryWrongBtn.addEventListener('click', retryWrongQuestions);
+    backToModulesBtn.addEventListener('click', () => window.location.href = 'index.html');
+    backBtn.addEventListener('click', () => window.location.href = 'index.html');
+
+    // 下载按钮
+    downloadBtn.addEventListener('click', () => {
+      downloadModal.classList.add('opacity-100', 'pointer-events-auto');
+      downloadModal.querySelector('div').classList.add('scale-100');
+    });
+
+    cancelDownload.addEventListener('click', () => {
+      downloadModal.classList.remove('opacity-100', 'pointer-events-auto');
+      downloadModal.querySelector('div').classList.remove('scale-100');
+    });
+
+    // 加载题目
+    loadQuestions();
+  </script>
+</body>
+</html> 

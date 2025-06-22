@@ -1,0 +1,202 @@
+[
+  {
+    "question": "1. HBase 中用于定位 Region 位置的是（ ）",
+    "options": [
+      "A. META 表",
+      "B. ZooKeeper",
+      "C. RegionServer",
+      "D. Master"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. 对Zookeeper的ZNode表达不正确的是?( )",
+    "options": [
+      "A. znode上都会保存自己的数据内容，同时会保存一系列属性信息.",
+      "B. Znode可分为持久节点，临时节点两类",
+      "C. 每个Znode其有一个唯一的路径标识",
+      "D. znode适合保存任意长度的数据"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "3. MapReduce 的编程模型中，Mapper 的输出会作为（ ）的输入",
+    "options": [
+      "A. Combiner",
+      "B. Partitioner",
+      "C. Reducer",
+      "D. InputFormat"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "4. 在MapReduce中，哪个组件如果用户不指定，则不会默认存有的? ( )",
+    "options": [
+      "A. OutputFormat",
+      "B. InputFormat",
+      "C. Combiner",
+      "D. Partitioner"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "5. 下面哪个命令可以实现将HDFS中的文件下载到Linux本地?( )",
+    "options": [
+      "A. hdfs dfs -cp",
+      "B. hdfs dfs -put",
+      "C. hdfs dfs -copyFromLocal",
+      "D. hdfs dfs -copyToLocal"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "6. Hadoop 的配置文件中， 负责配置HDFS访问地址的是哪个配置文件？（ ）",
+    "options": [
+      "A. yarn-site.xml",
+      "B. mapred-site.xml",
+      "C. core-site.xml",
+      "D. hdfs-site.xml"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "7. YARN中，一个运用程序的资源请求和任务调度由（ ）负责。",
+    "options": [
+      "A. NameNode",
+      "B. ApplicationMaster",
+      "C. NodeManager",
+      "D. ResourceManager"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "8. 安装Hadoop时，配置项\"hadoop.tmp.dir\"应该配置在哪个文件?( )",
+    "options": [
+      "A. mapred-site.xml",
+      "B. hdfs-site.xml",
+      "C. yarn-site.xml",
+      "D. core-site.xml"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "9. 以下哪个不属于是 HDFS 的运行进程？（ ）",
+    "options": [
+      "A. SecondaryNameNode",
+      "B. DataNode",
+      "C. ResourceManager",
+      "D. NameNode"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "10. Sqoop 导入数据时，指定连接数据库的参数是（ ）",
+    "options": [
+      "A. --table",
+      "B. --username",
+      "C. --query",
+      "D. --connect"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "11. 下面哪个程序负责HDFS中数据块存储?( )",
+    "options": [
+      "A. DataNode",
+      "B. NameNode",
+      "C. NodeManager",
+      "D. ResourceManager"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "12. 下列哪种场景不适合采用列式存储?( )",
+    "options": [
+      "A. 事务使用率不高，数据量非常大",
+      "B. 对于更新某些行的频率很高",
+      "C. 对于单列，获取频率较高",
+      "D. 对于大数据的环境，利于数据压缩和线性扩展"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "13. Hadoop的容错性是通过以下哪种机制实现的？（ ）",
+    "options": [
+      "A. 检查点",
+      "B. 以上都是",
+      "C. 心跳检测",
+      "D. 数据备份"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "14. Hive 中对数据进行分组可以使用的关键字是（ ）",
+    "options": [
+      "A. FROM",
+      "B. SELECT",
+      "C. WHERE",
+      "D. GROUP BY"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "15. YARN Web界面默认占用哪个端口?( )",
+    "options": [
+      "A. 50070",
+      "B. 9000",
+      "C. 50090",
+      "D. 8088"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "16. MapReduce的特点不包括:( )",
+    "options": [
+      "A. 良好的扩展性",
+      "B. 高容错性",
+      "C. 易于编程",
+      "D. 擅长对PB级以上海量数据进行实时处理"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "17. 以下哪个不属于HDFS的进程?( )",
+    "options": [
+      "A. SecondaryNamenode",
+      "B. Datanode",
+      "C. MRAppMaster/YarnChild",
+      "D. Namenode"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "18. HBase 中，RegionServer 负责（ ）",
+    "options": [
+      "A. 管理命名空间",
+      "B. 管理 Region",
+      "C. 管理元数据",
+      "D. 管理 ZooKeeper"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "19. 从存储位置上，可以拿Hive与HDFS进行比较，下面说法不正确的是?( )",
+    "options": [
+      "A. Hive的桶保存到HDFS上是一个目录",
+      "B. Hive的分区保存到HDFS上是一个目录",
+      "C. Hive的表保存到HDFS上是一个目录",
+      "D. Hive的数据保存到HDFS上是一个文件"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "20. HBase的存储模型是（ ）",
+    "options": [
+      "A. 行式存储",
+      "B. 文档存储",
+      "C. 列式存储",
+      "D. 键值对存储"
+    ],
+    "answer": "C"
+  }
+]

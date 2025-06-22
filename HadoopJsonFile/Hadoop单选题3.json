@@ -1,0 +1,202 @@
+[
+  {
+    "question": "1. Hadoop的核心组件不包括以下哪一项（ ）",
+    "options": [
+      "A. Hive",
+      "B. YARN",
+      "C. MapReduce",
+      "D. HDFS"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "2. HiveQL中，用于去除重复行的关键字是？（ ）",
+    "options": [
+      "A. Stinct",
+      "B. limit",
+      "C. Distinct",
+      "D. unique"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "3. HDFS Web界面默认占用哪个端口？（ ）",
+    "options": [
+      "A. 50090",
+      "B. 9870",
+      "C. 50070",
+      "D. 8088"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "4. HBase与Hive的主要区别是什么？ （ ）",
+    "options": [
+      "A. HBase基于MySQL，Hive基于HDFS",
+      "B. HBase是关系型数据库，Hive是NoSQL",
+      "C. HBase支持实时读写，Hive适用于批处理",
+      "D. HBase不支持SQL查询，Hive支持"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "5. Hive中，以下哪种数据类型表示字符串？（ ）",
+    "options": [
+      "A. FLOAT",
+      "B. STRING",
+      "C. BOOLEAN",
+      "D. TEXT"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "6. 以下哪个工具用于从关系型数据库导入数据到HDFS？（ ）",
+    "options": [
+      "A. Pig",
+      "B. Sqoop",
+      "C. Kafka",
+      "D. Flume"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "7. 下面的配置项配置在hadoop哪个配置文件？（ ） fs.trash.interval 1440",
+    "options": [
+      "A. core-site.xml",
+      "B. mapred-site.xml",
+      "C. hdfs-site.xml",
+      "D. yarn-site.xml"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "8. 以下哪个命令用于格式化HDFS文件系统？（ ）",
+    "options": [
+      "A. C.Hdfs secondarynamenode -format",
+      "B. Hdfs datanode -format",
+      "C. Hdfs fsck -format",
+      "D. A.Hdfs namenode -format"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "9. Hadoop中，以下哪个目录是HDFS的根目录？（ ）",
+    "options": [
+      "A. /home",
+      "B. /home/hadoop",
+      "C. /",
+      "D. /user/hadoop"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "10. Hadoop中用于数据采集的工具是？（ ）",
+    "options": [
+      "A. Flume",
+      "B. Sqoop",
+      "C. HBase",
+      "D. Zookeeper"
+    ],
+    "answer": "A"
+  },
+  {
+    "question": "11. Hive哪一种数据模型，删除表时，存储目录中的数据不会被删除，只是删除与数据的链接？（ ）",
+    "options": [
+      "A. 桶表",
+      "B. 外部表",
+      "C. 内部表（托管表）",
+      "D. 分区表"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "12. MapReduce编程模型中，负责处理中间结果合并的阶段是？（ ）",
+    "options": [
+      "A. Shuffle阶段",
+      "B. Map阶段",
+      "C. Combiner阶段",
+      "D. Reduce阶段"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "13. HDFS中负责管理文件系统的命名空间和客户端访问的组件是？（ ）",
+    "options": [
+      "A. SecondaryNameNode",
+      "B. DataNode",
+      "C. ResourceManager",
+      "D. NameNode"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "14. HBase是一种？（ ）",
+    "options": [
+      "A. 文档型数据库",
+      "B. 列式存储数据库",
+      "C. 关系型数据库",
+      "D. 键值对数据库"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "15. HiveQL中用于创建外部表的关键词是？（ ）",
+    "options": [
+      "A. CREATE TABLE",
+      "B. CREATE TEMPORARY TABLE",
+      "C. CREATE DATABASE",
+      "D. CREATE EXTERNAL TABLE"
+    ],
+    "answer": "D"
+  },
+  {
+    "question": "16. HDFS的缺点包括？（ ）",
+    "options": [
+      "A. 不适合小文件存储",
+      "B. 以上都是",
+      "C. 不适合低延迟访问",
+      "D. 不支持并发写入"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "17. 在Hadoop中，负责协调分布式任务调度的核心组件是？（ ）",
+    "options": [
+      "A. MapReduce",
+      "B. Hive",
+      "C. YARN",
+      "D. HDFS"
+    ],
+    "answer": "C"
+  },
+  {
+    "question": "18. HDFS中默认的块（Block）大小是？（ ）",
+    "options": [
+      "A. 64MB",
+      "B. 128MB",
+      "C. 512MB",
+      "D. 256MB"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "19. Hadoop中，以下哪个组件负责存储实际数据？（ ）",
+    "options": [
+      "A. ResourceManager",
+      "B. DataNode",
+      "C. NameNode",
+      "D. SecondaryNameNode"
+    ],
+    "answer": "B"
+  },
+  {
+    "question": "20. Hadoop中，默认的副本数量是多少？（ ）",
+    "options": [
+      "A. 1",
+      "B. 2",
+      "C. 4",
+      "D. 3"
+    ],
+    "answer": "D"
+  }
+]

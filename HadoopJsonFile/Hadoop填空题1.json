@@ -1,0 +1,22 @@
+[
+  {
+    "question": "1. 若要将 Flume 采集的数据存储到 Hadoop 分布式文件系统，应使用（_）Sink。",
+    "answer": "HDFS"
+  },
+  {
+    "question": "2. Hadoop 是一个由（_）基金会管理和维护的大数据分布式处理框架。",
+    "answer": "Apache"
+  },
+  {
+    "question": "3. 在Hive中，将数据按某个字段进行划分的操作称为（_）。",
+    "answer": "分区"
+  },
+  {
+    "question": "4. MapReduce 编程模型中，（_）阶段可以并行执行，以提高处理效率。",
+    "answer": "Map"
+  },
+  {
+    "question": "5. HBase依赖于（_）来维护集群状态信息和元数据。",
+    "answer": "Zookeeper"
+  }
+]

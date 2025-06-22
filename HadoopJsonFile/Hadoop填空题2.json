@@ -1,0 +1,22 @@
+[
+  {
+    "question": "1. Hive 是基于 Hadoop 的数据仓库工具，它提供了类似（_）的查询语言HiveQL。",
+    "answer": "SQL"
+  },
+  {
+    "question": "2. HDFS 中负责存储实际数据块的是（_） 。",
+    "answer": "DataNode"
+  },
+  {
+    "question": "3. YARN是Hadoop2.x之后引入的资源调度框架，其核心组件包括ResourceManager 和（_）。",
+    "answer": "NodeManager"
+  },
+  {
+    "question": "4. Zookeeper是一个开源的分布式协调服务，它提供了类似文件系统的（_）点来保存数据。",
+    "answer": "节点"
+  },
+  {
+    "question": "5. MapReduce是一种编程模型，用于大规模数据集的（_）和处理。",
+    "answer": "并行计算"
+  }
+]
