@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>计算机网络复习</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置 Tailwind CSS -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appleBlue: '#0071E3',
+            appleBlueLight: '#4A90E2',
+            appleGray: '#F5F5F7',
+            appleDarkGray: '#86868B',
+            appleText: '#1D1D1F',
+            networkPurple: '#8A2BE2',
+            networkPurpleLight: '#9370DB',
+          },
+          fontFamily: {
+            sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .ios-shadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .ios-card {
+        @apply bg-white rounded-2xl ios-shadow p-6 transition-all duration-300;
+      }
+      .ios-button {
+        @apply bg-networkPurple text-white rounded-full py-3 px-8 font-medium transition-all duration-300 hover:bg-networkPurpleLight hover:shadow-md active:scale-95;
+      }
+      .ios-input {
+        @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-networkPurple focus:ring-2 focus:ring-networkPurple/20 outline-none transition-all;
+      }
+      .answer-option {
+        @apply bg-white rounded-xl p-4 border border-gray-200 cursor-pointer transition-all hover:border-networkPurple hover:shadow-md;
+      }
+      .answer-option.selected {
+        @apply bg-networkPurple/5 border-networkPurple;
+      }
+      .answer-option.correct {
+        @apply bg-green-50 border-green-500;
+      }
+      .answer-option.incorrect {
+        @apply bg-red-50 border-red-500;
+      }
+      .blank-input {
+        @apply border-b-2 border-gray-400 focus:border-networkPurple focus:outline-none px-1 py-0.5 text-center inline-block;
+      }
+      .blank-input.correct {
+        @apply border-green-500 text-green-700;
+      }
+      .blank-input.incorrect {
+        @apply border-red-500 text-red-700;
+      }
+      .spinner {
+        @apply animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-networkPurple;
+      }
+    }
+  </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="index.html" class="flex items-center space-x-2">
+          <i class="fa fa-arrow-left text-networkPurple text-xl"></i>
+          <span class="text-networkPurple">返回</span>
+        </a>
+      </div>
+      <h1 id="page-title" class="text-xl font-bold">计算机网络</h1>
+      <div class="flex items-center space-x-4">
+        <button id="showAnswer" class="text-networkPurple hover:text-networkPurpleLight hidden">
+          <i class="fa fa-eye text-xl"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- 答题区域 -->
+    <div class="ios-card mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-full bg-networkPurple/10 flex items-center justify-center">
+            <i class="fa fa-wifi text-networkPurple"></i>
+          </div>
+          <h2 class="font-semibold" id="quiz-type-title">选择题</h2>
+        </div>
+        <div class="px-3 py-1 bg-networkPurple/10 text-networkPurple rounded-full text-sm" id="question-counter">
+          题目 <span id="current-question">1</span>/<span id="total-questions">35</span>
+        </div>
+      </div>
+
+      <!-- 加载动画 -->
+      <div id="loading" class="flex flex-col items-center justify-center h-64 hidden">
+        <div class="spinner"></div>
+        <p class="mt-4 text-appleDarkGray">正在加载题目...</p>
+      </div>
+
+      <div id="quiz-container">
+        <!-- 题目显示区 -->
+        <section id="questionContainer" class="mb-6">
+          <h3 class="text-lg font-semibold mb-2">请选择正确答案：</h3>
+          <p id="question" class="text-xl font-bold py-4 px-6 bg-appleGray/50 rounded-xl"></p>
+          <div id="optionsContainer" class="space-y-3 mt-4"></div>
+        </section>
+
+        <!-- 填空题输入区 -->
+        <section id="blankContainer" class="mb-6 hidden">
+          <h3 class="text-lg font-semibold mb-2">请填写空缺内容：</h3>
+          <p id="blankQuestion" class="text-xl font-bold py-4 px-6 bg-appleGray/50 rounded-xl"></p>
+          <div id="blanksInputContainer" class="space-y-4 mt-4"></div>
+          <div class="mt-6">
+            <button id="checkBlanks" class="ios-button w-full">检查答案</button>
+          </div>
+        </section>
+
+        <!-- 答案反馈区 -->
+        <section id="feedback" class="mb-6 hidden">
+          <div id="feedbackContent" class="mb-4"></div>
+        </section>
+
+        <div class="flex justify-between mt-6">
+          <button id="prevBtn" class="ios-button bg-appleDarkGray" disabled>上一题</button>
+          <button id="nextBtn" class="ios-button">下一题</button>
+        </div>
+      </div>
+
+      <div id="results-container" class="hidden text-center py-8">
+        <div class="w-20 h-20 mx-auto bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+          <i class="fa fa-check-circle text-green-500 text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">复习完成！</h3>
+        <p id="completion-message" class="text-appleDarkGray mb-2">干得不错，继续加油！</p>
+        <p class="text-appleDarkGray mb-6">你的得分是：<span id="final-score" class="text-networkPurple font-bold">0</span>/<span id="total-score">35</span></p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button id="restart-btn" class="ios-button">重新开始</button>
+          <button id="retry-wrong-btn" class="ios-button bg-yellow-500 hover:bg-yellow-600">重测错题</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 答题进度 -->
+    <div class="ios-card">
+      <h3 class="font-semibold mb-4">答题进度</h3>
+      <div class="w-full bg-appleGray/50 rounded-full h-2 mb-2">
+        <div id="progressBar" class="bg-networkPurple h-2 rounded-full" style="width: 0%"></div>
+      </div>
+      <div class="flex justify-between text-sm text-appleDarkGray">
+        <span>已完成: <span id="completed-count">0</span>/<span id="total-count">35</span></span>
+        <span>正确率: <span id="accuracy">0%</span></span>
+      </div>
+    </div>
+  </main>
+
+  <!-- 完成弹窗 -->
+  <div id="completionModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-check-circle text-green-500 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">复习完成</h3>
+        <p id="completionScore" class="text-appleDarkGray mb-2"></p>
+        <p id="completionMessage" class="text-appleDarkGray mb-6"></p>
+        <div class="flex space-x-4">
+          <button id="modalRestartBtn" class="flex-1 py-3 px-6 rounded-full bg-gray-200 text-appleText font-medium transition-colors hover:bg-gray-300">
+            重新开始
+          </button>
+          <button id="backToHome" class="ios-button flex-1">
+            返回主页
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let totalQuestions = 0;
+    let quizType = ''; // 选择题 或 填空题
+    let quizKey = ''; // 问题集标识
+    let userAnswers = [];
+    let answeredQuestions = [];
+    let correctAnswers = []; // 用于填空题
+    let blankCount = 0; // 填空题空格数量
+    let originalQuestions = []; // 保存原始题目，用于重测错题
+    
+    // 内嵌JSON数据 - 选择题1-35
+    const networkChoice1 = [
+      {
+        "question": "1. 在OSI/RM中，提供建立、维护和拆除端到端连接的层是（ ）",
+        "options": [
+          "A. 物理层",
+          "B. 数据链路层",
+          "C. 网络层",
+          "D. 运输层"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "2. 100BASE-F中，通常F指（ ）",
+        "options": [
+          "A. 粗缆",
+          "B. 光纤",
+          "C. 细缆",
+          "D. 双绞线"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "3. 光纤上采用的多路复用技术是（ ）",
+        "options": [
+          "A. CDM",
+          "B. TDM",
+          "C. FDM",
+          "D. WDM"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "4. 连接两个相距300m的100BASE-T的网络，（ ）是最便宜的网络连接设备",
+        "options": [
+          "A. 集线器",
+          "B. 路由器",
+          "C. 交换机",
+          "D. 网关"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "5. CRC-16标准规定的生成多项式G(x)=x16+x15+x2+1，它产生的校验码是（ ）位",
+        "options": [
+          "A. 32",
+          "B. 8",
+          "C. 16",
+          "D. 4"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "6. 简单邮件传输协议SMTP传输邮件时需要使用（ ）协议",
+        "options": [
+          "A. TCP",
+          "B. FTP",
+          "C. UDP",
+          "D. POP"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "7. （ ）的每一个接口都是一个独立的冲突域",
+        "options": [
+          "A. 交换机",
+          "B. 集线器",
+          "C. 网桥",
+          "D. 路由器"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "8. 在数字通信中广泛采用CRC循环冗余码的原因是CRC可以（ ）",
+        "options": [
+          "A. 检测出多位突发性差错",
+          "B. 检测并纠正一位差错",
+          "C. 检测出一位差错",
+          "D. 检测并纠正多位突发性差错"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "9. 超文本传输协议HTTP使用的端口号是（ ）",
+        "options": [
+          "A. 23",
+          "B. 70",
+          "C. 80",
+          "D. 110"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "10. 数据链路层进行的流量控制是指（ ）的流量控制",
+        "options": [
+          "A. 源端到目的端",
+          "B. 源端到源节点",
+          "C. 目的节点到目的端",
+          "D. 相邻节点"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "11. 当一台主机要获取通信目标的MAC地址时，（ ）",
+        "options": [
+          "A. 单播ARP请求到默认网关",
+          "B. 广播发送ARP请求",
+          "C. 与对方主机建立TCP连接",
+          "D. 转发IP数据报到邻居结点"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "12. 数据链路层服务功能不包括（ ）",
+        "options": [
+          "A. 无连接不确认服务",
+          "B. 面向连接不确认服务",
+          "C. 无连接确认服务",
+          "D. 面向连接确认服务"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "13. RIPv2相对于RIPv1来讲的改进是（ ）",
+        "options": [
+          "A. 广播方式发布路由更新信息",
+          "B. 使用SPF算法计算最短路由",
+          "C. 采用了可变长子网掩码",
+          "D. 使用更复杂的度量计算方式"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "14. PPP协议使用同步传输技术传送比特串00101111111111010，经过零比特填充后的比特串是（ ）",
+        "options": [
+          "A. 0010111110111110010",
+          "B. 0010111101111101010",
+          "C. 001011111011111010",
+          "D. 001011111111110010"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "15. 在物理层接口特性中，用于描述完成每种功能的事件发生顺序的是（ ）特性",
+        "options": [
+          "A. 机械",
+          "B. 功能",
+          "C. 过程",
+          "D. 电气"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "16. 在IP数据报传送过程中，若发现生命周期（TTL）字段等于零，则路由器将发出（ ）",
+        "options": [
+          "A. 超时",
+          "B. 目标不可达",
+          "C. 源站抑制",
+          "D. 路由重定向"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "17. 在Ethernet帧中，数据字段的最小长度是（ ）字节",
+        "options": [
+          "A. 46",
+          "B. 18",
+          "C. 64",
+          "D. 128"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "18. 用于解决电子邮件中传输多种文字和附件问题的是（ ）协议",
+        "options": [
+          "A. MIME",
+          "B. SMTP",
+          "C. POP3",
+          "D. SNMP"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "19. 地址192.168.35.0/28中有（ ）个可用的子网，有（ ）台可用的主机",
+        "options": [
+          "A. 6，64",
+          "B. 14，14",
+          "C. 14，32",
+          "D. 30，64"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "20. 若路由器R因为拥塞丢弃IP分组，则此时R向发出该IP分组的源主机发送的ICMP报文件类型是（ ）",
+        "options": [
+          "A. 路由重定向",
+          "B. 目的站不可达",
+          "C. 源站抑制",
+          "D. 超时"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "21. 下列哪一个不是RIP协议的特点（ ）",
+        "options": [
+          "A. 仅和相邻路由器交换信息",
+          "B. 更新过程的收敛时间很短",
+          "C. 按固定的时间间隔交换信息",
+          "D. 交换的是自己的路由表"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "22. IPv6采用（ ）记法",
+        "options": [
+          "A. 冒号十六进制",
+          "B. 冒号十进制",
+          "C. 点分十六进制",
+          "D. 点分十进制"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "23. 网络层的协议不包括（ ）",
+        "options": [
+          "A. ICMP",
+          "B. ARP",
+          "C. IGMP",
+          "D. RIP"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "24. 利用VLSM划分子网将导致实际可分配的IP地址数目（ ）",
+        "options": [
+          "A. 不变",
+          "B. 减少",
+          "C. 增加",
+          "D. 不能确定"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "25. UDP协议的主要特点不包括（ ）",
+        "options": [
+          "A. 无连接",
+          "B. 不可靠",
+          "C. 效率优先",
+          "D. 字节流传输"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "26. 当一个IP分组在两台主机间直接交付时，要求这两台主机具有相同的（ ）",
+        "options": [
+          "A. IP地址",
+          "B. 主机号",
+          "C. 物理地址",
+          "D. 子网号"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "27. 运输层的端口号分为熟知端口号、（ ）和临时端口号",
+        "options": [
+          "A. 确认端口号",
+          "B. 永久端口号",
+          "C. 客户端口号",
+          "D. 注册端口号"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "28. 路由器的作用是（ ）",
+        "options": [
+          "A. 过滤与转发帧",
+          "B. 放大和整形物理信号",
+          "C. 路由选择",
+          "D. 协议转换"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "29. TCP的流量控制使用的是（ ）",
+        "options": [
+          "A. 固定大小的滑动窗口协议",
+          "B. Go-back-N ARQ协议",
+          "C. 可变大小的滑动窗口协议",
+          "D. 选择重发ARQ协议"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "30. 可靠的传输协议中的\"可靠\"是指（ ）",
+        "options": [
+          "A. 使用面向连接的会话",
+          "B. 使用\"尽力而为\"的传输",
+          "C. 使用滑动窗口来维持可靠性",
+          "D. 使用确认机制来维持可靠性"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "31. FTP客户和服务器之间传递文件时，使用的是建立在（ ）之上的（ ）连接",
+        "options": [
+          "A. TCP 控制",
+          "B. UDP 数据",
+          "C. UDP 控制",
+          "D. TCP 数据"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "32. 一个CIDR地址块222.96.100.2/21包含几个C类地址（ ）",
+        "options": [
+          "A. 2",
+          "B. 4",
+          "C. 8",
+          "D. 16"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "33. 解决IP地址耗尽的根本措施是采用（ ）",
+        "options": [
+          "A. VPN",
+          "B. IPv6",
+          "C. NAT",
+          "D. IPv4"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "34. 下列哪一项不是TCP协议的特点：（ ）",
+        "options": [
+          "A. 面向连接",
+          "B. 可靠交付",
+          "C. 面向字节流",
+          "D. 首部开销小"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "35. 对照OSI/RM各层的网络安全服务，在物理层可采用（ ）技术加强通信线路的安全",
+        "options": [
+          "A. 防火墙",
+          "B. 防病毒",
+          "C. 防窃听",
+          "D. 防抵赖"
+        ],
+        "answer": "C"
+      }
+    ];
+    
+    // 内嵌JSON数据 - 选择题36-70
+    const networkChoice2 = [
+      {
+        "question": "1. 若要对数据进行字符转换、数字转换和数据压缩，应该在OSI/RM的（ ）层上实现",
+        "options": [
+          "A. 网络层",
+          "B. 运输层",
+          "C. 会话层",
+          "D. 表示层"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "2. 公钥密码体制中常用的加密算法是（ ）",
+        "options": [
+          "A. IDES",
+          "B. DES",
+          "C. 三重DES",
+          "D. RSA"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "3. （ ）是工作在IP协议之上，用于Internet上路由器报告差错或提供有关意外情况的信息",
+        "options": [
+          "A. IGMP",
+          "B. WAP",
+          "C. RIP 2",
+          "D. ICMP"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "4. 在用路由器连接的Ethernet中，不同Ethernet上的主机之间通过（ ）进行通信",
+        "options": [
+          "A. MAC地址",
+          "B. 端口地址",
+          "C. IP地址",
+          "D. 域名地址"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "5. 静态路由适合于（ ）",
+        "options": [
+          "A. 链路状态和拓扑结构经常发生变化的环境",
+          "B. 范围较小的环境",
+          "C. 网络状态复杂的环境",
+          "D. 简单的网络环境"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "6. 子网划分将导致实际可分配的IP地址数目（ ）",
+        "options": [
+          "A. 减少",
+          "B. 不变",
+          "C. 增加",
+          "D. 不能确定"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "7. 以下IP地址中，属于B类地址的是（ ）",
+        "options": [
+          "A. 112.213.12.23",
+          "B. 210.123.23.12",
+          "C. 23.123.213.23",
+          "D. 156.123.32.12"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "8. TCP/IP体系中的网络层协议提供的是（ ）",
+        "options": [
+          "A. 面向连接可靠的虚电路服务",
+          "B. 无连接不可靠的数据报服务",
+          "C. 面向连接不可靠的虚电路服务",
+          "D. 无连接可靠的数据报服务"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "9. Internet上有许多应用，其中主要用来浏览网页信息的是（ ）",
+        "options": [
+          "A. WWW",
+          "B. Telnet",
+          "C. FTP",
+          "D. E-mail"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "10. 调制解调技术主要用于（ ）的通信方式中",
+        "options": [
+          "A. 数字信道传输模拟数据",
+          "B. 模拟信道传输模拟数据",
+          "C. 模拟信道传输数字数据",
+          "D. 数字信道传输数字数据"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "11. 当通信子网采用（ ）方式时，必须首先在通信双方建立逻辑连接",
+        "options": [
+          "A. 线路交换",
+          "B. 虚电路",
+          "C. 无线交换",
+          "D. 数据报"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "12. 多播路由协议在转发多播数据报时没有使用的方法是（ ）",
+        "options": [
+          "A. 洪泛与剪除",
+          "B. 隧道技术",
+          "C. 基于核心的发现技术",
+          "D. MPLS"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "13. TCP在传输连接释放过程中使用了（ ）次握手",
+        "options": [
+          "A. 4",
+          "B. 3",
+          "C. 2",
+          "D. 1"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "14. 采用统计时分复用STDM时，为了区分不同数据源的数据，发送端采取的措施是（ ）",
+        "options": [
+          "A. 各数据源使用随机时间片",
+          "B. 各数据源使用固定时间片",
+          "C. 在数据中加上时间标识",
+          "D. 在数据中加上数据源标识"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "15. 以下不属于网络协议分层原则的是（ ）",
+        "options": [
+          "A. 各层相对独立，某一层的内部变化不影响另一层",
+          "B. 层次数量适中，不应过多，也不宜过少",
+          "C. 每层具有特定的功能，类似功能尽量集中在同一层",
+          "D. 高层对低层提供的服务与低层如何完成无关"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "16. 在OSI/RM中，数据链路层的PDU是（ ）",
+        "options": [
+          "A. 比特序列",
+          "B. 帧",
+          "C. 分组",
+          "D. 报文"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "17. 广播电视是一种（ ）传输的例子",
+        "options": [
+          "A. 单工",
+          "B. 半双工",
+          "C. 双工",
+          "D. 全双工"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "18. CSMA/CD的特点是（ ）",
+        "options": [
+          "A. 介质利用率低，但可避免冲突",
+          "B. 介质利用率高，无法避免冲突",
+          "C. 介质利用率低，无法避免冲突",
+          "D. 介质利用率高，但可避免冲突"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "19. 为了在以太网中有效地检测冲突，可以减小电缆介质长度或（ ）",
+        "options": [
+          "A. 减小最小帧长度",
+          "B. 增大最小帧长度",
+          "C. 减小最大帧长度",
+          "D. 增大最大帧长度"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "20. TCP的流量控制使用的是（ ）",
+        "options": [
+          "A. 固定大小的滑动窗口协议",
+          "B. Go-back-N ARQ协议",
+          "C. 可变大小的滑动窗口协议",
+          "D. 选择重发ARQ协议"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "21. 在以太网中根据（ ）地址区分不同设备",
+        "options": [
+          "A. IP",
+          "B. DNS",
+          "C. Socket",
+          "D. MAC"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "22. 在IEEE 802.3物理层规范中，100BASE-TX标准采用的传输媒体是（ ）",
+        "options": [
+          "A. 基带粗同轴电缆",
+          "B. 基带细同轴电缆",
+          "C. 双绞线",
+          "D. 光纤"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "23. 在浏览信息时，WWW浏览器和WWW服务器之间传输网页使用（ ）协议",
+        "options": [
+          "A. IP",
+          "B. HTTP",
+          "C. FTP",
+          "D. TELNET"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "24. （ ）应用服务将变成远程服务器的一个虚拟终端",
+        "options": [
+          "A. ECHO",
+          "B. TELNET",
+          "C. WAIS",
+          "D. RLOGON"
+        ],
+        "answer": "C"
+      },
+      {
+        "question": "25. 在同一个信道上的同一时刻，能够进行双向数据传送的通信方式是（ ）",
+        "options": [
+          "A. 单工",
+          "B. 半双工",
+          "C. 全双工",
+          "D. 上述三种均不是"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "26. 在Internet上浏览信息时，WWW浏览器和WWW服务器之间传输网页使用（ ）协议",
+        "options": [
+          "A. IP",
+          "B. HTTP",
+          "C. FTP",
+          "D. TELNET"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "27. 波特率是指每秒传输的（ ）数",
+        "options": [
+          "A. 波形",
+          "B. 字节",
+          "C. 比特",
+          "D. 周期"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "28. 从协议分析的角度，WWW服务的第一步操作是WWW浏览器完成对WWW服务器的（ ）",
+        "options": [
+          "A. 传输连接建立",
+          "B. 域名解析",
+          "C. 会话连接建立",
+          "D. 地址解析"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "29. 在TCP/IP应用层中，Telnet与运输层交换数据的是（ ）端口",
+        "options": [
+          "A. 80",
+          "B. 23",
+          "C. 21",
+          "D. 20"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "30. 若一台连接到网络中的主机的配置为：IP地址是136.62.2.55，子网掩码是255.255.192.0，网关地址是136.62.89.1。这台主机不能与网络中的其他主机通信，导致这一故障的原因是（ ）的设置有问题",
+        "options": [
+          "A. IP地址和子网掩码",
+          "B. IP地址和网关地址",
+          "C. IP地址和MAC地址",
+          "D. IP地址和域名地址"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "31. 在计算机局域网中，普遍采用的是（ ）进行差错检测控制",
+        "options": [
+          "A. 垂直冗余检验",
+          "B. 循环冗余检验",
+          "C. 水平冗余检验",
+          "D. 校验和"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "32. 在模拟电话网上利用调制解调器传输数据往往采用幅度和相位两个参数进行调制，其调制方式是（ ）",
+        "options": [
+          "A. ASK",
+          "B. FSK",
+          "C. PSK",
+          "D. QAM"
+        ],
+        "answer": "A"
+      },
+      {
+        "question": "33. 集线器是以太网中的中心连接设备，在逻辑上是（ ）结构",
+        "options": [
+          "A. 总线形",
+          "B. 星形",
+          "C. 混合形",
+          "D. 环形"
+        ],
+        "answer": "D"
+      },
+      {
+        "question": "34. 通常硬件防火墙采用的包过滤技术中，以下（ ）信息不作为判断依据",
+        "options": [
+          "A. 包的目的地址",
+          "B. 包的源地址",
+          "C. 包的传输协议",
+          "D. 包的数据内容"
+        ],
+        "answer": "B"
+      },
+      {
+        "question": "35. VPN采用类似点-点连接的基本安全技术是（ ）技术",
+        "options": [
+          "A. 身份认证",
+          "B. 隧道",
+          "C. 密钥管理",
+          "D. 加密"
+        ],
+        "answer": "B"
+      }
+    ];
+    
+    // 填空题数据 - 内嵌数据
+    const networkBlank1 = [
+      {
+        "question": "1. 网络层为主机之间提供点到点的逻辑通信，传输层为_______之间提供端到端的逻辑通信。",
+        "answer": "进程",
+        "blank_count": 1
+      },
+      {
+        "question": "2. ICMP的报文分为_______报文和_______报文。",
+        "answer": [
+          "差错报告",
+          "询问"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "3. 数据链路层使用的信道主要有_______信道和广播信道。",
+        "answer": "点对点",
+        "blank_count": 1
+      },
+      {
+        "question": "4. Internet有两个重要基本特点，即连通性和_______。",
+        "answer": "共享性",
+        "blank_count": 1
+      },
+      {
+        "question": "5. 拥塞控制的四种算法：即_______、拥塞避免、快重传和快恢复。",
+        "answer": "慢开始",
+        "blank_count": 1
+      },
+      {
+        "question": "6. 无线局域网的常用类型有802.11a、_______、_______和_______。",
+        "answer": [
+          "802.11b",
+          "802.11g",
+          "802.11n"
+        ],
+        "blank_count": 3
+      },
+      {
+        "question": "7. 一台主机可以有三个标识它的地址，分别是MAC地址、_______和_______。",
+        "answer": [
+          "IP地址",
+          "端口号"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "8. 主机向本地域名服务器的查询一般都采用_______查询。",
+        "answer": "递归",
+        "blank_count": 1
+      },
+      {
+        "question": "9. 最常见的主动攻击方式有：篡改、_______和_______。",
+        "answer": [
+          "伪造",
+          "拒绝服务"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "10. 适配器从网络上收到的发往本站的帧包括：单播帧、_______和_______。",
+        "answer": [
+          "广播帧",
+          "多播帧"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "11. 在进行文件传送时，FTP的客户和服务器之间要建立两个并行的TCP连接：_______和_______。",
+        "answer": [
+          "控制连接",
+          "数据连接"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "12. 网络协议的三要素是_______、_______、_______。",
+        "answer": [
+          "语法",
+          "语义",
+          "同步"
+        ],
+        "blank_count": 3
+      },
+      {
+        "question": "13. 向IPv6过渡可以采用_______或隧道技术。",
+        "answer": "双协议栈",
+        "blank_count": 1
+      },
+      {
+        "question": "14. IP多播需要使用_______和多播路由选择协议。",
+        "answer": "多播地址",
+        "blank_count": 1
+      },
+      {
+        "question": "15. 子网掩码的作用是判断两台主机是否在同一子网中，并可得到_______。",
+        "answer": "网络地址",
+        "blank_count": 1
+      },
+      {
+        "question": "16. 实现分组交换的方法有_______和虚电路。",
+        "answer": "数据报",
+        "blank_count": 1
+      }
+    ];
+    
+    const networkBlank2 = [
+      {
+        "question": "1. 云计算的部署模式有三大类:公有云、_______、_______。",
+        "answer": [
+          "私有云",
+          "混合云"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "2. Web的主要功能组件有HTML、_______以及_______。",
+        "answer": [
+          "URL",
+          "HTTP"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "3. 常见的防火墙类型有两种：_______和代理防火墙。",
+        "answer": "包过滤防火墙",
+        "blank_count": 1
+      },
+      {
+        "question": "4. Ethernet所采用的CSMA/CD技术的工作原理可以简单地概括为多点接入、_______和_______。",
+        "answer": [
+          "载波监听",
+          "碰撞检测"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "5. 在OSI七层模型中，_______层负责在不同网络之间选择路由，并将数据包从源地址传输到目的地址。",
+        "answer": "网络",
+        "blank_count": 1
+      },
+      {
+        "question": "6. CSMA/CD技术的工作原理可以简单地概括为多点接入、_______和_______。",
+        "answer": [
+          "载波监听",
+          "碰撞检测"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "7. 在计算机网络中，_______层负责确保数据从发送方可靠地传输到接收方，并且能够处理流量控制和错误恢复；而_______层则负责将数据分割成适合传输的大小，并在需要时重新组装。",
+        "answer": [
+          "传输",
+          "网络"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "8. IP数据报首部分为_______字节的固定部分和最多40个字节的可变部分。",
+        "answer": "20",
+        "blank_count": 1
+      },
+      {
+        "question": "9. 网络地址转换（NAT）通常在路由器上实现，它允许多个设备通过_______公共IP地址访问互联网，同时保留私有的内部IP地址。",
+        "answer": "一个或多个",
+        "blank_count": 1
+      },
+      {
+        "question": "10. 子网划分方法分为_______和_______两种。",
+        "answer": [
+          "定长子网掩码",
+          "变长子网掩码"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "11. 设定超时计时器的时间应该大于TCP连接的_______。",
+        "answer": "往返时间 RTT",
+        "blank_count": 1
+      },
+      {
+        "question": "12. SNMP的通信方式有两种，分别是_______和_______。",
+        "answer": [
+          "轮询",
+          "事件驱动"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "13. 数据通信系统的模型由源系统、_______和_______组成。",
+        "answer": [
+          "传输系统",
+          "目的系统"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "14. 滑动窗口的作用是_______和_______。",
+        "answer": [
+          "流量控制",
+          "可靠传输"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "15. DNS标准定义了两种解析方法，分别是_______和_______。",
+        "answer": [
+          "递归解析",
+          "迭代解析"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "16. 路由器工作在参考模型的第_______层。",
+        "answer": "三",
+        "blank_count": 1
+      },
+      {
+        "question": "17. 发送时延的大小和数据块长度为_______，带宽为_______。",
+        "answer": [
+          "成正比",
+          "成反比"
+        ],
+        "blank_count": 2
+      },
+      {
+        "question": "18. 主机号为0的IP地址表示_______。",
+        "answer": "本网络的网络地址",
+        "blank_count": 1
+      }
+    ];
+    
+    // DOM 元素
+    const loading = document.getElementById('loading');
+    const questionContainer = document.getElementById('questionContainer');
+    const blankContainer = document.getElementById('blankContainer');
+    const feedback = document.getElementById('feedback');
+    const question = document.getElementById('question');
+    const blankQuestion = document.getElementById('blankQuestion');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const blanksInputContainer = document.getElementById('blanksInputContainer');
+    const feedbackContent = document.getElementById('feedbackContent');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const scoreText = document.getElementById('scoreText');
+    const pageTitle = document.getElementById('page-title');
+    const nextQuestion = document.getElementById('nextQuestion');
+    const checkBlanks = document.getElementById('checkBlanks');
+    const showAnswer = document.getElementById('showAnswer');
+    
+    // 完成弹窗
+    const completionModal = document.getElementById('completionModal');
+    const completionScore = document.getElementById('completionScore');
+    const completionMessage = document.getElementById('completionMessage');
+    const restartQuiz = document.getElementById('modalRestartBtn');
+    const backToHome = document.getElementById('backToHome');
+    
+    // 新添加的DOM元素
+    const quizContainer = document.getElementById('quiz-container');
+    const resultsContainer = document.getElementById('results-container');
+    const prevBtn = document.getElementById('prevBtn');
+    const currentQuestionSpan = document.getElementById('current-question');
+    const totalQuestionsSpan = document.getElementById('total-questions');
+    const completedCount = document.getElementById('completed-count');
+    const totalCount = document.getElementById('total-count');
+    const accuracySpan = document.getElementById('accuracy');
+    const finalScore = document.getElementById('final-score');
+    const totalScore = document.getElementById('total-score');
+    const restartBtn = document.getElementById('restart-btn');
+    const retryWrongBtn = document.getElementById('retry-wrong-btn');
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', init);
+    
+    function init() {
+      // 从URL获取参数
+      const urlParams = new URLSearchParams(window.location.search);
+      quizType = urlParams.get('type') || '选择题';
+      quizKey = urlParams.get('key') || '选择题1-35';
+      
+      // 设置页面标题
+      pageTitle.textContent = `计算机网络 - ${quizKey}`;
+      
+      // 根据题目类型显示/隐藏相应按钮
+      if (quizType === '填空题') {
+        showAnswer.classList.remove('hidden');
+      }
+      
+      // 加载题目
+      loadQuestions();
+      
+      // 事件监听
+      nextBtn.addEventListener('click', handleNext);
+      prevBtn.addEventListener('click', handlePrev);
+      checkBlanks.addEventListener('click', checkBlankAnswers);
+      showAnswer.addEventListener('click', showCorrectAnswers);
+      
+      restartBtn.addEventListener('click', resetQuiz);
+      retryWrongBtn.addEventListener('click', retryWrongQuestions);
+      
+      // 完成弹窗按钮事件
+      restartQuiz.addEventListener('click', restartQuizFunc);
+      backToHome.addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+    }
+    
+    async function loadQuestions() {
+      try {
+        loading.classList.remove('hidden');
+        questionContainer.classList.add('hidden');
+        blankContainer.classList.add('hidden');
+        feedback.classList.add('hidden');
+        
+        // 使用内嵌数据而不是通过网络请求加载
+        if (quizKey === '选择题1-35') {
+          currentQuestions = networkChoice1;
+        } else if (quizKey === '选择题36-70') {
+          currentQuestions = networkChoice2;
+        } else if (quizKey === '填空题1-16') {
+          currentQuestions = networkBlank1;
+        } else if (quizKey === '填空题17-34') {
+          currentQuestions = networkBlank2;
+        } else if (quizKey === '模拟练习') {
+          // 模拟练习：从选择题1-35和选择题36-70中各抽15道，从填空题1-16和填空题17-34中各抽8道
+          
+          // 从选择题1-35中随机抽取15道题目
+          const choice1Questions = shuffleArray([...networkChoice1]).slice(0, 15);
+          
+          // 从选择题36-70中随机抽取15道题目
+          const choice2Questions = shuffleArray([...networkChoice2]).slice(0, 15);
+          
+          // 合并所有选择题并打乱顺序
+          const allChoiceQuestions = shuffleArray([...choice1Questions, ...choice2Questions]);
+          
+          // 从填空题1-16中随机抽取8道题目
+          const blank1Questions = shuffleArray([...networkBlank1]).slice(0, 8);
+          
+          // 从填空题17-34中随机抽取8道题目
+          const blank2Questions = shuffleArray([...networkBlank2]).slice(0, 8);
+          
+          // 合并所有填空题并打乱顺序
+          const allBlankQuestions = shuffleArray([...blank1Questions, ...blank2Questions]);
+          
+          // 先选择题，后填空题
+          currentQuestions = [...allChoiceQuestions, ...allBlankQuestions];
+          
+          // 设置初始题型为选择题
+          quizType = '选择题';
+          showAnswer.classList.add('hidden');
+        }
+        
+        // 保存原始题目，用于重测错题
+        originalQuestions = [...currentQuestions];
+        
+        totalQuestions = currentQuestions.length;
+        userAnswers = new Array(totalQuestions).fill(null);
+        answeredQuestions = new Array(totalQuestions).fill(false);
+        
+        // 更新UI元素
+        totalQuestionsSpan.textContent = totalQuestions;
+        totalCount.textContent = totalQuestions;
+        totalScore.textContent = totalQuestions;
+        
+        // 重置状态
+        currentQuestionIndex = 0;
+        score = 0;
+        updateProgress();
+        
+        // 显示第一题
+        showQuestion();
+      } catch (error) {
+        console.error('加载题目时出错:', error);
+      }
+    }
+    
+    function handlePrev() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        feedback.classList.add('hidden');
+        showQuestion();
+        
+        // 如果是填空题且已经回答过，显示参考答案
+        const currentQ = currentQuestions[currentQuestionIndex];
+        if (!currentQ.options && answeredQuestions[currentQuestionIndex]) {
+          // 获取当前题目的正确答案
+          const currentAnswers = Array.isArray(currentQ.answer) ? currentQ.answer : [currentQ.answer];
+          
+          // 显示反馈（仅显示正确答案）
+          feedbackContent.innerHTML = `
+            <div class="mt-4 text-appleDarkGray">
+              <p class="font-medium">正确答案：</p>
+              <div class="mt-2 pl-4 border-l-2 border-networkPurple">
+                ${currentAnswers.map(ans => `<p>${ans}</p>`).join('')}
+              </div>
+            </div>
+          `;
+          
+          // 显示反馈
+          feedback.classList.remove('hidden');
+        }
+      }
+    }
+    
+    function updateProgress() {
+      const answeredCount = answeredQuestions.filter(Boolean).length;
+      const progressPercentage = (answeredCount / currentQuestions.length) * 100;
+      
+      progressBar.style.width = `${progressPercentage}%`;
+      completedCount.textContent = answeredCount;
+      
+      if (answeredCount > 0) {
+        const accuracy = Math.round((score / answeredCount) * 100);
+        accuracySpan.textContent = `${accuracy}%`;
+      } else {
+        accuracySpan.textContent = '0%';
+      }
+    }
+    
+    function showResults() {
+      quizContainer.classList.add('hidden');
+      resultsContainer.classList.remove('hidden');
+      
+      finalScore.textContent = score;
+      
+      // 根据得分率设置鼓励信息
+      const scorePercentage = Math.round((score / currentQuestions.length) * 100);
+      const completionMessage = document.getElementById('completion-message');
+      
+      if (scorePercentage >= 90) {
+        completionMessage.textContent = '恭喜你！成绩优秀！';
+      } else if (scorePercentage >= 70) {
+        completionMessage.textContent = '干得不错，继续加油！';
+      } else if (scorePercentage >= 60) {
+        completionMessage.textContent = '及格啦，还需要更多练习哦！';
+      } else {
+        completionMessage.textContent = '需要更多练习，不要气馁！';
+      }
+    }
+    
+    function resetQuiz() {
+      // 重置状态
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(currentQuestions.length).fill(null);
+      answeredQuestions = new Array(currentQuestions.length).fill(false);
+      
+      // 显示答题界面
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      
+      // 更新进度
+      updateProgress();
+      
+      // 显示第一题
+      showQuestion();
+    }
+    
+    function retryWrongQuestions() {
+      // 收集错题
+      const wrongQuestions = [];
+      const wrongIndices = [];
+      
+      if (quizType === '选择题') {
+        for (let i = 0; i < originalQuestions.length; i++) {
+          // 如果用户回答了这道题且答错了
+          if (answeredQuestions[i]) {
+            const correctIndex = ['A', 'B', 'C', 'D', 'E', 'F'].indexOf(originalQuestions[i].answer);
+            if (userAnswers[i] !== correctIndex) {
+              wrongQuestions.push(originalQuestions[i]);
+              wrongIndices.push(i);
+            }
+          }
+        }
+      } else if (quizType === '填空题') {
+        for (let i = 0; i < originalQuestions.length; i++) {
+          // 如果用户回答了这道题
+          if (answeredQuestions[i]) {
+            const userAns = userAnswers[i];
+            const correctAns = Array.isArray(originalQuestions[i].answer) ? 
+                               originalQuestions[i].answer : 
+                               [originalQuestions[i].answer];
+            
+            let isWrong = false;
+            
+            // 检查每个填空
+            for (let j = 0; j < correctAns.length; j++) {
+              if (!userAns || !userAns[j] || 
+                  userAns[j].toLowerCase() !== correctAns[j].toLowerCase()) {
+                isWrong = true;
+                break;
+              }
+            }
+            
+            if (isWrong) {
+              wrongQuestions.push(originalQuestions[i]);
+              wrongIndices.push(i);
+            }
+          }
+        }
+      }
+      
+      // 如果没有错题，提示用户
+      if (wrongQuestions.length === 0) {
+        alert('恭喜你！没有错题需要重测。');
+        return;
+      }
+      
+      // 重置答题状态
+      currentQuestions = wrongQuestions;
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(wrongQuestions.length).fill(null);
+      answeredQuestions = new Array(wrongQuestions.length).fill(false);
+      
+      // 更新UI元素
+      totalQuestionsSpan.textContent = wrongQuestions.length;
+      totalCount.textContent = wrongQuestions.length;
+      totalScore.textContent = wrongQuestions.length;
+      
+      // 显示答题界面
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      
+      // 更新进度
+      updateProgress();
+      
+      // 显示第一题
+      showQuestion();
+    }
+    
+    // 辅助函数：随机打乱数组
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+    
+    // 完成弹窗中的重新开始功能
+    function restartQuizFunc() {
+      // 关闭完成弹窗
+      completionModal.classList.add('opacity-0', 'pointer-events-none');
+      
+      // 重置状态
+      loadQuestions();
+    }
+    
+    function showQuestion() {
+      const currentQ = currentQuestions[currentQuestionIndex];
+      
+      loading.classList.add('hidden');
+      feedback.classList.add('hidden');
+      
+      // 更新当前题目编号
+      currentQuestionSpan.textContent = currentQuestionIndex + 1;
+      
+      // 更新按钮状态
+      prevBtn.disabled = currentQuestionIndex === 0;
+      nextBtn.disabled = !answeredQuestions[currentQuestionIndex];
+      
+      // 如果是最后一题，改变下一题按钮文本
+      if (currentQuestionIndex === currentQuestions.length - 1) {
+        nextBtn.textContent = '完成';
+      } else {
+        nextBtn.textContent = '下一题';
+      }
+      
+      // 根据当前题目类型动态设置quizType（用于模拟练习中的混合题型）
+      if (currentQ.options) {
+        quizType = '选择题';
+        showAnswer.classList.add('hidden');
+      } else {
+        quizType = '填空题';
+        // 如果是模拟练习，隐藏"查看答案"按钮
+        if (quizKey === '模拟练习') {
+          showAnswer.classList.add('hidden');
+        } else {
+          showAnswer.classList.remove('hidden');
+        }
+      }
+      
+      // 提前初始化correctAnswers，确保在填空题中使用
+      if (!currentQ.options) {
+        correctAnswers = Array.isArray(currentQ.answer) ? currentQ.answer : [currentQ.answer];
+      }
+      
+      if (quizType === '选择题') {
+        // 显示选择题
+        question.innerHTML = currentQ.question;
+        optionsContainer.innerHTML = '';
+        
+        // 创建选项
+        currentQ.options.forEach((option, index) => {
+          const optionBtn = document.createElement('div');
+          optionBtn.className = 'answer-option';
+          optionBtn.dataset.index = index;
+          optionBtn.innerHTML = `
+            <div class="flex items-center">
+              <span class="mr-3">${['A', 'B', 'C', 'D', 'E', 'F'][index]}.</span>
+              <span>${option.replace(/^[A-F]\.\s?/, '')}</span>
+            </div>
+          `;
+          
+          // 如果用户已经回答过这个问题，显示答案状态
+          if (answeredQuestions[currentQuestionIndex]) {
+            const correctIndex = ['A', 'B', 'C', 'D', 'E', 'F'].indexOf(currentQ.answer);
+            
+            if (index === correctIndex) {
+              optionBtn.classList.add('correct');
+            }
+            
+            if (userAnswers[currentQuestionIndex] === index && index !== correctIndex) {
+              optionBtn.classList.add('incorrect');
+            }
+            
+            if (userAnswers[currentQuestionIndex] === index) {
+              optionBtn.classList.add('selected');
+            }
+          } else {
+            optionBtn.addEventListener('click', selectOption);
+          }
+          
+          optionsContainer.appendChild(optionBtn);
+        });
+        
+        questionContainer.classList.remove('hidden');
+        blankContainer.classList.add('hidden');
+        
+      } else if (quizType === '填空题') {
+        // 显示填空题
+        blankQuestion.innerHTML = ''; // 清空之前的内容
+        blanksInputContainer.innerHTML = ''; // 清空之前的输入框
+        
+        const questionText = currentQ.question;
+        blankCount = currentQ.blank_count || 1;
+        
+        // 如果包含下划线，显示下划线位置的输入框
+        if (questionText.includes('_')) {
+          let formattedQuestion = questionText;
+          let blankIndex = 0;
+          
+          // 替换下划线为输入框
+          formattedQuestion = questionText.replace(/_+/g, () => {
+            const inputId = `blank-${blankIndex}`;
+            let inputValue = '';
+            
+            // 如果用户已回答，填入用户的答案
+            if (answeredQuestions[currentQuestionIndex] && 
+                userAnswers[currentQuestionIndex] && 
+                userAnswers[currentQuestionIndex][blankIndex]) {
+              inputValue = userAnswers[currentQuestionIndex][blankIndex];
+            }
+            
+            // 如果已回答，添加正确/错误类
+            let classList = 'blank-input';
+            if (answeredQuestions[currentQuestionIndex]) {
+              const userAns = userAnswers[currentQuestionIndex]?.[blankIndex] || '';
+              // 确保correctAnswers已正确初始化
+              if (!correctAnswers || correctAnswers.length === 0) {
+                correctAnswers = Array.isArray(currentQ.answer) ? currentQ.answer : [currentQ.answer];
+              }
+              const correctAns = Array.isArray(correctAnswers) && blankIndex < correctAnswers.length ? 
+                                correctAnswers[blankIndex] : 
+                                (Array.isArray(correctAnswers) ? correctAnswers[0] : '');
+              
+              // 添加空值检查
+              if (correctAns && typeof correctAns === 'string') {
+                if (userAns.toLowerCase() === correctAns.toLowerCase()) {
+                  classList += ' correct';
+                } else {
+                  classList += ' incorrect';
+                }
+              }
+            }
+            
+            const result = `<input type="text" id="${inputId}" class="${classList}" style="width: 80px;" data-index="${blankIndex}" value="${inputValue}">`;
+            blankIndex++;
+            return result;
+          });
+          
+          blankQuestion.innerHTML = formattedQuestion;
+          
+          // 如果未回答，添加事件监听
+          if (!answeredQuestions[currentQuestionIndex]) {
+            const inputs = blankQuestion.querySelectorAll('.blank-input');
+            inputs.forEach(input => {
+              input.addEventListener('input', () => {
+                // 检查所有输入框是否都已填写
+                const allInputs = blankQuestion.querySelectorAll('.blank-input');
+                let allFilled = true;
+                
+                allInputs.forEach(inp => {
+                  if (!inp.value.trim()) {
+                    allFilled = false;
+                  }
+                });
+                
+                // 启用或禁用检查按钮
+                checkBlanks.disabled = !allFilled;
+              });
+            });
+          } else {
+            // 如果已回答，禁用输入框
+            const inputs = blankQuestion.querySelectorAll('.blank-input');
+            inputs.forEach(input => {
+              input.disabled = true;
+            });
+            // 禁用检查按钮
+            checkBlanks.disabled = true;
+          }
+          
+        } else {
+          // 否则，显示问题文本和输入框
+          blankQuestion.textContent = questionText;
+          
+          // 创建输入框
+          for (let i = 0; i < blankCount; i++) {
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'flex items-center';
+            
+            const inputLabel = document.createElement('label');
+            inputLabel.textContent = `空格 ${i + 1}:`;
+            inputLabel.className = 'w-16 text-appleDarkGray';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'ios-input';
+            input.dataset.index = i;
+            
+            // 如果用户已回答，填入用户的答案
+            if (answeredQuestions[currentQuestionIndex] && 
+                userAnswers[currentQuestionIndex] && 
+                userAnswers[currentQuestionIndex][i]) {
+              input.value = userAnswers[currentQuestionIndex][i];
+              input.disabled = true;
+            }
+            
+            inputContainer.appendChild(inputLabel);
+            inputContainer.appendChild(input);
+            blanksInputContainer.appendChild(inputContainer);
+          }
+          
+          // 如果已回答，禁用检查按钮
+          if (answeredQuestions[currentQuestionIndex]) {
+            checkBlanks.disabled = true;
+          } else {
+            // 添加事件监听
+            const inputs = blanksInputContainer.querySelectorAll('input');
+            inputs.forEach(input => {
+              input.addEventListener('input', () => {
+                // 检查所有输入框是否都已填写
+                const allInputs = blanksInputContainer.querySelectorAll('input');
+                let allFilled = true;
+                
+                allInputs.forEach(inp => {
+                  if (!inp.value.trim()) {
+                    allFilled = false;
+                  }
+                });
+                
+                // 启用或禁用检查按钮
+                checkBlanks.disabled = !allFilled;
+              });
+            });
+          }
+        }
+        
+        questionContainer.classList.add('hidden');
+        blankContainer.classList.remove('hidden');
+        
+        // 如果已回答，显示正确答案
+        if (answeredQuestions[currentQuestionIndex]) {
+          // 显示反馈（仅显示正确答案）
+          feedbackContent.innerHTML = `
+            <div class="mt-4 text-appleDarkGray">
+              <p class="font-medium">正确答案：</p>
+              <div class="mt-2 pl-4 border-l-2 border-networkPurple">
+                ${correctAnswers.map(ans => `<p>${ans}</p>`).join('')}
+              </div>
+            </div>
+          `;
+          
+          // 显示反馈
+          feedback.classList.remove('hidden');
+        }
+      }
+    }
+    
+    function selectOption(e) {
+      // 如果已经显示反馈，不允许再次选择
+      if (answeredQuestions[currentQuestionIndex]) {
+        return;
+      }
+      
+      const selectedOption = e.currentTarget;
+      const selectedIndex = parseInt(selectedOption.dataset.index);
+      const currentQ = currentQuestions[currentQuestionIndex];
+      const correctIndex = ['A', 'B', 'C', 'D', 'E', 'F'].indexOf(currentQ.answer);
+      const isCorrect = selectedIndex === correctIndex;
+      
+      // 标记问题已回答
+      answeredQuestions[currentQuestionIndex] = true;
+      
+      // 保存用户的答案
+      userAnswers[currentQuestionIndex] = selectedIndex;
+      
+      // 更新得分
+      if (isCorrect) {
+        score++;
+      }
+      
+      // 标记所有选项
+      const options = optionsContainer.querySelectorAll('.answer-option');
+      options.forEach((option, index) => {
+        // 移除点击事件
+        option.removeEventListener('click', selectOption);
+        
+        if (index === selectedIndex) {
+          option.classList.add('selected');
+          option.classList.add(isCorrect ? 'correct' : 'incorrect');
+        }
+        
+        if (index === correctIndex && index !== selectedIndex) {
+          option.classList.add('correct');
+        }
+      });
+      
+      // 选择题不显示任何反馈
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+    
+    function checkBlankAnswers() {
+      let allCorrect = true;
+      let userBlankAnswers = [];
+      
+      // 获取所有输入值
+      if (blankQuestion.querySelectorAll('.blank-input').length > 0) {
+        // 内嵌输入框的情况
+        const inputs = blankQuestion.querySelectorAll('.blank-input');
+        inputs.forEach(input => {
+          userBlankAnswers.push(input.value.trim());
+        });
+      } else {
+        // 单独输入框的情况
+        const inputs = blanksInputContainer.querySelectorAll('input');
+        inputs.forEach(input => {
+          userBlankAnswers.push(input.value.trim());
+        });
+      }
+      
+      // 检查每个答案
+      for (let i = 0; i < userBlankAnswers.length; i++) {
+        const userAns = userBlankAnswers[i];
+        const correctAns = Array.isArray(correctAnswers) && i < correctAnswers.length
+          ? correctAnswers[i]
+          : correctAnswers[0];
+        
+        const isCorrect = correctAns && 
+                          (userAns.toLowerCase() === correctAns.toLowerCase());
+        
+        if (!isCorrect) {
+          allCorrect = false;
+        }
+        
+        // 如果有内嵌输入框，更新其样式
+        if (blankQuestion.querySelectorAll('.blank-input').length > 0) {
+          const input = blankQuestion.querySelector(`.blank-input[data-index="${i}"]`);
+          if (input) {
+            input.classList.add(isCorrect ? 'correct' : 'incorrect');
+            input.disabled = true;
+          }
+        } else {
+          // 单独输入框的情况
+          const input = blanksInputContainer.querySelector(`input[data-index="${i}"]`);
+          if (input) {
+            input.disabled = true;
+          }
+        }
+      }
+      
+      // 标记问题已回答
+      answeredQuestions[currentQuestionIndex] = true;
+      userAnswers[currentQuestionIndex] = userBlankAnswers;
+      
+      // 更新得分
+      if (allCorrect) {
+        score++;
+      }
+      
+      // 显示反馈（仅显示正确答案）
+      feedbackContent.innerHTML = `
+        <div class="mt-4 text-appleDarkGray">
+          <p class="font-medium">正确答案：</p>
+          <div class="mt-2 pl-4 border-l-2 border-networkPurple">
+            ${correctAnswers.map(ans => `<p>${ans}</p>`).join('')}
+          </div>
+        </div>
+      `;
+      
+      // 显示反馈（只有填空题需要显示正确答案）
+      feedback.classList.remove('hidden');
+      
+      // 禁用检查按钮
+      checkBlanks.disabled = true;
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+    
+    function showCorrectAnswers() {
+      if (quizType === '填空题') {
+        feedbackContent.innerHTML = `
+          <div class="text-networkPurple font-medium mb-2">
+            <i class="fa fa-info-circle mr-2"></i>
+            答案参考
+          </div>
+          <div class="mt-4 text-appleDarkGray">
+            <p class="font-medium">正确答案：</p>
+            <div class="mt-2 pl-4 border-l-2 border-networkPurple">
+              ${correctAnswers.map(ans => `<p>${ans}</p>`).join('')}
+            </div>
+          </div>
+        `;
+        
+        feedback.classList.remove('hidden');
+      }
+    }
+    
+    function handleNext() {
+      feedback.classList.add('hidden');
+      
+      if (currentQuestionIndex < currentQuestions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion();
+        
+        // 检查新题目是否为填空题，但在模拟练习中始终隐藏"查看答案"按钮
+        const currentQ = currentQuestions[currentQuestionIndex];
+        if (!currentQ.options) {
+          quizType = '填空题';
+          // 如果是模拟练习，隐藏"查看答案"按钮
+          if (quizKey === '模拟练习') {
+            showAnswer.classList.add('hidden');
+          } else {
+            showAnswer.classList.remove('hidden');
+          }
+        } else {
+          quizType = '选择题';
+          showAnswer.classList.add('hidden');
+        }
+      } else {
+        showResults();
+      }
+    }
+  </script>
+</body>
+</html> 

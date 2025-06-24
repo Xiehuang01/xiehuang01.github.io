@@ -110,7 +110,7 @@
       </div>
 
       <!-- 计网模块 -->
-      <div class="ios-card" onclick="openModal('计网')">
+      <div class="ios-card" onclick="openNetworkVerifyModal()">
         <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-4">
           <i class="fa fa-wifi text-purple-500 text-2xl"></i>
         </div>
@@ -183,21 +183,91 @@
     </div>
   </div>
 
-  <!-- Hadoop内测码验证弹窗 -->
-  <div id="hadoopVerifyModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+  <!-- 中国文化翻译选择弹窗 -->
+  <div id="cultureModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6">
+        <h3 class="text-xl font-bold mb-4 text-center">选择题目类型</h3>
+        <div class="space-y-4 mb-6">
+          <button onclick="window.location.href='culture-quiz.html'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-exchange text-xl mr-3"></i>
+              <span class="font-medium">中英互译</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='wanxtk.html'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-pencil-square-o text-xl mr-3"></i>
+              <span class="font-medium">完形填空</span>
+            </div>
+          </button>
+        </div>
+        <button id="closeCultureModal" class="ios-button w-full">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 计算机网络选择弹窗 -->
+  <div id="networkModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col">
+      <div class="p-6 overflow-hidden flex flex-col">
+        <h3 class="text-xl font-bold mb-4 text-center">选择复习范围</h3>
+        <div class="space-y-4 mb-6 overflow-y-auto pr-2">
+          <button onclick="window.location.href='network-quiz.html?type=选择题&key=选择题1-35'" class="w-full py-4 px-6 bg-purple-500/10 text-purple-500 rounded-xl hover:bg-purple-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-circle-o text-xl mr-3"></i>
+              <span class="font-medium">选择题 1-35</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='network-quiz.html?type=选择题&key=选择题36-70'" class="w-full py-4 px-6 bg-purple-500/10 text-purple-500 rounded-xl hover:bg-purple-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-check-circle-o text-xl mr-3"></i>
+              <span class="font-medium">选择题 36-70</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='network-quiz.html?type=填空题&key=填空题1-16'" class="w-full py-4 px-6 bg-purple-500/10 text-purple-500 rounded-xl hover:bg-purple-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-pencil text-xl mr-3"></i>
+              <span class="font-medium">填空题 1-16</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='network-quiz.html?type=填空题&key=填空题17-34'" class="w-full py-4 px-6 bg-purple-500/10 text-purple-500 rounded-xl hover:bg-purple-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-pencil text-xl mr-3"></i>
+              <span class="font-medium">填空题 17-34</span>
+            </div>
+          </button>
+          <button onclick="window.location.href='network-quiz.html?type=模拟练习&key=模拟练习'" class="w-full py-4 px-6 bg-green-500/10 text-green-500 rounded-xl hover:bg-green-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-random text-xl mr-3"></i>
+              <span class="font-medium">模拟练习</span>
+            </div>
+          </button>
+        </div>
+        <button id="closeNetworkModal" class="ios-button w-full mt-auto">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 计网内测码验证弹窗 -->
+  <div id="networkVerifyModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
       <div class="p-6 text-center">
-        <div class="w-16 h-16 bg-green-600/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i class="fa fa-lock text-green-600 text-2xl"></i>
+        <div class="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-lock text-purple-500 text-2xl"></i>
         </div>
-        <h3 class="text-xl font-bold mb-2">Hadoop模块验证</h3>
-        <p class="text-appleDarkGray mb-4">请输入内测码以访问Hadoop模块</p>
-        <input type="text" id="hadoopTestCode" class="ios-input mb-6" placeholder="请输入内测码">
+        <h3 class="text-xl font-bold mb-2">计算机网络模块验证</h3>
+        <p class="text-appleDarkGray mb-4">请输入内测码以访问计算机网络模块</p>
+        <input type="text" id="networkTestCode" class="ios-input mb-6" placeholder="请输入内测码">
         <div class="flex space-x-4">
-          <button id="cancelHadoopVerify" class="ios-button bg-appleDarkGray flex-1">
+          <button id="cancelNetworkVerify" class="ios-button bg-appleDarkGray flex-1">
             取消
           </button>
-          <button id="confirmHadoopVerify" class="ios-button flex-1">
+          <button id="confirmNetworkVerify" class="ios-button flex-1">
             确认
           </button>
         </div>
@@ -279,32 +349,6 @@
     </div>
   </div>
 
-  <!-- 中国文化翻译选择弹窗 -->
-  <div id="cultureModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
-      <div class="p-6">
-        <h3 class="text-xl font-bold mb-4 text-center">选择题目类型</h3>
-        <div class="space-y-4 mb-6">
-          <button onclick="window.location.href='culture-quiz.html'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
-            <div class="flex items-center">
-              <i class="fa fa-exchange text-xl mr-3"></i>
-              <span class="font-medium">中英互译</span>
-            </div>
-          </button>
-          <button onclick="window.location.href='wanxtk.html'" class="w-full py-4 px-6 bg-appleBlue/10 text-appleBlue rounded-xl hover:bg-appleBlue/20 transition-colors">
-            <div class="flex items-center">
-              <i class="fa fa-pencil-square-o text-xl mr-3"></i>
-              <span class="font-medium">完形填空</span>
-            </div>
-          </button>
-        </div>
-        <button id="closeCultureModal" class="ios-button w-full">
-          取消
-        </button>
-      </div>
-    </div>
-  </div>
-
   <script>
     // 弹窗控制
     const modal = document.getElementById('modal');
@@ -379,14 +423,17 @@
         if (!computerOrganizationModal.classList.contains('opacity-0')) {
           closeComputerOrganizationModalFunc();
         }
-        if (!hadoopVerifyModal.classList.contains('opacity-0')) {
-          closeHadoopVerifyModal();
+        if (!networkVerifyModal.classList.contains('opacity-0')) {
+          closeNetworkVerifyModal();
         }
         if (!hadoopModal.classList.contains('opacity-0')) {
           closeHadoopModalFunc();
         }
         if (!cultureModal.classList.contains('opacity-0')) {
           closeCultureModalFunc();
+        }
+        if (!networkModal.classList.contains('opacity-0')) {
+          closeNetworkModalFunc();
         }
       }
     });
@@ -429,97 +476,6 @@
       }
     });
 
-    // Hadoop内测码验证弹窗控制
-    const hadoopVerifyModal = document.getElementById('hadoopVerifyModal');
-    const hadoopTestCode = document.getElementById('hadoopTestCode');
-    const confirmHadoopVerify = document.getElementById('confirmHadoopVerify');
-    const cancelHadoopVerify = document.getElementById('cancelHadoopVerify');
-    
-    function openHadoopModal() {
-      // 显示内测码验证窗口
-      hadoopVerifyModal.classList.remove('opacity-0', 'pointer-events-none');
-      setTimeout(() => {
-        const modalContent = hadoopVerifyModal.querySelector('div');
-        modalContent.classList.remove('scale-95');
-        modalContent.classList.add('scale-100');
-        // 聚焦到输入框
-        hadoopTestCode.focus();
-      }, 10);
-    }
-    
-    // 验证内测码并打开Hadoop模块
-    function verifyAndOpenHadoop() {
-      const testCode = hadoopTestCode.value;
-      if (testCode === "xiehuangtest") {
-        // 关闭验证窗口
-        closeHadoopVerifyModal();
-        // 打开Hadoop模块窗口
-        hadoopModal.classList.remove('opacity-0', 'pointer-events-none');
-        setTimeout(() => {
-          const modalContent = hadoopModal.querySelector('div');
-          modalContent.classList.remove('scale-95');
-          modalContent.classList.add('scale-100');
-        }, 10);
-      } else {
-        alert("内测码不正确，无法访问Hadoop模块！");
-        hadoopTestCode.value = "";
-        hadoopTestCode.focus();
-      }
-    }
-    
-    // 关闭验证窗口
-    function closeHadoopVerifyModal() {
-      const modalContent = hadoopVerifyModal.querySelector('div');
-      modalContent.classList.remove('scale-100');
-      modalContent.classList.add('scale-95');
-      setTimeout(() => {
-        hadoopVerifyModal.classList.add('opacity-0', 'pointer-events-none');
-        hadoopTestCode.value = ""; // 清空输入框
-      }, 300);
-    }
-    
-    // 确认按钮点击事件
-    confirmHadoopVerify.addEventListener('click', verifyAndOpenHadoop);
-    
-    // 取消按钮点击事件
-    cancelHadoopVerify.addEventListener('click', closeHadoopVerifyModal);
-    
-    // 回车键提交
-    hadoopTestCode.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        verifyAndOpenHadoop();
-      }
-    });
-    
-    // 点击验证窗口外部关闭
-    hadoopVerifyModal.addEventListener('click', (e) => {
-      if (e.target === hadoopVerifyModal) {
-        closeHadoopVerifyModal();
-      }
-    });
-
-    // Hadoop模态框控制
-    const hadoopModal = document.getElementById('hadoopModal');
-    const closeHadoopModal = document.getElementById('closeHadoopModal');
-    
-    function closeHadoopModalFunc() {
-      const modalContent = hadoopModal.querySelector('div');
-      modalContent.classList.remove('scale-100');
-      modalContent.classList.add('scale-95');
-      setTimeout(() => {
-        hadoopModal.classList.add('opacity-0', 'pointer-events-none');
-      }, 300);
-    }
-    
-    closeHadoopModal.addEventListener('click', closeHadoopModalFunc);
-    
-    // 点击Hadoop模态框外部关闭
-    hadoopModal.addEventListener('click', (e) => {
-      if (e.target === hadoopModal) {
-        closeHadoopModalFunc();
-      }
-    });
-
     // 中国文化翻译模态框控制
     const cultureModal = document.getElementById('cultureModal');
     const closeCultureModal = document.getElementById('closeCultureModal');
@@ -548,6 +504,137 @@
     cultureModal.addEventListener('click', (e) => {
       if (e.target === cultureModal) {
         closeCultureModalFunc();
+      }
+    });
+
+    // 计网模块控制
+    const networkModal = document.getElementById('networkModal');
+    const closeNetworkModal = document.getElementById('closeNetworkModal');
+    
+    function openNetworkModal() {
+      networkModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = networkModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+    
+    function closeNetworkModalFunc() {
+      const modalContent = networkModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        networkModal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+    
+    closeNetworkModal.addEventListener('click', closeNetworkModalFunc);
+    
+    // 点击计网模态框外部关闭
+    networkModal.addEventListener('click', (e) => {
+      if (e.target === networkModal) {
+        closeNetworkModalFunc();
+      }
+    });
+
+    // 计网内测码验证弹窗控制
+    const networkVerifyModal = document.getElementById('networkVerifyModal');
+    const networkTestCode = document.getElementById('networkTestCode');
+    const confirmNetworkVerify = document.getElementById('confirmNetworkVerify');
+    const cancelNetworkVerify = document.getElementById('cancelNetworkVerify');
+    
+    function openNetworkVerifyModal() {
+      // 显示内测码验证窗口
+      networkVerifyModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = networkVerifyModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+        // 聚焦到输入框
+        networkTestCode.focus();
+      }, 10);
+    }
+    
+    // 验证内测码并打开计网模块
+    function verifyAndOpenNetwork() {
+      const testCode = networkTestCode.value;
+      if (testCode === "xiehuangtest") {
+        // 关闭验证窗口
+        closeNetworkVerifyModal();
+        // 打开计网模块窗口
+        networkModal.classList.remove('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+          const modalContent = networkModal.querySelector('div');
+          modalContent.classList.remove('scale-95');
+          modalContent.classList.add('scale-100');
+        }, 10);
+      } else {
+        alert("内测码不正确，无法访问计算机网络模块！");
+        networkTestCode.value = "";
+        networkTestCode.focus();
+      }
+    }
+    
+    // 关闭验证窗口
+    function closeNetworkVerifyModal() {
+      const modalContent = networkVerifyModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        networkVerifyModal.classList.add('opacity-0', 'pointer-events-none');
+        networkTestCode.value = ""; // 清空输入框
+      }, 300);
+    }
+    
+    // 确认按钮点击事件
+    confirmNetworkVerify.addEventListener('click', verifyAndOpenNetwork);
+    
+    // 取消按钮点击事件
+    cancelNetworkVerify.addEventListener('click', closeNetworkVerifyModal);
+    
+    // 回车键提交
+    networkTestCode.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        verifyAndOpenNetwork();
+      }
+    });
+    
+    // 点击验证窗口外部关闭
+    networkVerifyModal.addEventListener('click', (e) => {
+      if (e.target === networkVerifyModal) {
+        closeNetworkVerifyModal();
+      }
+    });
+
+    // Hadoop模态框控制
+    const hadoopModal = document.getElementById('hadoopModal');
+    const closeHadoopModal = document.getElementById('closeHadoopModal');
+    
+    function openHadoopModal() {
+      hadoopModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = hadoopModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+    
+    function closeHadoopModalFunc() {
+      const modalContent = hadoopModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        hadoopModal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+    
+    closeHadoopModal.addEventListener('click', closeHadoopModalFunc);
+    
+    // 点击Hadoop模态框外部关闭
+    hadoopModal.addEventListener('click', (e) => {
+      if (e.target === hadoopModal) {
+        closeHadoopModalFunc();
       }
     });
   </script>

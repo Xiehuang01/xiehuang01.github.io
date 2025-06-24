@@ -241,6 +241,7 @@
     let currentQuestionIndex = 0;
     let userAnswers = [];
     let wrongQuestions = [];
+    let originalQuestions = []; // 保存原始题目数据，用于重测错题
 
     // 内嵌JSON数据
     const jsonData = {
@@ -1408,6 +1409,8 @@
         // 从内嵌数据中获取题目
         if (jsonData[key]) {
           questions = jsonData[key];
+          // 保存原始题目数据，用于重测错题
+          originalQuestions = JSON.parse(JSON.stringify(questions));
         } else {
           throw new Error(`未找到对应的题目数据: ${key}`);
         }
@@ -1576,8 +1579,19 @@
       
       const inputElement = document.createElement('div');
       inputElement.className = 'mt-4';
+      
+      // 获取用户之前的答案（如果有）
+      let userValue = '';
+      if (userAnswers[index] !== null) {
+        if (typeof userAnswers[index] === 'string') {
+          userValue = userAnswers[index];
+        } else if (userAnswers[index].value) {
+          userValue = userAnswers[index].value;
+        }
+      }
+      
       inputElement.innerHTML = `
-        <input type="text" class="ios-input" placeholder="请输入答案" value="${userAnswers[index] || ''}">
+        <input type="text" class="ios-input" placeholder="请输入答案" value="${userValue}">
       `;
       
       const input = inputElement.querySelector('input');
@@ -1585,7 +1599,10 @@
       // 如果用户已经回答过这个问题，显示答案状态
       if (userAnswers[index] !== null && userAnswers[index].submitted) {
         const correctAnswer = question.answer;
-        if (userAnswers[index].trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+        const userAnswer = userAnswers[index].value.trim().toLowerCase();
+        const isCorrect = userAnswer === correctAnswer.trim().toLowerCase();
+        
+        if (isCorrect) {
           input.classList.add('border-green-500');
           input.classList.add('bg-green-50');
         } else {
@@ -1603,6 +1620,11 @@
         input.disabled = true;
       } else {
         input.addEventListener('input', (e) => {
+          if (userAnswers[index] && userAnswers[index].submitted) {
+            // 如果已经提交，不允许修改
+            return;
+          }
+          
           userAnswers[index] = e.target.value;
           updateProgress();
           
@@ -1625,7 +1647,9 @@
       submitButton.id = 'submit-blank-answer';
       
       // 如果用户没有输入答案或已经提交，禁用按钮
-      if (!userAnswers[index] || userAnswers[index].trim() === '' || (userAnswers[index] && userAnswers[index].submitted)) {
+      if (!userAnswers[index] || 
+          (typeof userAnswers[index] === 'string' && userAnswers[index].trim() === '') || 
+          (userAnswers[index] && userAnswers[index].submitted)) {
         submitButton.disabled = true;
         submitButton.classList.add('bg-gray-400');
         submitButton.classList.remove('bg-green-500', 'hover:bg-green-600');
@@ -1775,10 +1799,14 @@
       }
       
       // 标记为已提交
-      userAnswers[questionIndex].submitted = true;
+      const originalAnswer = userAnswer;
+      userAnswers[questionIndex] = {
+        value: originalAnswer,
+        submitted: true
+      };
       
       // 检查答案是否正确（忽略大小写和空格）
-      const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+      const isCorrect = originalAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
       
       // 显示答案状态
       const input = optionsContainer.querySelector('input');
@@ -1822,10 +1850,61 @@
       const progressPercentage = (completedQuestions / questions.length) * 100;
       progressBar.style.width = `${progressPercentage}%`;
       
-      // 计算正确率（如果有答案的话）
-      if (wrongQuestions.length > 0) {
-        const correctCount = questions.length - wrongQuestions.length;
-        const accuracy = Math.round((correctCount / questions.length) * 100);
+      // 计算正确率（如果已经有答题记录）
+      if (completedQuestions > 0) {
+        // 计算已回答的题目中正确的数量
+        let correctCount = 0;
+        for (let i = 0; i < questions.length; i++) {
+          if (userAnswers[i] !== null) {
+            let isCorrect = false;
+            
+            if (key.includes('单选题') || key === '模拟练习') {
+              // 单选题答案比较
+              if (questions[i].options && !Array.isArray(questions[i].answer)) {
+                isCorrect = userAnswers[i] === questions[i].answer;
+              }
+              // 多选题答案比较
+              else if (questions[i].options && Array.isArray(questions[i].answer) && Array.isArray(userAnswers[i])) {
+                if (userAnswers[i].submitted) {
+                  const sortedUserAnswer = [...userAnswers[i]].filter(a => a !== 'submitted').sort();
+                  const sortedCorrectAnswer = [...questions[i].answer].sort();
+                  isCorrect = JSON.stringify(sortedUserAnswer) === JSON.stringify(sortedCorrectAnswer);
+                }
+              }
+              // 填空题答案比较
+              else if (!questions[i].options) {
+                if (userAnswers[i] && userAnswers[i].submitted) {
+                  const userAnswer = userAnswers[i].value ? userAnswers[i].value.trim().toLowerCase() : '';
+                  const correctAnswer = questions[i].answer.trim().toLowerCase();
+                  isCorrect = userAnswer === correctAnswer;
+                }
+              }
+            } else {
+              // 原有逻辑
+              if (questionType === '单选题' || questionType === '选择题') {
+                isCorrect = userAnswers[i] === questions[i].answer;
+              } else if (questionType === '多选题') {
+                if (Array.isArray(userAnswers[i]) && Array.isArray(questions[i].answer) && userAnswers[i].submitted) {
+                  const sortedUserAnswer = [...userAnswers[i]].filter(a => a !== 'submitted').sort();
+                  const sortedCorrectAnswer = [...questions[i].answer].sort();
+                  isCorrect = JSON.stringify(sortedUserAnswer) === JSON.stringify(sortedCorrectAnswer);
+                }
+              } else if (questionType === '填空题') {
+                if (userAnswers[i] && userAnswers[i].submitted) {
+                  const userAnswer = userAnswers[i].value ? userAnswers[i].value.trim().toLowerCase() : '';
+                  const correctAnswer = questions[i].answer.trim().toLowerCase();
+                  isCorrect = userAnswer === correctAnswer;
+                }
+              }
+            }
+            
+            if (isCorrect) {
+              correctCount++;
+            }
+          }
+        }
+        
+        const accuracy = Math.round((correctCount / completedQuestions) * 100);
         accuracyDisplay.textContent = `${accuracy}%`;
       }
     }
@@ -1838,26 +1917,33 @@
       questions.forEach((question, index) => {
         let isCorrect = false;
         
-        if (questionType === '单选题') {
+        if (questionType === '单选题' || questionType === '选择题' || (key === '模拟练习' && question.options && !Array.isArray(question.answer))) {
           isCorrect = userAnswers[index] === question.answer;
-        } else if (questionType === '多选题') {
+        } else if (questionType === '多选题' || (key === '模拟练习' && question.options && Array.isArray(question.answer))) {
           // 多选题需要选项完全匹配
           if (userAnswers[index] && Array.isArray(userAnswers[index]) && Array.isArray(question.answer)) {
-            // 排序后比较
-            const sortedUserAnswer = [...userAnswers[index]].sort();
+            // 排序后比较，排除submitted标记
+            const sortedUserAnswer = [...userAnswers[index]].filter(a => a !== 'submitted').sort();
             const sortedCorrectAnswer = [...question.answer].sort();
             isCorrect = JSON.stringify(sortedUserAnswer) === JSON.stringify(sortedCorrectAnswer);
           }
-        } else if (questionType === '填空题') {
+        } else if (questionType === '填空题' || (key === '模拟练习' && !question.options)) {
           // 填空题答案比较（忽略大小写和空格）
-          const userAnswer = userAnswers[index] ? userAnswers[index].trim().toLowerCase() : '';
-          const correctAnswer = question.answer.trim().toLowerCase();
-          isCorrect = userAnswer === correctAnswer;
+          if (userAnswers[index] && userAnswers[index].submitted) {
+            const userAnswer = userAnswers[index].value ? userAnswers[index].value.trim().toLowerCase() : '';
+            const correctAnswer = question.answer.trim().toLowerCase();
+            isCorrect = userAnswer === correctAnswer;
+          } else if (typeof userAnswers[index] === 'string') {
+            const userAnswer = userAnswers[index].trim().toLowerCase();
+            const correctAnswer = question.answer.trim().toLowerCase();
+            isCorrect = userAnswer === correctAnswer;
+          }
         }
         
         if (isCorrect) {
           score++;
-        } else {
+        } else if (userAnswers[index] !== null) {
+          // 只记录用户已回答的错题
           wrongQuestions.push(index);
         }
       });
@@ -1868,7 +1954,8 @@
       resultsContainer.classList.remove('hidden');
       
       // 计算正确率
-      const accuracy = Math.round((score / questions.length) * 100);
+      const answeredQuestions = userAnswers.filter(answer => answer !== null).length;
+      const accuracy = answeredQuestions > 0 ? Math.round((score / answeredQuestions) * 100) : 0;
       accuracyDisplay.textContent = `${accuracy}%`;
     }
 
@@ -1891,7 +1978,7 @@
       }
       
       // 创建一个新的问题数组，只包含错题
-      const wrongQuestionsArray = wrongQuestions.map(index => questions[index]);
+      const wrongQuestionsArray = wrongQuestions.map(index => originalQuestions[index] || questions[index]);
       questions = wrongQuestionsArray;
       
       // 重置用户答案和当前题目索引
