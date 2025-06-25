@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MySQL数据库复习</title>
+  <!-- 改用本地引入Tailwind -->
+  <style>
+    /* Tailwind 基础样式 */
+    /*! tailwindcss v3.3.3 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]{display:none}
+  </style>
+  
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/monokai-sublime.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <style>
+    /* 自定义Tailwind样式 */
+    :root {
+      --color-apple-blue: #0071E3;
+      --color-apple-blue-light: #4A90E2;
+      --color-apple-gray: #F5F5F7;
+      --color-apple-dark-gray: #86868B;
+      --color-apple-text: #1D1D1F;
+      --color-mysql-blue: #00758F;
+      --color-mysql-orange: #F29111;
+    }
+    
+    /* 工具类 */
+    .container { width: 100%; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+    @media (min-width: 640px) { .container { max-width: 640px; } }
+    @media (min-width: 768px) { .container { max-width: 768px; } }
+    @media (min-width: 1024px) { .container { max-width: 1024px; } }
+    @media (min-width: 1280px) { .container { max-width: 1280px; } }
+    
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .space-x-2 > * + * { margin-left: 0.5rem; }
+    .space-x-4 > * + * { margin-left: 1rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    
+    .hidden { display: none; }
+    .lg\:block { display: block; }
+    @media (min-width: 1024px) { .lg\:block { display: block; } }
+    
+    .sticky { position: sticky; }
+    .fixed { position: fixed; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .top-0 { top: 0; }
+    .top-20 { top: 5rem; }
+    .z-50 { z-index: 50; }
+    
+    .bg-white { background-color: #fff; }
+    .bg-appleGray { background-color: var(--color-apple-gray); }
+    .bg-mysqlBlue\/10 { background-color: rgba(0, 117, 143, 0.1); }
+    
+    .text-appleText { color: var(--color-apple-text); }
+    .text-appleBlue { color: var(--color-apple-blue); }
+    .text-appleDarkGray { color: var(--color-apple-dark-gray); }
+    .text-mysqlBlue { color: var(--color-mysql-blue); }
+    
+    .w-10 { width: 2.5rem; }
+    .w-16 { width: 4rem; }
+    .w-64 { width: 16rem; }
+    .w-full { width: 100%; }
+    .h-10 { height: 2.5rem; }
+    .h-16 { height: 4rem; }
+    .h-full { height: 100%; }
+    
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+    .p-4 { padding: 1rem; }
+    .p-6 { padding: 1.5rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mr-8 { margin-right: 2rem; }
+    .mt-4 { margin-top: 1rem; }
+    
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+    .text-sm { font-size: 0.875rem; }
+    .text-xl { font-size: 1.25rem; }
+    .text-2xl { font-size: 1.5rem; }
+    
+    .rounded-full { border-radius: 9999px; }
+    .rounded-2xl { border-radius: 1rem; }
+    
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .ios-shadow { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+    
+    .transform { transform: translateX(0) translateY(0) rotate(0) skewX(0) skewY(0) scaleX(1) scaleY(1); }
+    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    
+    .overflow-auto { overflow: auto; }
+    .self-start { align-self: flex-start; }
+    .flex-1 { flex: 1 1 0%; }
+    
+    .pl-4 { padding-left: 1rem; }
+    .pl-8 { padding-left: 2rem; }
+    
+    .hover\:text-mysqlBlue:hover { color: var(--color-mysql-blue); }
+    .hover\:text-appleBlueLight:hover { color: var(--color-apple-blue-light); }
+    
+    .max-h-\[calc\(100vh-5rem\)\] { max-height: calc(100vh - 5rem); }
+    
+    .ios-card {
+      background-color: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 1.5rem;
+      transition-property: all;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 300ms;
+    }
+    
+    .font-sanfrancisco {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+    }
+    
+    .min-h-screen { min-height: 100vh; }
+  </style>
+  
+  <style>
+    /* Markdown 样式 */
+    .markdown-body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+      line-height: 1.6;
+      color: #1D1D1F;
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+    .markdown-body h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eaecef;
+      color: #00758F;
+    }
+    .markdown-body h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: #00758F;
+    }
+    .markdown-body h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: #00758F;
+    }
+    .markdown-body p {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .markdown-body ul, .markdown-body ol {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+    }
+    .markdown-body ul {
+      list-style-type: disc;
+    }
+    .markdown-body ol {
+      list-style-type: decimal;
+    }
+    .markdown-body li {
+      margin-bottom: 0.25rem;
+    }
+    .markdown-body pre {
+      margin: 1rem 0;
+      border-radius: 0.25rem;
+      overflow-x: auto;
+      max-width: 100%;
+      white-space: pre-wrap;
+      background-color: #2d2d2d;
+    }
+    .markdown-body code {
+      font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      background-color: rgba(0, 117, 143, 0.1);
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.9em;
+      white-space: normal;
+      word-break: break-word;
+    }
+    .markdown-body pre code {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 0;
+      font-size: 0.9em;
+      white-space: pre-wrap;
+    }
+    .markdown-body table {
+      border-collapse: collapse;
+      margin: 1rem 0;
+      width: 100%;
+      display: block;
+      overflow-x: auto;
+    }
+    .markdown-body table th, .markdown-body table td {
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .markdown-body table th {
+      background-color: rgba(0, 117, 143, 0.1);
+      font-weight: 600;
+    }
+    .markdown-body table tr:nth-child(even) {
+      background-color: rgba(0, 117, 143, 0.05);
+    }
+    .markdown-body blockquote {
+      margin: 1rem 0;
+      padding: 0.5rem 1rem;
+      border-left: 0.25rem solid #00758F;
+      background-color: rgba(0, 117, 143, 0.05);
+    }
+    /* 自定义高亮 */
+    .hljs {
+      border-radius: 0.25rem;
+      padding: 1rem;
+      background-color: #2d2d2d !important;
+    }
+    /* 移动端目录抽屉默认关闭 */
+    #mobileToc {
+      display: none;
+    }
+    /* 滚动条样式 */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #00758F;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0071E3;
+    }
+  </style>
+  
+  <style>
+    /* 移动端目录样式 */
+    #mobileToc .w-4\/5 {
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    
+    /* 目录标题样式 */
+    #mobileTocList a {
+      display: block;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+    
+    /* H1标题 */
+    #mobileTocList a:not(.pl-4):not(.pl-8) {
+      font-weight: bold;
+      color: #00758F;
+    }
+    
+    /* H2标题 */
+    #mobileTocList a.pl-4 {
+      padding-left: 1rem !important;
+      border-left: 2px solid #00758F;
+      color: #444;
+    }
+    
+    /* H3标题 */
+    #mobileTocList a.pl-8 {
+      padding-left: 2rem !important;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    #mobileTocList a:active {
+      background-color: rgba(0, 117, 143, 0.1);
+    }
+  </style>
+</head>
+<body class="font-sanfrancisco bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="index.html" class="flex items-center space-x-2">
+          <i class="fa fa-arrow-left text-appleBlue text-xl"></i>
+          <span class="text-appleBlue">返回</span>
+        </a>
+      </div>
+      <h1 class="text-xl font-bold">MySQL数据库复习</h1>
+      <div class="flex items-center space-x-4">
+        <button id="toggleToc" class="text-appleBlue hover:text-appleBlueLight">
+          <i class="fa fa-list-ul text-xl"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 移动端目录抽屉 - 使用inline样式确保初始隐藏 -->
+  <div id="mobileToc" class="fixed inset-0 z-50" style="display: none; background-color: rgba(0,0,0,0.5);">
+    <div class="w-4/5 max-w-xs h-full ml-auto bg-white p-4 overflow-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-bold text-mysqlBlue">目录</h2>
+        <button id="closeToc" class="text-appleDarkGray p-2">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <ul id="mobileTocList" class="space-y-2 text-sm"></ul>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col lg:flex-row">
+      <!-- 侧边目录 - 仅在大屏幕显示 -->
+      <aside id="toc" class="w-64 mr-8 hidden lg:hidden sticky top-20 self-start overflow-auto max-h-[calc(100vh-5rem)]">
+        <div class="ios-card">
+          <h2 class="font-bold text-mysqlBlue mb-4">目录</h2>
+          <ul id="tocList" class="space-y-2 text-sm"></ul>
+        </div>
+      </aside>
+
+      <!-- 主内容区 -->
+      <main class="flex-1 w-full">
+        <div class="ios-card mb-6">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-2">
+              <div class="w-10 h-10 rounded-full bg-mysqlBlue/10 flex items-center justify-center">
+                <i class="fa fa-database text-mysqlBlue"></i>
+              </div>
+              <h2 class="font-semibold">MySQL 复习笔记</h2>
+            </div>
+          </div>
+
+          <!-- Markdown 内容 -->
+          <div id="markdown-content" class="markdown-body" style="word-wrap: break-word; overflow-wrap: break-word;">
+          </div>
+          
+          <!-- 预加载的Markdown内容 -->
+          <textarea id="mysql-content" style="display: none;">
+# MySQL数据库
+
+# 1、数据库操作
+
+### 1.创建数据库
+
+~~~sql
+CREATE DATABASE 数据库名称;
+~~~
+
+
+
+### 2.查看数据库
+
+~~~sql
+show databases;
+~~~
+
+
+
+### 3.使用数据库
+
+~~~sql
+USE 数据库名称;
+~~~
+
+
+
+### 4.删除数据库
+
+~~~sql
+DROP DATABASE 数据库名称;
+~~~
+
+
+
+# 2、对表的操作
+
+**前提：先使用对应的数据库**
+
+### 1.创建表
+
+~~~sql
+CREATE table 表名称(
+	字段名(表头名) 数据类型 [NOT NULL] [PRIMARY KEY],
+	字段名(表头名) 数据类型,
+    ......
+    字段名(表头名) 数据类型
+);
+~~~
+
+NOT NULL：不允许为空	PRIMARY KEY：作为唯一的值（主键）
+
+
+
+### 2.查看表结构
+
+~~~sql
+DESC 表名称;
+~~~
+
+
+
+### 3.查看所有的表
+
+~~~sql
+SHOW TABLES;
+~~~
+
+
+
+### 4.删除表
+
+~~~sql
+DROP TABLE 表名称;
+~~~
+
+
+
+# 3.对表字段(列)结构的增删改
+
+### 1.增加字段add
+
+~~~sql
+ALTER TABLE 表名称
+	  ADD 字段名(表头名) 数据类型;
+~~~
+
+
+
+### 2.删除字段drop
+
+~~~sql
+ALTER TABLE 表名称
+	 DROP 字段名(表头名);
+~~~
+
+
+
+### 3.修改字段类型 modify
+
+~~~sql
+ALTER TABLE 表名称
+	  MODIFY 字段名(表头名) 新的数据类型;
+~~~
+
+
+
+### 4.重命名字段名 change
+
+~~~sql
+ALTER TABLE 表名称
+	  CHANGE 旧的字段名(表头名) 新的字段名(表头名);
+~~~
+
+
+
+# 4-1、对表数据的操作（增、删、改）
+
+### 1-1.插入 一行 的表记录
+
+~~~sql
+insert into 表名称
+	values (记录1,记录2,...,记录n);
+~~~
+
+
+
+### 1-2.插入 指定 的表记录
+
+~~~sql
+insert into 表名称(表头1,表头x)
+	values (记录1,记录x);
+~~~
+
+
+
+### 2-1.删除指定行的表记录
+
+~~~sql
+delete from 表名称 where 条件（哪一行）;
+~~~
+
+
+
+### 2-2.删除所有行的表记录
+
+~~~sql
+truncate table 表名称; 或 delete from 表名称;
+~~~
+
+
+
+### 3.修改表记录的
+
+~~~sql
+update 表名称
+	set 表头x=表记录x,表头y=记录y,...,表头z=记录z
+	where 条件（谁要变）;
+~~~
+
+
+
+# 4-2、对表数据的操作（查）
+
+### 1.普通查询
+
+~~~sql
+select * from 表名称;
+select 字段1, 字段2, ··· from 表名称;
+~~~
+
+
+
+### 2.去掉重复行 distinct
+
+~~~sql
+select distinct */字段1, 字段2, ··· from 表名称;
+~~~
+
+
+
+### 3.取别名AS/空格
+
+~~~sql
+select 字段x AS 字段x的别名 from 表名称;
+~~~
+
+
+
+### 4-1.where条件查询
+
+~~~sql
+select 字段1, 字段2, ··· from 表名称
+	where 条件;
+~~~
+
+比较运算符： <、<=、>、>=、!=或<>、=
+
+
+
+### 4-2.查询语句的通配符 和 逻辑运算符
+
+~~~sql
+NOT AND OR (优先级: 高->低)
+~~~
+
+**！！**注意：当判断某一个值是否为NULL的时候要用 IS [NOT] NULL 而不是 = 、!= **！！**
+
+**AND的特殊用法：**
+
+~~~sql
+判断条件A between 判断值1 and 判断值2 等于 ( 判断值1 <= A <= 判断值2)
+~~~
+
+**IN的特殊用法**
+
+~~~sql
+判断条件 in (判断值1, 判断值2) 等于 ( A=判断值1 or A=判断值2)
+~~~
+
+
+
+### 4-3.字符匹配符
+
+- **"%" 用于表示0个或任意多个字符**
+- **"_" 表示任意1个字符**
+
+~~~sql
+where A like '张%';
+where A like '张_';
+~~~
+
+
+
+### 5.排序
+
+**ASC：升序**
+
+**DESC：降序**
+
+默认为ASC
+
+~~~sql
+order by desc / asc;
+~~~
+
+**！！**注意：当SELECT语句中同时包含多个子句，如WHERE、GROUP BY、HAVING、ORDER BY ORDER BY 子句必须放至最后**！！**
+
+
+
+### 6.聚集函数
+
+~~~sql
+count(字段)
+sum(字段)
+avg(字段)
+max(字段)
+min(字段)
+~~~
+
+
+
+### 7.分组
+
+~~~sql
+group by 字段;
+~~~
+
+**分组条件：**
+
+~~~sql
+group by 字段
+	having 条件;
+~~~
+
+
+
+### 8.多表连接
+
+#### 1."万能"写法
+
+~~~sql
+select ... from t1, t2
+	where t1.A = t2.A;
+~~~
+
+#### 2.内连接
+
+~~~sql
+select ...from t1 inner join t2
+	on t1.A = t2.A;
+~~~
+
+#### 3.自连接：
+
+~~~sql
+select ...from t1 as a, t1 as b
+	on a.A = b.A;
+~~~
+
+#### 4.左外连接：
+
+~~~sql
+select ...from t1 left outer join t2
+	on t1.A = t2.A;
+~~~
+
+用来从两个表中提取相关数据，同时保留左表中的所有记录，即使右表中没有匹配的记录
+
+**假设有两个表：**
+
+`students`
+
+| id   | name  |
+| ---- | ----- |
+| 1    | Tom   |
+| 2    | Alice |
+| 3    | Jack  |
+
+`scores`
+
+| student_id | score |
+| ---------- | ----- |
+| 1          | 90    |
+| 2          | 85    |
+
+SQL 查询：
+
+```sql
+SELECT students.id, students.name, scores.score FROM students LEFT JOIN scores
+	ON students.id = scores.student_id;
+```
+
+查询结果：
+
+| id   | name  | score |
+| ---- | ----- | ----- |
+| 1    | Tom   | 90    |
+| 2    | Alice | 85    |
+| 3    | Jack  | NULL  |
+
+#### 5.右外连接：
+
+~~~sql
+select ...from t1 right outer join t2
+	on t1.A = t2.A;
+~~~
+
+用来从两个表中提取相关数据，同时保留右表中的所有记录，即使左表中没有匹配的记录
+
+#### 6.全外连接：
+
+~~~sql
+select ... from t1 full outer join t2
+	on t1.A = t2.A;
+~~~
+
+用来从两个表中提取相关数据，显示两个表中所有记录，没有相同的记录，相应列的值为NULL
+
+
+
+### 9.子查询(嵌套查询)
+
+~~~sql
+select ... from ...
+	where A in (select ... from ...)
+~~~
+
+in 相当于 = 除了in还可以用>、< 、ANY、ALL、exists
+
+- ANY：任意值
+- ALL：全部值
+- exits：该值是否存在
+
+
+
+### 10.索引
+
+**创建索引**
+
+~~~sql
+create [unique] index 索引名 on 表名称(字段名 [DESC/ASC]);
+~~~
+
+UNIQUE：唯一性索引
+
+**删除索引**
+
+~~~sql
+drop index 索引名 on 表名称;
+~~~
+
+**查看索引**
+
+~~~sql
+show index from 表名称;
+~~~
+
+
+
+### 11.视图
+
+**创建视图**
+
+~~~sql
+create  [or replace] view 视图名 as
+	select ... 
+~~~
+
+使用or replace来修改视图
+
+**使用视图**
+
+~~~sql
+select ... from 视图名;
+~~~
+
+**删除视图**
+
+~~~sql
+drop view 视图名;
+~~~
+
+
+
+# 5.完整性约束
+
+## 1.实体完整性(主键)
+
+### 设置主键
+
+~~~~sql
+--方法一：
+A CHAR(4),PRIMRY KEY
+
+--方法二：
+ALTER TABLE t
+	add PRIMARY KEY(A);
+~~~~
+
+一个表里面只能有一个主键
+
+### **删除主键**
+
+~~~sql
+ALTER TABLE t
+	DROP PRIMARY KEY;
+~~~
+
+
+
+## 2.参照完整性(外键)
+
+### 创建外键
+
+~~~sql
+--方法一：
+constraint 外键名 foreign key(A) references tmain(A) [ON update/delete cascade]
+
+--方法二：
+alter table t2
+	add constraint 外键名
+	foreign key(A) references tmain(A);
+~~~
+
+<u>ON update/delete cascade：级联更新或删除</u>
+
+### **删除外键**
+
+~~~sql
+ALTER TABLE t
+	DROP constraint 外键名;
+~~~
+
+
+
+## 3.用户自定义完整性
+
+~~~sql
+check(条件)
+~~~
+
+
+
+## 4.自增约束
+
+~~~sql
+auto_increment
+~~~
+
+- 一个表只能有一个字段使用AUTO_INCREMENT约束，且该字段必须为主键的一部分。
+- 默认情况下，自增字段的初始值为1，每新增一条记录，字段值自动加1
+
+
+
+## 5.唯一约束
+
+**值唯一，可有一个且仅有一个空值**
+
+~~~sql
+[CONSTRAINT 约束名] UNIQUE(字段名)
+~~~
+
+
+
+## 6.默认约束
+
+~~~sql
+字段定义 default(默认值)
+~~~
+
+
+
+# 6.SQL语句
+
+## 1.变量
+
+### 全局变量
+
+全局变量是MySQL系统提供并赋值的变量
+
+~~~sql
+--查看MySQL版本：
+select @@version;
+~~~
+
+
+
+### 在存储过程、函数或触发器的 `BEGIN ... END` 内声明和使用的变量：
+
+~~~sql
+declare A 变量类型; --declare声明的局部变量，变量名前不能加@
+set A = 值;
+~~~
+
+
+
+## 2.存储过程
+
+创建存储过程：
+
+~~~sql
+DELIMITER @@
+CREATE procedure add(IN num1 INT, IN num2 INT, OUT sum INT)
+BEGIN
+    set result = num1 + num2;
+END @@
+~~~
+
+调用：
+
+~~~sql
+CALL add_numbers(10, 20, @result);
+SELECT @result;  -- 输出 30
+~~~
+
+删除存储过程:
+
+```sql
+DROP procedure IF exists 存储过程名;
+```
+
+
+
+## 3.存储函数
+
+创建存储函数：
+
+~~~sql
+DELIMITER @@
+CREATE function add(IN num1 INT, IN num2 INT, OUT sum INT)
+	returns INT
+BEGIN
+    return num1 + num2;
+END @@
+~~~
+
+调用：
+
+```sql
+SELECT add(10, 20);  -- 结果是 30
+```
+
+
+
+## 4.判断语句
+
+### if判断语句
+
+~~~sql
+if 条件1 then
+	...
+elseif 条件2 then
+		...
+	else
+		...
+end if;
+~~~
+
+### case判断语句
+
+~~~sql
+--方法一：
+case 表达式
+	when 值1 then ...
+	when 值2 then ...
+	when 值3 then ...
+end;
+
+--方法二：
+case 值
+	when 表达式1 then ...
+	when 表达式2 then ...
+	when 表达式3 then ...
+end;
+~~~
+
+
+
+## 5.循环语句
+
+### loop
+
+~~~sql
+标签：LOOP
+ ...
+    IF 条件 THEN
+    	LEAVE 标签;
+	END IF;
+END LOOP;
+~~~
+
+### while循环
+
+~~~sql
+WHILE 条件 DO
+	...
+END WHILE;
+~~~
+
+### repeat循环
+
+~~~sql
+repeat
+    ...
+    until 条件
+END REPEAT;
+~~~
+
+
+
+## 6.游标
+
+### 声明游标：
+
+~~~sql
+declare 游标名 cursor 
+	for select...
+~~~
+
+### 打开游标：
+
+~~~sql
+open 游标名;
+~~~
+
+### 提取数据：
+
+~~~sql
+fetch 游标名 into 变量...;
+~~~
+
+### 关闭游标：
+
+~~~sql
+close 游标名;
+~~~
+
+**例子：**
+
+~~~sql
+delimiter @@
+create procedure stu_proc()
+begin
+    declare v_ename char(8);
+    declare v_address varchar(50);
+    declare s_cursor cursor
+        for select 姓名,家庭住址 from student_info
+        where 学号='0001';
+    open s_cursor;
+        fetch s_cursor into v_ename, v_address;
+    close s_cursor;
+    select v_ename, v_address;
+end@@
+
+call stu_proc(); 
+~~~
+
+
+
+# 7.触发器
+
+## 1.创建触发器语法
+
+```sql
+create trigger 触发器名
+AFTER|BEFORE INSERT|UPDATE|DELETE
+ON 表名
+for each row
+BEGIN
+    -- SQL 操作
+END;
+```
+
+
+
+## 2.`NEW` 和 `OLD` 关键字
+
+- 在 `BEFORE` 或 `AFTER INSERT` 中，使用 `NEW.字段名` 访问插入的数据
+- 在 `UPDATE` 中：
+  - `OLD.字段名` 是更新前的值
+  - `NEW.字段名` 是更新后的值
+- 在 `DELETE` 中，使用 `OLD.字段名` 访问被删除的数据
+
+
+
+# 8.事务
+
+## 1.启动事物
+
+~~~sql
+start transaction;/ begin work;
+~~~
+
+## 2.提交事务
+
+~~~sql
+commit;
+~~~
+
+## 3.回滚事务
+
+~~~sql
+rollback;
+~~~
+
+
+
+
+
+# 9.权限
+
+## 1.授权
+
+授权表：
+
+~~~sql
+grant 操作 on table 数据库名.表名 to 用户;
+~~~
+
+授权存储过程/函数：
+
+~~~sql
+grant 操作 on procedure/function 数据库名.存储过程名 to 用户;
+~~~
+
+授权数据库：
+
+~~~sql
+grant 操作 on 数据库名.* to 用户;
+~~~
+
+
+
+## 2.撤权
+
+撤销指定数据库权限：
+
+~~~sql
+revoke 操作 on 数据库名.* from 用户;
+~~~
+
+撤销所有权限：
+
+~~~sql
+revoke ALL privileges on *.* from st_01@localhost;
+~~~
+
+
+
+
+
+# 10.用户管理
+
+## 1.创建用户
+
+~~~~sql
+create user 用户 identified by '密码';
+~~~~
+
+
+
+## 2.修改用户密码
+
+~~~sql
+set password for 用户 = '新密码';
+~~~
+
+
+
+## 3.修改用户名
+
+~~~sql
+rename user 旧用户名 to 新用户名;
+~~~
+
+
+
+## 4.删除用户
+
+~~~sql
+drop user 用户;
+~~~
+
+
+
+# 11.数据库备份
+
+## 1.备份类型
+
+- **完整备份**
+- **差异备份：每次对原来的数据就行差异部分的备份**
+- **增量备份：每次对上一次备份的差异部分进行备份**
+
+
+
+## 2.备份单个数据库
+
+~~~sql
+mysqldump -u用户名 -p密码 -h 主机名 数据库名 > /备份文件名.sql
+~~~
+
+
+
+## 3.备份单个/多个表
+
+~~~sql
+mysqldump -u用户名 -p密码 -h 主机名 数据库名 表名1 表名2 表名3 > /备份文件名.sql
+~~~
+
+
+
+## 4.恢复备份的表
+
+~~~
+mysqldump -u用户名 -p密码 -h 主机名 数据库名 < /备份文件名.sql
+~~~
+
+
+
+## 5.备份单个数据库
+
+~~~sql
+mysqldump -u用户名 -p密码 -h 主机名 数据库名 > /备份文件名.sql
+~~~
+
+
+
+## 6.备份多个数据库
+
+~~~sql
+mysqldump -u用户名 -p密码 -h 主机名 --database 数据库1 数据库2 > /备份文件名.sql
+~~~
+
+
+
+## 7.备份所有数据库
+
+~~~sql
+mysqldump -u用户名 -p密码 -h 主机名 --all > /备份文件名.sql
+~~~
+
+
+
+## 8.恢复备份的数据库
+
+~~~sql
+mysqldump -u用户名 -p密码 -h 主机名 要回到的数据名 < /备份文件名.sql
+~~~
+          </textarea>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // 使用预加载的Markdown内容而不是fetch
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取预加载的Markdown内容
+      const markdown = document.getElementById('mysql-content').value;
+      
+      // 配置 marked 解析器
+      marked.setOptions({
+        highlight: function(code, lang) {
+          // 将所有代码块都识别为SQL语法
+          return hljs.highlight(code, {language: 'sql'}).value;
+        },
+        langPrefix: 'hljs language-',
+        gfm: true,
+        breaks: true,
+        pedantic: false,
+        sanitize: false,
+        smartLists: true,
+        smartypants: false
+      });
+      
+      // 修改 marked 的渲染器，确保代码块使用 SQL 高亮
+      const renderer = new marked.Renderer();
+      const originalCodeRenderer = renderer.code;
+      
+      renderer.code = function(code, language, isEscaped) {
+        // 将所有代码块默认设置为 SQL
+        language = 'sql';
+        return originalCodeRenderer.call(this, code, language, isEscaped);
+      };
+      
+      marked.use({ renderer });
+      
+      // 渲染 Markdown
+      document.getElementById('markdown-content').innerHTML = marked.parse(markdown);
+      
+      // 高亮所有代码块
+      document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightBlock(block);
+        // 确保代码块有灰黑底色
+        const parentPre = block.parentElement;
+        if (parentPre && parentPre.tagName === 'PRE') {
+          parentPre.style.backgroundColor = '#2d2d2d';
+          parentPre.style.borderRadius = '0.25rem';
+        }
+      });
+      
+      // 处理移动端屏幕上可能导致溢出的元素
+      const codeBlocks = document.querySelectorAll('pre');
+      codeBlocks.forEach(block => {
+        if (block.scrollWidth > block.clientWidth) {
+          block.style.whiteSpace = 'pre-wrap';
+        }
+        // 设置代码块背景颜色
+        block.style.backgroundColor = '#2d2d2d';
+        block.style.borderRadius = '0.25rem';
+      });
+      
+      // 生成目录
+      generateTableOfContents();
+      
+      // 根据屏幕宽度调整样式
+      adjustForScreenSize();
+      window.addEventListener('resize', adjustForScreenSize);
+      
+      // 设置移动端目录显示/隐藏事件
+      setupMobileMenu();
+    });
+    
+    // 设置移动端菜单
+    function setupMobileMenu() {
+      const menuBtn = document.getElementById('toggleToc');
+      const closeBtn = document.getElementById('closeToc');
+      const mobileMenu = document.getElementById('mobileToc');
+      
+      // 打开菜单
+      menuBtn.addEventListener('click', function() {
+        if (window.innerWidth < 1024) {
+          // 移动端 - 显示抽屉式菜单
+          mobileMenu.style.display = 'block';
+        } else {
+          // 桌面端 - 显示/隐藏侧边栏
+          const toc = document.getElementById('toc');
+          if (toc.classList.contains('lg:hidden')) {
+            toc.classList.remove('lg:hidden');
+            toc.classList.add('lg:block');
+          } else {
+            toc.classList.remove('lg:block');
+            toc.classList.add('lg:hidden');
+          }
+        }
+      });
+      
+      // 关闭菜单
+      closeBtn.addEventListener('click', function() {
+        mobileMenu.style.display = 'none';
+      });
+      
+      // 点击背景关闭
+      mobileMenu.addEventListener('click', function(e) {
+        if (e.target === mobileMenu) {
+          mobileMenu.style.display = 'none';
+        }
+      });
+      
+      // ESC键关闭
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileMenu.style.display === 'block') {
+          mobileMenu.style.display = 'none';
+        }
+      });
+    }
+    
+    // 生成目录
+    function generateTableOfContents() {
+      const headings = document.querySelectorAll('.markdown-body h1, .markdown-body h2, .markdown-body h3');
+      const tocList = document.getElementById('tocList');
+      const mobileTocList = document.getElementById('mobileTocList');
+      
+      tocList.innerHTML = '';
+      mobileTocList.innerHTML = '';
+      
+      headings.forEach((heading, index) => {
+        // 为每个标题添加 ID
+        const id = `heading-${index}`;
+        heading.id = id;
+        
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+        
+        link.href = `#${id}`;
+        link.textContent = heading.textContent;
+        
+        // 为桌面版目录设置样式
+        link.className = 'hover:text-mysqlBlue transition-colors block py-1';
+        
+        // 根据标题级别添加缩进和样式
+        if (heading.tagName === 'H1') {
+          link.className += ' font-bold text-mysqlBlue';
+        } else if (heading.tagName === 'H2') {
+          link.className += ' pl-4';
+        } else if (heading.tagName === 'H3') {
+          link.className += ' pl-8';
+        }
+        
+        link.onclick = function(e) {
+          // 关闭移动端目录
+          document.getElementById('mobileToc').style.display = 'none';
+          
+          // 滚动到标题位置后稍微调整，避免被顶部导航栏遮挡
+          setTimeout(function() {
+            const headerHeight = document.querySelector('header').offsetHeight;
+            window.scrollBy(0, -headerHeight - 10);
+          }, 100);
+        };
+        
+        listItem.appendChild(link);
+        tocList.appendChild(listItem);
+        
+        // 复制一份到移动端目录，并添加视觉指示符
+        const mobileListItem = document.createElement('li');
+        const mobileLink = document.createElement('a');
+        
+        mobileLink.href = `#${id}`;
+        
+        // 为移动端目录项添加前缀指示符
+        if (heading.tagName === 'H1') {
+          mobileLink.textContent = heading.textContent;
+          mobileLink.className = 'font-bold text-mysqlBlue';
+        } else if (heading.tagName === 'H2') {
+          mobileLink.textContent = heading.textContent;
+          mobileLink.className = 'pl-4';
+        } else if (heading.tagName === 'H3') {
+          mobileLink.textContent = "└ " + heading.textContent;
+          mobileLink.className = 'pl-8';
+        }
+        
+        mobileLink.onclick = function(e) {
+          document.getElementById('mobileToc').style.display = 'none';
+          
+          // 滚动到标题位置后稍微调整，避免被顶部导航栏遮挡
+          setTimeout(function() {
+            const headerHeight = document.querySelector('header').offsetHeight;
+            window.scrollBy(0, -headerHeight - 10);
+          }, 100);
+        };
+        
+        mobileListItem.appendChild(mobileLink);
+        mobileTocList.appendChild(mobileListItem);
+      });
+    }
+    
+    // 根据屏幕宽度调整样式
+    function adjustForScreenSize() {
+      if (window.innerWidth <= 768) {
+        // 移动端样式调整
+        document.querySelectorAll('.markdown-body pre').forEach(pre => {
+          pre.style.fontSize = '0.85em';
+        });
+        
+        document.querySelectorAll('.markdown-body table').forEach(table => {
+          table.style.fontSize = '0.85em';
+        });
+      } else {
+        // 恢复桌面端样式
+        document.querySelectorAll('.markdown-body pre').forEach(pre => {
+          pre.style.fontSize = '0.9em';
+        });
+        
+        document.querySelectorAll('.markdown-body table').forEach(table => {
+          table.style.fontSize = '1em';
+        });
+      }
+    }
+  </script>
+</body>
+</html> 
