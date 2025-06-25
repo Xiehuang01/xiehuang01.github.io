@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MySQL填空题练习</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置 Tailwind CSS -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appleBlue: '#0071E3',
+            appleBlueLight: '#4A90E2',
+            appleGray: '#F5F5F7',
+            appleDarkGray: '#86868B',
+            appleText: '#1D1D1F',
+            mysqlBlue: '#00758F',
+            mysqlBlueLight: '#0085A1',
+            mysqlOrange: '#F29111',
+            mysqlOrangeLight: '#F3A131',
+          },
+          fontFamily: {
+            sanfrancisco: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+    }
+    
+    .ios-shadow {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .ios-input {
+      border: 1px solid #E5E5EA;
+      border-radius: 8px;
+      padding: 8px 12px;
+      width: 100%;
+      transition: border-color 0.3s;
+    }
+    
+    .ios-input:focus {
+      border-color: #00758F;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 117, 143, 0.2);
+    }
+    
+    .ios-button {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .ios-button:focus {
+      outline: none;
+    }
+    
+    .ios-button:active {
+      transform: scale(0.98);
+    }
+    
+    .blank-input {
+      border: 1px solid #E5E5EA;
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin: 0 4px;
+      min-width: 80px;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .blank-input:focus {
+      border-color: #00758F;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 117, 143, 0.2);
+    }
+    
+    .blank-input.correct {
+      border-color: #34C759;
+      background-color: rgba(52, 199, 89, 0.1);
+    }
+    
+    .blank-input.incorrect {
+      border-color: #FF3B30;
+      background-color: rgba(255, 59, 48, 0.1);
+    }
+    
+    /* 进度条动画 */
+    @keyframes progress {
+      0% { width: 0; }
+      100% { width: 100%; }
+    }
+    
+    .animate-progress {
+      animation: progress 0.5s ease-out;
+    }
+  </style>
+</head>
+<body class="bg-appleGray min-h-screen text-appleText">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <a href="mysqlfuxi.html" class="flex items-center space-x-2">
+          <i class="fa fa-arrow-left text-mysqlBlue text-xl"></i>
+          <span class="text-mysqlBlue">返回</span>
+        </a>
+      </div>
+      <h1 class="text-xl font-bold">MySQL填空题练习</h1>
+      <div class="w-8"></div> <!-- 占位元素 -->
+    </div>
+  </header>
+
+  <!-- 加载中 -->
+  <div id="loading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-90 z-50">
+    <div class="flex flex-col items-center">
+      <div class="w-12 h-12 border-4 border-mysqlBlue border-t-transparent rounded-full animate-spin"></div>
+      <p class="mt-4 text-mysqlBlue font-medium">加载中...</p>
+    </div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="container mx-auto px-4 py-8">
+    <!-- 答题区域 -->
+    <div id="quiz-container" class="bg-white rounded-2xl ios-shadow p-6 max-w-2xl mx-auto">
+      <!-- 进度指示器 -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <div class="flex items-center">
+            <span class="text-mysqlBlue font-medium">问题 </span>
+            <span id="current-question" class="text-mysqlBlue font-medium mx-1">1</span>
+            <span class="text-mysqlBlue font-medium">/ </span>
+            <span id="total-questions" class="text-mysqlBlue font-medium">25</span>
+          </div>
+          <div class="flex items-center text-sm text-appleDarkGray">
+            <span>已完成: </span>
+            <span id="completed-count" class="font-medium mx-1">0</span>
+            <span>/ </span>
+            <span id="total-count" class="font-medium">25</span>
+            <span class="mx-2">|</span>
+            <span>正确率: </span>
+            <span id="accuracy" class="font-medium">0%</span>
+          </div>
+        </div>
+        <div class="w-full bg-appleGray rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-mysqlBlue h-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- 填空题部分 -->
+      <div id="blankContainer" class="mb-6">
+        <div class="mb-4">
+          <p id="blankQuestion" class="text-lg font-medium mb-4"></p>
+          <div id="blanksInputContainer" class="space-y-3"></div>
+        </div>
+        
+        <!-- 按钮组 -->
+        <div class="flex space-x-3 mt-6">
+          <button id="checkBlanks" class="ios-button bg-mysqlBlue text-white flex-1 hover:bg-mysqlBlueLight">
+            检查答案
+          </button>
+          <button id="showAnswer" class="ios-button bg-white border border-mysqlBlue text-mysqlBlue">
+            查看答案
+          </button>
+        </div>
+      </div>
+
+      <!-- 反馈部分 -->
+      <div id="feedback" class="bg-white border border-appleGray rounded-xl p-4 mb-6 hidden">
+        <div id="feedbackContent"></div>
+      </div>
+
+      <!-- 导航按钮 -->
+      <div class="flex justify-between">
+        <button id="prevBtn" class="ios-button bg-appleGray text-appleDarkGray disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          上一题
+        </button>
+        <button id="nextBtn" class="ios-button bg-mysqlBlue text-white disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          下一题
+        </button>
+      </div>
+    </div>
+
+    <!-- 结果页面 -->
+    <div id="results-container" class="bg-white rounded-2xl ios-shadow p-6 max-w-2xl mx-auto hidden">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 rounded-full bg-mysqlBlue/10 flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-check-circle text-mysqlBlue text-4xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold mb-2">练习完成！</h2>
+        <p id="completion-message" class="text-appleDarkGray">恭喜你完成了所有题目！</p>
+      </div>
+
+      <div class="bg-appleGray/50 rounded-xl p-4 mb-6">
+        <div class="flex justify-between items-center">
+          <span class="text-appleDarkGray">总得分：</span>
+          <div class="flex items-end">
+            <span id="final-score" class="text-3xl font-bold text-mysqlBlue">0</span>
+            <span class="text-appleDarkGray ml-1">/ </span>
+            <span id="total-score" class="text-appleDarkGray">25</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex space-x-4">
+        <button id="restart-btn" class="ios-button bg-mysqlBlue text-white flex-1">
+          重新开始
+        </button>
+        <button id="retry-wrong-btn" class="ios-button bg-white border border-mysqlBlue text-mysqlBlue flex-1">
+          重测错题
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 完成弹窗 -->
+  <div id="completionModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-mysqlBlue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-check-circle text-mysqlBlue text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">练习完成</h3>
+        <p id="completionMessage" class="text-appleDarkGray mb-4">恭喜你完成了所有题目！</p>
+        <div class="bg-appleGray/50 rounded-xl p-4 mb-6">
+          <div class="flex justify-between items-center">
+            <span class="text-appleDarkGray">得分：</span>
+            <div>
+              <span id="completionScore" class="text-2xl font-bold text-mysqlBlue">0</span>
+              <span class="text-appleDarkGray"> / 25</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex space-x-4">
+          <button id="modalRestartBtn" class="ios-button bg-mysqlBlue text-white flex-1">
+            重新开始
+          </button>
+          <button id="backToHome" class="ios-button bg-appleGray text-appleDarkGray flex-1">
+            返回首页
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let totalQuestions = 0;
+    let userAnswers = [];
+    let answeredQuestions = [];
+    let correctAnswers = []; // 用于填空题
+    let blankCount = 0; // 填空题空格数量
+    let originalQuestions = []; // 保存原始题目，用于重测错题
+    
+    // 内嵌MySQL填空题数据
+    const mysqlBlankQuestions = [
+      {
+        "question": "（1）__________是指在数据库的物理结构改变时，尽量不影响整体逻辑结构、用户的逻辑结构及应用程序。",
+        "answer": "物理数据独立性",
+        "blank_count": 1
+      },
+      {
+        "question": "（2）用户与操作系统之间的数据管理软件是__________。",
+        "answer": "DBMS",
+        "blank_count": 1
+      },
+      {
+        "question": "（3）将客观存在的事物以数据形式存储到计算机中，这一过程要涉及 3 个领域的知识，依次是__________、__________和__________。",
+        "answer": ["现实世界", "信息世界", "数据世界"],
+        "blank_count": 3
+      },
+      {
+        "question": "（4）能唯一标识实体的属性或属性的组合称为__________。",
+        "answer": "键",
+        "blank_count": 1
+      },
+      {
+        "question": "（5）两个不同实体集的实体间有__________、和__________3 种联系。",
+        "answer": ["1:1", "1:n", "m:n"],
+        "blank_count": 3
+      },
+      {
+        "question": "（6）表示实体类型和实体间联系的模型称为__________，较著名且常用的概念模型是__________。",
+        "answer": ["概念数据模型", "E-R模型"],
+        "blank_count": 2
+      },
+      {
+        "question": "（7）数据独立性分成__________独立性和__________独立性两级。",
+        "answer": ["逻辑数据", "物理数据"],
+        "blank_count": 2
+      },
+      {
+        "question": "（8）数据库系统中最重要的软件是__________，最重要的用户是__________",
+        "answer": ["DBMS", "DBA"],
+        "blank_count": 2
+      },
+      {
+        "question": "（9）设有关系模式 R (A,B,C) 和 S (E,A,F)，若 R.A 是 R 的主键，S.A 是 S 的外键，则 S.A 的值 R 中某个元组的主键值，或者为空值，这是__________完整性规则。",
+        "answer": "参照",
+        "blank_count": 1
+      },
+      {
+        "question": "（10）数据库系统的逻辑设计主要是将__________转换成数据库管理系统支持的数据。",
+        "answer": "概念模型",
+        "blank_count": 1
+      },
+      {
+        "question": "（11）如果采用关系数据库来实现应用，则在数据库的逻辑设计阶段需将__________换为关系模式。",
+        "answer": "E-R图",
+        "blank_count": 1
+      },
+      {
+        "question": "（12）当将局部 E - R 图集成为全局 E - R 图时，如果同一对象在一幅局部 E - R 图中作为实体，而在另一幅局部 E - R 图中作为属性，则这种现象称为__________冲突。",
+        "answer": "结构",
+        "blank_count": 1
+      },
+      {
+        "question": "（13）在关系A(S,SN,D)和B(D,CN,NM)中，A的主键是S,B的主键是D，则D在A中称为__________。",
+        "answer": "外键",
+        "blank_count": 1
+      },
+      {
+        "question": "（14）子查询的条件不依赖于父查询，这类查询称为__________，否则称为__________。",
+        "answer": ["不相关查询", "相关查询"],
+        "blank_count": 2
+      },
+      {
+        "question": "（15）视图是从__________中导出的表，数据库中实际存放的是视图的__________，而不是__________。",
+        "answer": ["基本表或已定义的视图", "定义", "视图中对应的数据"],
+        "blank_count": 3
+      },
+      {
+        "question": "（16）当对视图进行修改数据、修改视图和删除视图操作时，为了保证被操作的行满足视图定义中子查询语句的条件，应在视图定义语句中使用可选项__________。",
+        "answer": "with check option",
+        "blank_count": 1
+      },
+      {
+        "question": "（17）SQL 支持数据库三级模式。在 SQL 中，外模式对应__________和部分基本表，模式对应基本表全体，内模式对应存储文件。",
+        "answer": "视图",
+        "blank_count": 1
+      },
+      {
+        "question": "（18）在视图中删除或修改一条记录，相应的__________也随着视图更新。",
+        "answer": "基本表",
+        "blank_count": 1
+      },
+      {
+        "question": "（19）在 MySQL 中，有两种基本类型的索引：__________和__________。",
+        "answer": ["普通索引", "唯一索引"],
+        "blank_count": 2
+      },
+      {
+        "question": "（20）创建唯一索引时，应保证创建索引的字段不包括重复的数据，并且没有两个或两个以上的空值。如果有这种数据，就必须先将其__________，否则索引不能成功创建。",
+        "answer": "删除",
+        "blank_count": 1
+      },
+      {
+        "question": "（21）存储过程和存储函数的相关信息存放在__________表中，触发器的相关信息存放在__________表中。",
+        "answer": ["routines", "triggers"],
+        "blank_count": 2
+      },
+      {
+        "question": "（22）在 MySQL 中，触发器的执行时间有两种：__________和__________。",
+        "answer": ["before", "after"],
+        "blank_count": 2
+      },
+      {
+        "question": "（23）MySQL 的权限表共有 5 个，分别是__________、__________、__________、__________和__________。",
+        "answer": ["user", "db", "tables_priv", "columns_priv", "procs_priv"],
+        "blank_count": 5
+      },
+      {
+        "question": "（24）MySQL 的访问控制分为两个阶段，分别是__________和__________。",
+        "answer": ["连接核实阶段", "请求核实阶段"],
+        "blank_count": 2
+      },
+      {
+        "question": "（25）在 MySQL 中，授权使用__________命令，收回权限使用__________命令。",
+        "answer": ["grant", "revoke"],
+        "blank_count": 2
+      }
+    ];
+    
+    // DOM 元素
+    const loading = document.getElementById('loading');
+    const blankContainer = document.getElementById('blankContainer');
+    const feedback = document.getElementById('feedback');
+    const blankQuestion = document.getElementById('blankQuestion');
+    const blanksInputContainer = document.getElementById('blanksInputContainer');
+    const feedbackContent = document.getElementById('feedbackContent');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const progressBar = document.getElementById('progressBar');
+    const checkBlanks = document.getElementById('checkBlanks');
+    const showAnswer = document.getElementById('showAnswer');
+    
+    // 新添加的DOM元素
+    const quizContainer = document.getElementById('quiz-container');
+    const resultsContainer = document.getElementById('results-container');
+    const currentQuestionSpan = document.getElementById('current-question');
+    const totalQuestionsSpan = document.getElementById('total-questions');
+    const completedCount = document.getElementById('completed-count');
+    const totalCount = document.getElementById('total-count');
+    const accuracySpan = document.getElementById('accuracy');
+    const finalScore = document.getElementById('final-score');
+    const totalScore = document.getElementById('total-score');
+    const restartBtn = document.getElementById('restart-btn');
+    const retryWrongBtn = document.getElementById('retry-wrong-btn');
+    
+    // 完成弹窗
+    const completionModal = document.getElementById('completionModal');
+    const completionScore = document.getElementById('completionScore');
+    const completionMessage = document.getElementById('completionMessage');
+    const restartQuiz = document.getElementById('modalRestartBtn');
+    const backToHome = document.getElementById('backToHome');
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', init);
+    
+    function init() {
+      // 加载题目
+      loadQuestions();
+      
+      // 事件监听
+      nextBtn.addEventListener('click', handleNext);
+      prevBtn.addEventListener('click', handlePrev);
+      checkBlanks.addEventListener('click', checkBlankAnswers);
+      showAnswer.addEventListener('click', showCorrectAnswers);
+      
+      restartBtn.addEventListener('click', resetQuiz);
+      retryWrongBtn.addEventListener('click', retryWrongQuestions);
+      
+      // 完成弹窗按钮事件
+      restartQuiz.addEventListener('click', restartQuizFunc);
+      backToHome.addEventListener('click', () => {
+        window.location.href = 'mysqlfuxi.html';
+      });
+    }
+    
+    function loadQuestions() {
+      try {
+        loading.classList.remove('hidden');
+        quizContainer.classList.add('hidden');
+        
+        // 使用内嵌数据
+        currentQuestions = mysqlBlankQuestions;
+        
+        // 保存原始题目，用于重测错题
+        originalQuestions = [...currentQuestions];
+        
+        totalQuestions = currentQuestions.length;
+        userAnswers = new Array(totalQuestions).fill(null);
+        answeredQuestions = new Array(totalQuestions).fill(false);
+        
+        // 更新UI元素
+        totalQuestionsSpan.textContent = totalQuestions;
+        totalCount.textContent = totalQuestions;
+        totalScore.textContent = totalQuestions;
+        
+        // 重置状态
+        currentQuestionIndex = 0;
+        score = 0;
+        updateProgress();
+        
+        // 显示第一题
+        showQuestion();
+      } catch (error) {
+        console.error('加载题目时出错:', error);
+      }
+    }
+    
+    function handlePrev() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        feedback.classList.add('hidden');
+        showQuestion();
+        
+        // 如果已经回答过，显示参考答案
+        if (answeredQuestions[currentQuestionIndex]) {
+          // 获取当前题目的正确答案
+          const currentQ = currentQuestions[currentQuestionIndex];
+          const currentAnswers = Array.isArray(currentQ.answer) ? currentQ.answer : [currentQ.answer];
+          
+          // 显示反馈（仅显示正确答案）
+          feedbackContent.innerHTML = `
+            <div class="mt-4 text-appleDarkGray">
+              <p class="font-medium">正确答案：</p>
+              <div class="mt-2 pl-4 border-l-2 border-mysqlBlue">
+                ${currentAnswers.map(ans => `<p>${ans}</p>`).join('')}
+              </div>
+            </div>
+          `;
+          
+          // 显示反馈
+          feedback.classList.remove('hidden');
+        }
+      }
+    }
+    
+    function updateProgress() {
+      const answeredCount = answeredQuestions.filter(Boolean).length;
+      const progressPercentage = (answeredCount / currentQuestions.length) * 100;
+      
+      progressBar.style.width = `${progressPercentage}%`;
+      completedCount.textContent = answeredCount;
+      
+      if (answeredCount > 0) {
+        const accuracy = Math.round((score / answeredCount) * 100);
+        accuracySpan.textContent = `${accuracy}%`;
+      } else {
+        accuracySpan.textContent = '0%';
+      }
+    }
+    
+    function showResults() {
+      quizContainer.classList.add('hidden');
+      resultsContainer.classList.remove('hidden');
+      
+      finalScore.textContent = score;
+      
+      // 根据得分率设置鼓励信息
+      const scorePercentage = Math.round((score / currentQuestions.length) * 100);
+      const completionMessage = document.getElementById('completion-message');
+      
+      if (scorePercentage >= 90) {
+        completionMessage.textContent = '恭喜你！成绩优秀！';
+      } else if (scorePercentage >= 70) {
+        completionMessage.textContent = '干得不错，继续加油！';
+      } else if (scorePercentage >= 60) {
+        completionMessage.textContent = '及格啦，还需要更多练习哦！';
+      } else {
+        completionMessage.textContent = '需要更多练习，不要气馁！';
+      }
+    }
+    
+    function resetQuiz() {
+      // 重置状态
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(currentQuestions.length).fill(null);
+      answeredQuestions = new Array(currentQuestions.length).fill(false);
+      
+      // 显示答题界面
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      
+      // 更新进度
+      updateProgress();
+      
+      // 显示第一题
+      showQuestion();
+    }
+    
+    function retryWrongQuestions() {
+      // 收集错题
+      const wrongQuestions = [];
+      
+      for (let i = 0; i < currentQuestions.length; i++) {
+        // 如果用户回答了这道题
+        if (answeredQuestions[i]) {
+          const userAns = userAnswers[i];
+          const correctAns = Array.isArray(currentQuestions[i].answer) ? 
+                           currentQuestions[i].answer : 
+                           [currentQuestions[i].answer];
+          
+          let isWrong = false;
+          
+          // 检查每个填空
+          for (let j = 0; j < correctAns.length; j++) {
+            if (!userAns || !userAns[j] || 
+                userAns[j].toLowerCase() !== correctAns[j].toLowerCase()) {
+              isWrong = true;
+              break;
+            }
+          }
+          
+          if (isWrong) {
+            wrongQuestions.push(currentQuestions[i]);
+          }
+        }
+      }
+      
+      // 如果没有错题，提示用户
+      if (wrongQuestions.length === 0) {
+        alert('恭喜你！没有错题需要重测。');
+        return;
+      }
+      
+      // 重置答题状态
+      currentQuestions = wrongQuestions;
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = new Array(wrongQuestions.length).fill(null);
+      answeredQuestions = new Array(wrongQuestions.length).fill(false);
+      
+      // 更新UI元素
+      totalQuestionsSpan.textContent = wrongQuestions.length;
+      totalCount.textContent = wrongQuestions.length;
+      totalScore.textContent = wrongQuestions.length;
+      
+      // 显示答题界面
+      resultsContainer.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      
+      // 更新进度
+      updateProgress();
+      
+      // 显示第一题
+      showQuestion();
+    }
+    
+    // 完成弹窗中的重新开始功能
+    function restartQuizFunc() {
+      // 关闭完成弹窗
+      completionModal.classList.add('opacity-0', 'pointer-events-none');
+      
+      // 重置状态
+      loadQuestions();
+    }
+    
+    function showQuestion() {
+      const currentQ = currentQuestions[currentQuestionIndex];
+      
+      loading.classList.add('hidden');
+      quizContainer.classList.remove('hidden');
+      feedback.classList.add('hidden');
+      
+      // 更新当前题目编号
+      currentQuestionSpan.textContent = currentQuestionIndex + 1;
+      
+      // 更新按钮状态
+      prevBtn.disabled = currentQuestionIndex === 0;
+      nextBtn.disabled = !answeredQuestions[currentQuestionIndex];
+      
+      // 重置检查按钮状态 - 如果当前题目未回答，则启用检查按钮
+      checkBlanks.disabled = answeredQuestions[currentQuestionIndex];
+      
+      // 如果是最后一题，改变下一题按钮文本
+      if (currentQuestionIndex === currentQuestions.length - 1) {
+        nextBtn.textContent = '完成';
+      } else {
+        nextBtn.textContent = '下一题';
+      }
+      
+      // 提前初始化correctAnswers
+      correctAnswers = Array.isArray(currentQ.answer) ? currentQ.answer : [currentQ.answer];
+      
+      // 显示填空题
+      blankQuestion.innerHTML = ''; // 清空之前的内容
+      blanksInputContainer.innerHTML = ''; // 清空之前的输入框
+      
+      const questionText = currentQ.question;
+      blankCount = currentQ.blank_count || 1;
+      
+      // 如果包含下划线，显示下划线位置的输入框
+      if (questionText.includes('_')) {
+        let formattedQuestion = questionText;
+        let blankIndex = 0;
+        
+        // 替换下划线为输入框
+        formattedQuestion = questionText.replace(/_+/g, () => {
+          const inputId = `blank-${blankIndex}`;
+          let inputValue = '';
+          
+          // 如果用户已回答，填入用户的答案
+          if (answeredQuestions[currentQuestionIndex] && 
+              userAnswers[currentQuestionIndex] && 
+              userAnswers[currentQuestionIndex][blankIndex]) {
+            inputValue = userAnswers[currentQuestionIndex][blankIndex];
+          }
+          
+          // 如果已回答，添加正确/错误类
+          let classList = 'blank-input';
+          if (answeredQuestions[currentQuestionIndex]) {
+            const userAns = userAnswers[currentQuestionIndex]?.[blankIndex] || '';
+            const correctAns = Array.isArray(correctAnswers) && blankIndex < correctAnswers.length ? 
+                              correctAnswers[blankIndex] : 
+                              (Array.isArray(correctAnswers) ? correctAnswers[0] : '');
+            
+            // 添加空值检查
+            if (correctAns && typeof correctAns === 'string') {
+              if (userAns.toLowerCase() === correctAns.toLowerCase()) {
+                classList += ' correct';
+              } else {
+                classList += ' incorrect';
+              }
+            }
+          }
+          
+          const result = `<input type="text" id="${inputId}" class="${classList}" style="width: 100px;" data-index="${blankIndex}" value="${inputValue}">`;
+          blankIndex++;
+          return result;
+        });
+        
+        blankQuestion.innerHTML = formattedQuestion;
+        
+        // 如果未回答，添加事件监听
+        if (!answeredQuestions[currentQuestionIndex]) {
+          const inputs = blankQuestion.querySelectorAll('.blank-input');
+          inputs.forEach(input => {
+            input.addEventListener('input', () => {
+              // 检查所有输入框是否都已填写
+              const allInputs = blankQuestion.querySelectorAll('.blank-input');
+              let allFilled = true;
+              
+              allInputs.forEach(inp => {
+                if (!inp.value.trim()) {
+                  allFilled = false;
+                }
+              });
+            });
+          });
+        } else {
+          // 如果已回答，禁用输入框
+          const inputs = blankQuestion.querySelectorAll('.blank-input');
+          inputs.forEach(input => {
+            input.disabled = true;
+          });
+        }
+      } else {
+        // 否则，显示问题文本和输入框
+        blankQuestion.textContent = questionText;
+        
+        // 创建输入框
+        for (let i = 0; i < blankCount; i++) {
+          const inputContainer = document.createElement('div');
+          inputContainer.className = 'flex items-center';
+          
+          const inputLabel = document.createElement('label');
+          inputLabel.textContent = `空格 ${i + 1}:`;
+          inputLabel.className = 'w-16 text-appleDarkGray';
+          
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'ios-input';
+          input.dataset.index = i;
+          
+          // 如果用户已回答，填入用户的答案
+          if (answeredQuestions[currentQuestionIndex] && 
+              userAnswers[currentQuestionIndex] && 
+              userAnswers[currentQuestionIndex][i]) {
+            input.value = userAnswers[currentQuestionIndex][i];
+            input.disabled = true;
+          }
+          
+          inputContainer.appendChild(inputLabel);
+          inputContainer.appendChild(input);
+          blanksInputContainer.appendChild(inputContainer);
+        }
+      }
+      
+      // 如果已回答，显示正确答案
+      if (answeredQuestions[currentQuestionIndex]) {
+        // 显示反馈（仅显示正确答案）
+        feedbackContent.innerHTML = `
+          <div class="mt-4 text-appleDarkGray">
+            <p class="font-medium">正确答案：</p>
+            <div class="mt-2 pl-4 border-l-2 border-mysqlBlue">
+              ${correctAnswers.map(ans => `<p>${ans}</p>`).join('')}
+            </div>
+          </div>
+        `;
+        
+        // 显示反馈
+        feedback.classList.remove('hidden');
+      }
+    }
+    
+    function checkBlankAnswers() {
+      let allCorrect = true;
+      let userBlankAnswers = [];
+      
+      // 获取所有输入值
+      if (blankQuestion.querySelectorAll('.blank-input').length > 0) {
+        // 内嵌输入框的情况
+        const inputs = blankQuestion.querySelectorAll('.blank-input');
+        inputs.forEach(input => {
+          userBlankAnswers.push(input.value.trim());
+        });
+      } else {
+        // 单独输入框的情况
+        const inputs = blanksInputContainer.querySelectorAll('input');
+        inputs.forEach(input => {
+          userBlankAnswers.push(input.value.trim());
+        });
+      }
+      
+      // 检查每个答案
+      for (let i = 0; i < userBlankAnswers.length; i++) {
+        const userAns = userBlankAnswers[i];
+        const correctAns = Array.isArray(correctAnswers) && i < correctAnswers.length
+          ? correctAnswers[i]
+          : correctAnswers[0];
+        
+        // 只有当用户输入了答案时才检查正确性
+        const isCorrect = userAns === '' ? false : correctAns && 
+                          (userAns.toLowerCase() === correctAns.toLowerCase());
+        
+        if (!isCorrect && userAns !== '') {
+          allCorrect = false;
+        }
+        
+        // 如果有内嵌输入框，更新其样式
+        if (blankQuestion.querySelectorAll('.blank-input').length > 0) {
+          const input = blankQuestion.querySelector(`.blank-input[data-index="${i}"]`);
+          if (input) {
+            // 只有当用户输入了答案时才添加正确/错误样式
+            if (userAns !== '') {
+              input.classList.add(isCorrect ? 'correct' : 'incorrect');
+            }
+            input.disabled = true;
+          }
+        } else {
+          // 单独输入框的情况
+          const input = blanksInputContainer.querySelector(`input[data-index="${i}"]`);
+          if (input) {
+            input.disabled = true;
+          }
+        }
+      }
+      
+      // 标记问题已回答
+      answeredQuestions[currentQuestionIndex] = true;
+      userAnswers[currentQuestionIndex] = userBlankAnswers;
+      
+      // 只有当用户填写了所有空格并且都正确时才增加分数
+      if (allCorrect && userBlankAnswers.every(ans => ans !== '')) {
+        score++;
+      }
+      
+      // 显示反馈（仅显示正确答案）
+      feedbackContent.innerHTML = `
+        <div class="mt-4 text-appleDarkGray">
+          <p class="font-medium">正确答案：</p>
+          <div class="mt-2 pl-4 border-l-2 border-mysqlBlue">
+            ${correctAnswers.map(ans => `<p>${ans}</p>`).join('')}
+          </div>
+        </div>
+      `;
+      
+      // 显示反馈
+      feedback.classList.remove('hidden');
+      
+      // 禁用检查按钮
+      checkBlanks.disabled = true;
+      
+      // 启用下一题按钮
+      nextBtn.disabled = false;
+      
+      // 更新进度
+      updateProgress();
+    }
+    
+    function showCorrectAnswers() {
+      // 无论是否填写答案，都显示正确答案
+      feedbackContent.innerHTML = `
+        <div class="text-mysqlBlue font-medium mb-2">
+          <i class="fa fa-info-circle mr-2"></i>
+          答案参考
+        </div>
+        <div class="mt-4 text-appleDarkGray">
+          <p class="font-medium">正确答案：</p>
+          <div class="mt-2 pl-4 border-l-2 border-mysqlBlue">
+            ${correctAnswers.map(ans => `<p>${ans}</p>`).join('')}
+          </div>
+        </div>
+      `;
+      
+      feedback.classList.remove('hidden');
+    }
+    
+    function handleNext() {
+      feedback.classList.add('hidden');
+      
+      if (currentQuestionIndex < currentQuestions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion();
+      } else {
+        showResults();
+      }
+    }
+  </script>
+</body>
+</html> 
