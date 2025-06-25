@@ -110,7 +110,7 @@
       </div>
 
       <!-- 计网模块 -->
-      <div class="ios-card" onclick="openNetworkVerifyModal()">
+      <div class="ios-card" onclick="openNetworkModal()">
         <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-4">
           <i class="fa fa-wifi text-purple-500 text-2xl"></i>
         </div>
@@ -249,28 +249,6 @@
         <button id="closeNetworkModal" class="ios-button w-full mt-auto">
           取消
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 计网内测码验证弹窗 -->
-  <div id="networkVerifyModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
-      <div class="p-6 text-center">
-        <div class="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i class="fa fa-lock text-purple-500 text-2xl"></i>
-        </div>
-        <h3 class="text-xl font-bold mb-2">计算机网络模块验证</h3>
-        <p class="text-appleDarkGray mb-4">请输入内测码以访问计算机网络模块</p>
-        <input type="text" id="networkTestCode" class="ios-input mb-6" placeholder="请输入内测码">
-        <div class="flex space-x-4">
-          <button id="cancelNetworkVerify" class="ios-button bg-appleDarkGray flex-1">
-            取消
-          </button>
-          <button id="confirmNetworkVerify" class="ios-button flex-1">
-            确认
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -423,9 +401,6 @@
         if (!computerOrganizationModal.classList.contains('opacity-0')) {
           closeComputerOrganizationModalFunc();
         }
-        if (!networkVerifyModal.classList.contains('opacity-0')) {
-          closeNetworkVerifyModal();
-        }
         if (!hadoopModal.classList.contains('opacity-0')) {
           closeHadoopModalFunc();
         }
@@ -535,75 +510,6 @@
     networkModal.addEventListener('click', (e) => {
       if (e.target === networkModal) {
         closeNetworkModalFunc();
-      }
-    });
-
-    // 计网内测码验证弹窗控制
-    const networkVerifyModal = document.getElementById('networkVerifyModal');
-    const networkTestCode = document.getElementById('networkTestCode');
-    const confirmNetworkVerify = document.getElementById('confirmNetworkVerify');
-    const cancelNetworkVerify = document.getElementById('cancelNetworkVerify');
-    
-    function openNetworkVerifyModal() {
-      // 显示内测码验证窗口
-      networkVerifyModal.classList.remove('opacity-0', 'pointer-events-none');
-      setTimeout(() => {
-        const modalContent = networkVerifyModal.querySelector('div');
-        modalContent.classList.remove('scale-95');
-        modalContent.classList.add('scale-100');
-        // 聚焦到输入框
-        networkTestCode.focus();
-      }, 10);
-    }
-    
-    // 验证内测码并打开计网模块
-    function verifyAndOpenNetwork() {
-      const testCode = networkTestCode.value;
-      if (testCode === "xiehuangtest") {
-        // 关闭验证窗口
-        closeNetworkVerifyModal();
-        // 打开计网模块窗口
-        networkModal.classList.remove('opacity-0', 'pointer-events-none');
-        setTimeout(() => {
-          const modalContent = networkModal.querySelector('div');
-          modalContent.classList.remove('scale-95');
-          modalContent.classList.add('scale-100');
-        }, 10);
-      } else {
-        alert("内测码不正确，无法访问计算机网络模块！");
-        networkTestCode.value = "";
-        networkTestCode.focus();
-      }
-    }
-    
-    // 关闭验证窗口
-    function closeNetworkVerifyModal() {
-      const modalContent = networkVerifyModal.querySelector('div');
-      modalContent.classList.remove('scale-100');
-      modalContent.classList.add('scale-95');
-      setTimeout(() => {
-        networkVerifyModal.classList.add('opacity-0', 'pointer-events-none');
-        networkTestCode.value = ""; // 清空输入框
-      }, 300);
-    }
-    
-    // 确认按钮点击事件
-    confirmNetworkVerify.addEventListener('click', verifyAndOpenNetwork);
-    
-    // 取消按钮点击事件
-    cancelNetworkVerify.addEventListener('click', closeNetworkVerifyModal);
-    
-    // 回车键提交
-    networkTestCode.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        verifyAndOpenNetwork();
-      }
-    });
-    
-    // 点击验证窗口外部关闭
-    networkVerifyModal.addEventListener('click', (e) => {
-      if (e.target === networkVerifyModal) {
-        closeNetworkVerifyModal();
       }
     });
 
