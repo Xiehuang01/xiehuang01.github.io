@@ -1109,7 +1109,7 @@
         "question": "12. SNMP的通信方式有两种，分别是_______和_______。",
         "answer": [
           "轮询",
-          "事件驱动"
+          "陷阱"
         ],
         "blank_count": 2
       },
@@ -1395,21 +1395,19 @@
       // 使用当前的题目集合，而不是总是使用originalQuestions
       const questionsToCheck = currentQuestions;
       
-      if (quizType === '选择题') {
-        for (let i = 0; i < questionsToCheck.length; i++) {
-          // 如果用户回答了这道题且答错了
-          if (answeredQuestions[i]) {
+      for (let i = 0; i < questionsToCheck.length; i++) {
+        // 如果用户回答了这道题
+        if (answeredQuestions[i]) {
+          // 根据题目是否有options属性来判断题型
+          if (questionsToCheck[i].options) {
+            // 选择题判断逻辑
             const correctIndex = ['A', 'B', 'C', 'D', 'E', 'F'].indexOf(questionsToCheck[i].answer);
             if (userAnswers[i] !== correctIndex) {
               wrongQuestions.push(questionsToCheck[i]);
               wrongIndices.push(i);
             }
-          }
-        }
-      } else if (quizType === '填空题') {
-        for (let i = 0; i < questionsToCheck.length; i++) {
-          // 如果用户回答了这道题
-          if (answeredQuestions[i]) {
+          } else {
+            // 填空题判断逻辑
             const userAns = userAnswers[i];
             const correctAns = Array.isArray(questionsToCheck[i].answer) ? 
                                questionsToCheck[i].answer : 
