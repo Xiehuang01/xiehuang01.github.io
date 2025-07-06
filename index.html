@@ -117,6 +117,15 @@
         <h3 class="text-lg font-semibold mb-2">计算机网络</h3>
         <p class="text-appleDarkGray text-sm">网络体系结构与通信协议原理</p>
       </div>
+
+      <!-- 复习题库模块 -->
+      <div class="ios-card" onclick="openSponsorModal()">
+        <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4">
+          <i class="fa fa-book text-red-500 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">赞助</h3>
+        <p class="text-appleDarkGray text-sm">毛概复习内容</p>
+      </div>
     </section>
   </main>
 
@@ -327,6 +336,86 @@
     </div>
   </div>
 
+  <!-- 赞助弹窗 -->
+  <div id="sponsorModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col">
+      <div class="p-6 overflow-hidden flex flex-col">
+        <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-book text-red-500 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-4 text-center">选择复习章节</h3>
+        <div class="space-y-4 mb-6 overflow-y-auto pr-2">
+          <button onclick="openChapterModal('第一章')" class="w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-bookmark text-xl mr-3"></i>
+              <span class="font-medium">第一章</span>
+            </div>
+          </button>
+          <button onclick="openChapterModal('第二章')" class="w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-bookmark text-xl mr-3"></i>
+              <span class="font-medium">第二章</span>
+            </div>
+          </button>
+          <button onclick="openChapterModal('第三章')" class="w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-bookmark text-xl mr-3"></i>
+              <span class="font-medium">第三章</span>
+            </div>
+          </button>
+          <button onclick="openChapterModal('第四章')" class="w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-bookmark text-xl mr-3"></i>
+              <span class="font-medium">第四章</span>
+            </div>
+          </button>
+          <button onclick="openChapterModal('第六章')" class="w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-bookmark text-xl mr-3"></i>
+              <span class="font-medium">第六章</span>
+            </div>
+          </button>
+          <button onclick="openChapterModal('第七章')" class="w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-bookmark text-xl mr-3"></i>
+              <span class="font-medium">第七章</span>
+            </div>
+          </button>
+          <button onclick="openChapterModal('第八章')" class="w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-bookmark text-xl mr-3"></i>
+              <span class="font-medium">第八章</span>
+            </div>
+          </button>
+          <button onclick="openChapterModal('模拟练习')" class="w-full py-4 px-6 bg-green-500/10 text-green-500 rounded-xl hover:bg-green-500/20 transition-colors">
+            <div class="flex items-center">
+              <i class="fa fa-random text-xl mr-3"></i>
+              <span class="font-medium">模拟练习</span>
+            </div>
+          </button>
+        </div>
+        <button id="closeSponsorModal" class="ios-button w-full mt-auto">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 章节题型选择弹窗 -->
+  <div id="chapterModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl ios-shadow w-[90%] max-w-md transform scale-95 transition-transform duration-300">
+      <div class="p-6">
+        <h3 id="chapterTitle" class="text-xl font-bold mb-4 text-center">选择题目类型</h3>
+        <div id="chapterOptions" class="space-y-4 mb-6">
+          <!-- 这里的选项将通过JavaScript动态生成 -->
+        </div>
+        <button id="closeChapterModal" class="ios-button w-full">
+          返回
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 弹窗控制
     const modal = document.getElementById('modal');
@@ -409,6 +498,12 @@
         }
         if (!networkModal.classList.contains('opacity-0')) {
           closeNetworkModalFunc();
+        }
+        if (!sponsorModal.classList.contains('opacity-0')) {
+          closeSponsorModalFunc();
+        }
+        if (!chapterModal.classList.contains('opacity-0')) {
+          closeChapterModalFunc();
         }
       }
     });
@@ -541,6 +636,125 @@
     hadoopModal.addEventListener('click', (e) => {
       if (e.target === hadoopModal) {
         closeHadoopModalFunc();
+      }
+    });
+
+    // 赞助模态框控制
+    const sponsorModal = document.getElementById('sponsorModal');
+    const closeSponsorModal = document.getElementById('closeSponsorModal');
+    
+    function openSponsorModal() {
+      sponsorModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = sponsorModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+    
+    function closeSponsorModalFunc() {
+      const modalContent = sponsorModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        sponsorModal.classList.add('opacity-0', 'pointer-events-none');
+      }, 300);
+    }
+    
+    closeSponsorModal.addEventListener('click', closeSponsorModalFunc);
+    
+    // 点击赞助模态框外部关闭
+    sponsorModal.addEventListener('click', (e) => {
+      if (e.target === sponsorModal) {
+        closeSponsorModalFunc();
+      }
+    });
+
+    // 章节题型选择模态框控制
+    const chapterModal = document.getElementById('chapterModal');
+    const chapterTitle = document.getElementById('chapterTitle');
+    const chapterOptions = document.getElementById('chapterOptions');
+    const closeChapterModal = document.getElementById('closeChapterModal');
+    let currentChapter = '';
+    
+    function openChapterModal(chapter) {
+      currentChapter = chapter;
+      chapterTitle.textContent = `${chapter} - 选择题型`;
+      
+      // 清空选项
+      chapterOptions.innerHTML = '';
+      
+      // 添加单选题选项
+      const singleChoiceBtn = document.createElement('button');
+      singleChoiceBtn.className = 'w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors';
+      singleChoiceBtn.innerHTML = `
+        <div class="flex items-center">
+          <i class="fa fa-circle-o text-xl mr-3"></i>
+          <span class="font-medium">单选题</span>
+        </div>
+      `;
+      singleChoiceBtn.onclick = () => {
+        window.location.href = `review-quiz.html?chapter=${encodeURIComponent(chapter)}&type=单选题`;
+      };
+      chapterOptions.appendChild(singleChoiceBtn);
+      
+      // 添加多选题选项
+      const multiChoiceBtn = document.createElement('button');
+      multiChoiceBtn.className = 'w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors';
+      multiChoiceBtn.innerHTML = `
+        <div class="flex items-center">
+          <i class="fa fa-check-square-o text-xl mr-3"></i>
+          <span class="font-medium">多选题</span>
+        </div>
+      `;
+      multiChoiceBtn.onclick = () => {
+        window.location.href = `review-quiz.html?chapter=${encodeURIComponent(chapter)}&type=多选题`;
+      };
+      chapterOptions.appendChild(multiChoiceBtn);
+      
+      // 如果不是第四章和模拟练习，添加判断题选项
+      if (chapter !== '第四章' && chapter !== '模拟练习') {
+        const judgmentBtn = document.createElement('button');
+        judgmentBtn.className = 'w-full py-4 px-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 transition-colors';
+        judgmentBtn.innerHTML = `
+          <div class="flex items-center">
+            <i class="fa fa-question-circle-o text-xl mr-3"></i>
+            <span class="font-medium">判断题</span>
+          </div>
+        `;
+        judgmentBtn.onclick = () => {
+          window.location.href = `review-quiz.html?chapter=${encodeURIComponent(chapter)}&type=判断题`;
+        };
+        chapterOptions.appendChild(judgmentBtn);
+      }
+      
+      // 显示弹窗
+      sponsorModal.classList.add('opacity-0', 'pointer-events-none');
+      chapterModal.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        const modalContent = chapterModal.querySelector('div');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      }, 10);
+    }
+    
+    function closeChapterModalFunc() {
+      const modalContent = chapterModal.querySelector('div');
+      modalContent.classList.remove('scale-100');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        chapterModal.classList.add('opacity-0', 'pointer-events-none');
+        // 重新打开章节选择弹窗
+        openSponsorModal();
+      }, 300);
+    }
+    
+    closeChapterModal.addEventListener('click', closeChapterModalFunc);
+    
+    // 点击章节题型选择模态框外部关闭
+    chapterModal.addEventListener('click', (e) => {
+      if (e.target === chapterModal) {
+        closeChapterModalFunc();
       }
     });
   </script>
