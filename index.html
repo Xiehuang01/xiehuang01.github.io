@@ -123,8 +123,8 @@
         <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4">
           <i class="fa fa-book text-red-500 text-2xl"></i>
         </div>
-        <h3 class="text-lg font-semibold mb-2">赞助</h3>
-        <p class="text-appleDarkGray text-sm">毛概复习内容</p>
+        <h3 class="text-lg font-semibold mb-2">复习题库</h3>
+        <p class="text-appleDarkGray text-sm">按章节进行系统复习</p>
       </div>
     </section>
   </main>
@@ -680,6 +680,12 @@
     function openChapterModal(chapter) {
       currentChapter = chapter;
       chapterTitle.textContent = `${chapter} - 选择题型`;
+      
+      // 如果是模拟练习，直接跳转到答题页面
+      if (chapter === '模拟练习') {
+        window.location.href = `review-quiz.html?chapter=${encodeURIComponent(chapter)}`;
+        return;
+      }
       
       // 清空选项
       chapterOptions.innerHTML = '';

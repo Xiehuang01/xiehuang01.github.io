@@ -471,7 +471,7 @@
     "options": [
       "A. 马克思列宁主义                    ",
       "B. 毛泽东思想、邓小平理论 ",
-      "C. \"三个代表\"重要思想、科学发展观   ",
+      "C.\"三个代表\"重要思想、科学发展观   ",
       "D. 习近平新时代中国特色社会主义思想"
     ],
     "answer": [
@@ -2856,7 +2856,7 @@
     ]
   },
   {
-    "question": "8. \"三步走\"的发展战略具有重要的历史意义，这表现为（    ）",
+    "question": "8.\"三步走\"的发展战略具有重要的历史意义，这表现为（    ）",
     "options": [
       "A. 把我国社会主义现代化建设的目标具体化为切实可行的步骤",
       "B. 展现了美好的前景            ",
@@ -3752,73 +3752,136 @@
     // 初始化
     function init() {
       try {
-        // 根据章节和题型加载对应数据
-        if (!quizDatabase[chapter]) {
-          throw new Error(`没有找到${chapter}的题库数据`);
+        // 处理模拟练习模式
+        if (chapter === '模拟练习') {
+          setupMockExam();
+        } else {
+          // 从题库中获取指定章节和题型的题目
+          if (quizDatabase[chapter] && quizDatabase[chapter][questionType]) {
+            quizData = [...quizDatabase[chapter][questionType]];
+            // 随机打乱题目顺序
+            // quizData.sort(() => Math.random() - 0.5);
+          } else {
+            throw new Error(`没有找到${chapter}的${questionType}题目`);
+          }
         }
         
-        if (!quizDatabase[chapter][questionType]) {
-          throw new Error(`${chapter}没有${questionType}的题库数据`);
-        }
-        
-        // 设置题目数据
-        quizData = quizDatabase[chapter][questionType];
-        
-        // 检查数据是否存在
-        if (quizData.length === 0) {
-          throw new Error(`${chapter}的${questionType}数据为空`);
-        }
-        
+        // 初始化答题状态
         originalQuizData = [...quizData];
-        
-        // 初始化用户答案和答题状态
         userAnswers = new Array(quizData.length).fill(null);
         answeredQuestions = new Array(quizData.length).fill(false);
-        
-        // 根据题型设置标签和图标
-        if (questionType === '单选题') {
-          questionTypeIcon.className = 'fa fa-circle-o text-themeRed';
-          questionTypeLabel.textContent = '请选择正确的选项：';
-        } else if (questionType === '多选题') {
-          questionTypeIcon.className = 'fa fa-check-square-o text-themeRed';
-          questionTypeLabel.textContent = '请选择所有正确的选项：';
-        } else if (questionType === '判断题') {
-          questionTypeIcon.className = 'fa fa-question-circle-o text-themeRed';
-          questionTypeLabel.textContent = '请判断下列说法是否正确：';
-        }
         
         // 更新UI
         totalQuestions.textContent = quizData.length;
         totalCount.textContent = quizData.length;
         totalScore.textContent = quizData.length;
         
+        // 隐藏加载提示
+        loadingElement.classList.add('hidden');
+        
+        // 显示答题界面
+        quizContainer.classList.remove('hidden');
+        
         // 加载第一题
         loadQuestion(0);
-        updateProgress();
-        
-        // 隐藏加载提示，显示答题区域
-        loadingElement.classList.add('hidden');
-        quizContainer.classList.remove('hidden');
       } catch (error) {
-        // 显示错误信息
+        console.error('初始化答题失败：', error);
         loadingElement.classList.add('hidden');
         errorContainer.classList.remove('hidden');
-        errorMessage.textContent = error.message;
+        errorMessage.textContent = error.message || '无法加载题目，请稍后再试。';
       }
     }
     
-    // 加载问题
-    function loadQuestion(index) {
-      const question = quizData[index];
-      questionCounter.textContent = index + 1;
+    // 设置模拟练习
+    function setupMockExam() {
+      let mockExamQuestions = [];
       
-      // 显示问题
+      // 单选题: 第一章、第二章、第三章、第四章、第六章、第七章、第八章各5题
+      const singleChoiceChapters = ['第一章', '第二章', '第三章', '第四章', '第六章', '第七章', '第八章'];
+      const singleChoiceCount = 5;
+      
+      for (const chap of singleChoiceChapters) {
+        if (quizDatabase[chap] && quizDatabase[chap]['单选题']) {
+          const questions = [...quizDatabase[chap]['单选题']];
+          questions.sort(() => Math.random() - 0.5); // 随机打乱
+          mockExamQuestions = [...mockExamQuestions, ...questions.slice(0, singleChoiceCount)];
+        }
+      }
+      
+      // 多选题: 第一章、第二章、第三章、第四章、第六章、第七章、第八章各2题
+      const multiChoiceChapters = ['第一章', '第二章', '第三章', '第四章', '第六章', '第七章', '第八章'];
+      const multiChoiceCount = 2;
+      
+      let multiChoiceQuestions = [];
+      for (const chap of multiChoiceChapters) {
+        if (quizDatabase[chap] && quizDatabase[chap]['多选题']) {
+          const questions = [...quizDatabase[chap]['多选题']];
+          questions.sort(() => Math.random() - 0.5); // 随机打乱
+          multiChoiceQuestions = [...multiChoiceQuestions, ...questions.slice(0, multiChoiceCount)];
+        }
+      }
+      
+      // 判断题: 第一章、第二章、第三章、第六章、第七章、第八章各2题
+      const judgmentChapters = ['第一章', '第二章', '第三章', '第六章', '第七章', '第八章'];
+      const judgmentCount = 2;
+      
+      let judgmentQuestions = [];
+      for (const chap of judgmentChapters) {
+        if (quizDatabase[chap] && quizDatabase[chap]['判断题']) {
+          const questions = [...quizDatabase[chap]['判断题']];
+          questions.sort(() => Math.random() - 0.5); // 随机打乱
+          judgmentQuestions = [...judgmentQuestions, ...questions.slice(0, judgmentCount)];
+        }
+      }
+      
+      // 按顺序组合所有题目：先单选，再多选，最后判断题
+      quizData = [...mockExamQuestions, ...multiChoiceQuestions, ...judgmentQuestions];
+      
+      // 设置类型标识，方便显示正确的选项界面
+      mockExamQuestions.forEach(q => q.questionType = '单选题');
+      multiChoiceQuestions.forEach(q => q.questionType = '多选题');
+      judgmentQuestions.forEach(q => q.questionType = '判断题');
+      
+      // 更新页面标题
+      pageTitle.textContent = '复习题库 - 模拟练习';
+      chapterTitle.textContent = '模拟练习';
+    }
+    
+    // 加载题目
+    function loadQuestion(index) {
+      currentQuestionIndex = index;
+      const question = quizData[index];
+      
+      // 更新问题计数
+      document.getElementById('current-question').textContent = index + 1;
+      document.getElementById('total-questions').textContent = quizData.length;
+      
+      // 设置问题文本
       questionText.textContent = question.question;
       
       // 清空选项容器
       optionsContainer.innerHTML = '';
       
-      if (questionType === '单选题') {
+      // 确定当前题目类型（针对模拟练习模式）
+      let currentQuestionType = questionType;
+      if (chapter === '模拟练习' && question.questionType) {
+        currentQuestionType = question.questionType;
+        
+        // 根据题型设置图标和标签
+        if (currentQuestionType === '单选题') {
+          questionTypeIcon.className = 'fa fa-circle-o text-themeRed';
+          questionTypeLabel.textContent = '请选择正确的选项：';
+        } else if (currentQuestionType === '多选题') {
+          questionTypeIcon.className = 'fa fa-check-square-o text-themeRed';
+          questionTypeLabel.textContent = '请选择所有正确的选项：';
+        } else if (currentQuestionType === '判断题') {
+          questionTypeIcon.className = 'fa fa-question-circle-o text-themeRed';
+          questionTypeLabel.textContent = '请判断下列说法是否正确：';
+        }
+      }
+      
+      // 根据题型创建选项
+      if (currentQuestionType === '单选题') {
         // 创建单选题选项
         question.options.forEach((option, i) => {
           const optionElement = document.createElement('div');
@@ -3848,7 +3911,7 @@
           
           optionsContainer.appendChild(optionElement);
         });
-      } else if (questionType === '多选题') {
+      } else if (currentQuestionType === '多选题') {
         // 创建多选题选项
         question.options.forEach((option, i) => {
           const optionElement = document.createElement('div');
@@ -3856,52 +3919,50 @@
           
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
-          checkbox.className = 'mr-3 h-5 w-5 rounded border-gray-300 text-themeRed focus:ring-themeRed';
-          checkbox.dataset.index = i;
+          checkbox.id = `option-${i}`;
+          checkbox.className = 'mr-2';
           
-          const label = document.createElement('span');
+          const label = document.createElement('label');
+          label.htmlFor = `option-${i}`;
+          label.className = 'flex-grow';
           label.textContent = option;
-          label.className = 'flex-1';
           
           optionElement.appendChild(checkbox);
           optionElement.appendChild(label);
           
           // 如果用户已经回答过这个问题，显示答案状态
-          if (answeredQuestions[index] && userAnswers[index]) {
+          if (answeredQuestions[index]) {
             const correctAnswers = question.answer;
+            const letterOption = ['A', 'B', 'C', 'D', 'E', 'F'][i];
             
-            if (correctAnswers.includes(['A', 'B', 'C', 'D', 'E', 'F'][i])) {
+            if (correctAnswers.includes(letterOption)) {
               optionElement.classList.add('correct');
             }
             
-            if (userAnswers[index].includes(i) && !correctAnswers.includes(['A', 'B', 'C', 'D', 'E', 'F'][i])) {
-              optionElement.classList.add('incorrect');
-            }
-            
-            if (userAnswers[index].includes(i)) {
+            if (userAnswers[index] && userAnswers[index].includes(i)) {
               checkbox.checked = true;
+              
+              if (!correctAnswers.includes(letterOption)) {
+                optionElement.classList.add('incorrect');
+              }
             }
             
+            // 禁用复选框
             checkbox.disabled = true;
-          } else {
-            // 添加点击事件
-            checkbox.addEventListener('change', () => {
-              nextBtn.disabled = false;
-            });
           }
           
           optionsContainer.appendChild(optionElement);
         });
         
-        // 添加提交按钮
+        // 如果用户尚未回答，添加提交按钮
         if (!answeredQuestions[index]) {
           const submitBtn = document.createElement('button');
-          submitBtn.className = 'ios-button w-full mt-4';
+          submitBtn.className = 'ios-button mt-4';
           submitBtn.textContent = '提交答案';
           submitBtn.addEventListener('click', submitMultipleChoice);
           optionsContainer.appendChild(submitBtn);
         }
-      } else if (questionType === '判断题') {
+      } else if (currentQuestionType === '判断题') {
         // 创建判断题选项
         const options = ['对', '错'];
         options.forEach((option, i) => {
